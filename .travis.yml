@@ -14,8 +14,8 @@ addons:
 before_script:
   # install travis-cargo script
   - |
-    pip install 'travis-cargo<0.2' --user &&
-    export PATH=$HOME/.local/bin:$PATH
+      pip install 'travis-cargo<0.2' --user &&
+      export PATH=$HOME/.local/bin:$PATH
 
 script:
   - travis-cargo build
@@ -23,7 +23,7 @@ script:
   - |
       travis-cargo test &&
       cargo test -p mnemosyne &&
-      cargo test -p parser
+      cargo test -p mnemosyne-parser
   # run benchmarks (pending)
   - travis-cargo bench
 
