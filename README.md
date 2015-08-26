@@ -1,6 +1,10 @@
 Mnemosyne
 =========
 
+[![Travis build status](https://img.shields.io/travis/hawkw/mnemosyne.svg?style=flat-square)]()
+[![GitHub license](https://img.shields.io/github/license/hawkw/mnemosyne.svg?style=flat-square)]()
+[![GitHub release](https://img.shields.io/github/release/hawkw/mnemosyne.svg?style=flat-square)]()
+
 A functional systems programming language with compile-time memory management.
 
 This repository contains `mnemosyne`, the Mnemosyne compiler implemented as a library, and Manganese (`mn`), a command-line application for compiling Mnemosyne programs. These codebases are separated so that the Mnemosyne compiler can be embedded in other applications.
