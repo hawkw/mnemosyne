@@ -26,16 +26,24 @@ pub struct LLVMContext {
     pub llmod: ModuleRef
 }
 
+// because we are in the Raw Pointer Sadness Zone (read: unsafe),
+// it is necessary that we assert that everything exists.
+macro_rules! not_null {
+    ($target:expr) => {
+        if $target.is_null() {
+            panic!("assertion failed: {} was null!", stringify!($target));
+        }
+    }
+}
+
 impl LLVMContext {
     pub fn new(module_name: &str) -> Self {
         let name = CString::new(module_name).unwrap();
         unsafe {
             let c = llvm::LLVMContextCreate();
-            assert!(c.is_null() == false,
-                "Could not create LLVM context, ContextRef was null.");
-            let m = llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), c);
-            assert!(m.is_null() == false,
-                "Could not create LLVM context, ModuleRef was null.");
+            not_null!(c);
+            let m = llvm::LLVMModuleCreateWithNameInContext(name.into_raw(),c);
+            not_null!(m);
             LLVMContext { llctx: c, llmod: m }
         }
     }
