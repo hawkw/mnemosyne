@@ -5,14 +5,14 @@ use combine::primitives::SourcePosition;
 /// Struct representing a position within a source code file
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Position {
-    pub col: isize,
-    pub row: isize,
-    pub raw: isize
+    pub col: i32,
+    pub row: i32,
+    pub raw: i32
 }
 
 impl Position {
 
-    fn new(col: isize, row: isize) -> Self {
+    fn new(col: i32, row: i32) -> Self {
         Position { col: col
                  , row: row
                  , raw: col + row
@@ -39,8 +39,8 @@ pub struct Positional<T> {
     pub value: T
 }
 
-impl Positional {
-    fn at<T>(col: isize, row: isize, value: T) -> Positional<T> {
+impl<T> Positional<T> {
+    fn at(col: i32, row: i32, value: T) -> Positional<T> {
         Positional { pos: Position::new(col, row)
                    , value: value }
     }
@@ -69,7 +69,7 @@ impl<T> Deref for Positional<T> {
 }
 
 impl<T> DerefMut for Positional<T> {
-    fn deref_mut(&self) -> &mut T {
+    fn deref_mut(&mut self) -> &mut T {
         &mut self.value
     }
 }
