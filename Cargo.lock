@@ -1,0 +1,18 @@
+[root]
+name = "mn"
+version = "0.1.0"
+dependencies = [
+ "mnemosyne-parser 0.1.0",
+]
+
+[[package]]
+name = "mnemosyne"
+version = "0.1.0"
+
+[[package]]
+name = "mnemosyne-parser"
+version = "0.1.0"
+dependencies = [
+ "mnemosyne 0.1.0",
+]
+
