@@ -11,7 +11,7 @@ This repository contains `mnemosyne`, the Mnemosyne compiler implemented as a li
 
 **Note**: Mnemosyne is currently highly experimental and in the early phases of development. Input and feedback from users is welcomed at all stages during the design and implementation process. However, please note that as Mnemosyne continues to grow and evolve, no guarantees are made of stability or backwards compatibility. Until the release of v1.0 of Mnemosyne, code may break or change in behaviour with little or no warning.
 
-Mnemosyne is being developed and implemented by [Hawk Weisman](http://hawkweisman.me) as senior thesis research at Allegeny College.
+Mnemosyne is being developed and implemented by [Hawk Weisman](http://hawkweisman.me) as [senior thesis research](https://github.com/hawkw/senior-thesis) at Allegheny College.
 
 Instructions
 ------------
