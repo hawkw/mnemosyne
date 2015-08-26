@@ -1,39 +1,55 @@
 sudo: false
 language: rust
+# build only against nightly Rust
 rust: nightly
 
-# necessary for `travis-cargo coveralls --no-sudo`
 addons:
   apt:
     packages:
+    # Necessary for travis-cargo coverage reporting
       - libcurl4-openssl-dev
       - libelf-dev
       - libdw-dev
 
-# load travis-cargo
 before_script:
+  # install travis-cargo script
   - |
-      pip install 'travis-cargo<0.2' --user &&
-      export PATH=$HOME/.local/bin:$PATH
+    pip install 'travis-cargo<0.2' --user &&
+    export PATH=$HOME/.local/bin:$PATH
 
-# the main build
 script:
-  - travis-cargo build &&
+  - travis-cargo build
+  # test main and subcrates
   - |
       travis-cargo test &&
       travis-cargo test -p mnemosyne &&
       travis-cargo test -p parser
+  # run benchmarks (pending)
   - travis-cargo bench
-  - travis-cargo doc
 
 after_success:
-  # upload the documentation (automatically only actually
-  # runs on the master branch, not individual PRs)
-  - travis-cargo doc-upload
-  # measure code coverage and upload to coveralls.io
+  # report test coverage to coveralls.io
   - travis-cargo coveralls --no-sudo
+
+# triggers only on deploy (tagged commit)
+before_deploy:
+  # generate and upload Rustdoc to GitHub releases
+  - travis-cargo doc && travis-cargo doc-upload
+  # Build the release (optimized) Manganese executable
+  - travis-cargo build -- --release
+deploy:
+  provider: releases
+  api_key:
+    secure: XBpVoJJ2XXk4yrjk5n2KrZEqgsnhv2LofQad36jiy+ex5hym/vN7GIxbfwZNxGwwADvWJV2J9kA4yDm1DpWfswAVKXmGM9CKmmlYB19jrOQ/a6eOfvUtX3Lb6CkZTdczpR8xu5j5k0gNUH2s5kCs2+IcRVN2iKwe1AidfYbNyEEwixMEjzVC29dXuPD7edksWc/puZjeleq6UBwPTi9UyjddlIxtgeKXb+eaPhQ0liyl4V4tg54WCwM96w0TJf4/hIE32LapliGU2nwyAlq6GSOe/3VA9ga/3KkETPF+jvfObC4KN23ivl+1D9AvKRODYVpHuJJY+N3P8NoX/Ylhp+G0n590Ew+7v0iQv2CtBrU+JDY5o0y89xhX8L3vZYtIHTy+8EhoJP8vpCLt69qRMX1aZutd2mxxvQThLQztuxgxKXMc4t6lEyhjBMWVZqxKT159u+8/PLJVUF9mLuZ7QaAYq6EZ9a3Zxkj7YjGJq62qqV6k49Z3pSMHd7xefvPm3tcNbVSeLepm1IMTFscx05Iio0rS0hoQUQBzVeTziwzpHTEXwlqAO//mbfQBC+aY9oRKc8BEimAm07CbSSjSoNaCReY6N1g8vyx++ziNcTYoJatxt5uv9C2rzdnCRLskGM4dIjANcvQ4YYf82S1B/ZkahB4WZrWa9QU+ihqzcTY=
+  file: target/release/mn
+  on:
+    repo: hawkw/mnemosyne
+    # release only on Git tags
+    tags: true
 
 env:
   global:
-    # don't pass unstable Cargo feature
+    # Don't export a nightly feature flag to Cargo
+    # (since we're currently building against nightly only)
     - TRAVIS_CARGO_NIGHTLY_FEATURE=""
+    - secure: irv+bqxTUDhYjoEsFhAujf76MuzGUnbOTLCbyeUSfM28OQPqVNkp136MAIB9gz+OexD+UOeDP/CaobSUl5i/+22Utq/F93YQ8oBmRNFVHAhdE87NY0LxQwDlKPQhUQ+/R1Cv3adCR0++Tqmdd/PczCYHWsmF5ZNqA35g2590aTw9TTIjWTvhj1uknx3TBjag6t47hmO5uFjtaYvI7uOMN6e+Cs7f1Bi1vMd0MT7MQHkjw9h3E6mM4hScY3otWicaGCSzQ2yNuSIMDf1gj+YmWbvE3s7z1EsSQ20/e+Q7/P02yAoqq1Z6zURPpfZvINgbgQeVXv0sFocExnrG9raA+sbtFvyhBJzB2uLKNa1JJ4+dEPfd7yWndT/4zZTUYDNc40nu5GVgqgF/YSs4JhGDOD9FMXx9tjgFYvilx22txwPP7TP7cbQq8fulCDWvYy71VjsVWl0bZAm94uHbobhuq+X0jwio4C76t04ybkIgGfhsc0xD+ZMiRyxI3knNZ/pBwGFnqjsOkLc3ra3mhlSZtycCz/GUhwFmitrMqUos5BRnfRPfDjCsHZS6Vag85wO31Kp/aWaSHZkyFDqQMm3OfC4etGjfS7LyQOdNZUBs242WkHB42yNuUiPDyx2aefRM7jyZAD7yewPuXwLTnx6p/LjKCMLtZvdATR8aMtOyraU=
