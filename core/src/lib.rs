@@ -1,6 +1,7 @@
 #![crate_name = "mnemosyne"]
 #![crate_type = "lib"]
 #![feature(rustc_private)]
+#![feature(cstr_memory)]
 
 extern crate rustc;
 extern crate combine;
@@ -8,9 +9,10 @@ extern crate combine;
 pub mod position;
 pub mod ast;
 
+use std::ffi::CString;
+
 use rustc::lib::llvm;
 use rustc::lib::llvm::{ ContextRef
-                      , BuilderRef
                       , ModuleRef
                       , ValueRef
                   };
@@ -18,6 +20,11 @@ use rustc::lib::llvm::{ ContextRef
 use position::Positional;
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
+
+/// Trait for an object that can be compiled to LLVM IR
+pub trait ToIR {
+    fn to_ir(&self) -> IRResult;
+}
 
 /// LLVM compilation context.
 ///
@@ -32,10 +39,14 @@ pub struct LLVMContext {
 
 impl LLVMContext {
     pub fn new(module_name: &str) -> Self {
+        let name = CString::new(module_name).unwrap();
         unsafe {
-            let name = module_name.to_c_str().as_ptr();
             let c = llvm::LLVMContextCreate();
-            let m = llvm::LLVMModuleCreateWithNameInContext(c, name);
+            assert!(c.is_null() == false,
+                "Could not create LLVM context, ContextRef was null.");
+            let m = llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), c);
+            assert!(m.is_null() == false,
+                "Could not create LLVM context, ModuleRef was null.");
             LLVMContext { llctx: c, llmod: m }
         }
     }
