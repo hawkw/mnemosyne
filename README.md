@@ -1,9 +1,9 @@
 Mnemosyne
 =========
 
-[![Travis build status](https://img.shields.io/travis/hawkw/mnemosyne.svg?style=flat-square)]()
-[![GitHub license](https://img.shields.io/github/license/hawkw/mnemosyne.svg?style=flat-square)]()
-[![GitHub release](https://img.shields.io/github/release/hawkw/mnemosyne.svg?style=flat-square)]()
+[![Travis build status](https://img.shields.io/travis/hawkw/mnemosyne.svg?style=flat-square)](https://travis-ci.org/hawkw/mnemosyne)
+[![GitHub license](https://img.shields.io/github/license/hawkw/mnemosyne.svg?style=flat-square)](https://github.com/hawkw/mnemosyne/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/release/hawkw/mnemosyne.svg?style=flat-square)](https://github.com/hawkw/mnemosyne/releases)
 
 A functional systems programming language with compile-time memory management.
 
