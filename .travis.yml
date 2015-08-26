@@ -22,8 +22,8 @@ script:
   # test main and subcrates
   - |
       travis-cargo test &&
-      travis-cargo test -p mnemosyne &&
-      travis-cargo test -p parser
+      cargo test -p mnemosyne &&
+      cargo test -p parser
   # run benchmarks (pending)
   - travis-cargo bench
 
