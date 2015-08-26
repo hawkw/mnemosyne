@@ -1,0 +1,39 @@
+sudo: false
+language: rust
+rust: nightly
+
+# necessary for `travis-cargo coveralls --no-sudo`
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+
+# load travis-cargo
+before_script:
+  - |
+      pip install 'travis-cargo<0.2' --user &&
+      export PATH=$HOME/.local/bin:$PATH
+
+# the main build
+script:
+  - travis-cargo build &&
+  - |
+      travis-cargo test &&
+      travis-cargo test -p mnemosyne &&
+      travis-cargo test -p parser
+  - travis-cargo bench
+  - travis-cargo doc
+
+after_success:
+  # upload the documentation (automatically only actually
+  # runs on the master branch, not individual PRs)
+  - travis-cargo doc-upload
+  # measure code coverage and upload to coveralls.io
+  - travis-cargo coveralls --no-sudo
+
+env:
+  global:
+    # don't pass unstable Cargo feature
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
