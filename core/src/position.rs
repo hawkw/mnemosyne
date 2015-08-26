@@ -69,7 +69,7 @@ impl<T> Deref for Positional<T> {
 }
 
 impl<T> DerefMut for Positional<T> {
-    fn deref(&self) -> &mut T {
+    fn deref_mut(&self) -> &mut T {
         &mut self.value
     }
 }
