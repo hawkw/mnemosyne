@@ -30,6 +30,8 @@ script:
 after_success:
   # report test coverage to coveralls.io
   - travis-cargo coveralls --no-sudo
+  # report coverage to codecov.io
+  - bash <(curl https://codecov.io/bash)
 
 # triggers only on deploy (tagged commit)
 before_deploy:
@@ -53,7 +55,7 @@ env:
     # (since we're currently building against nightly only)
     - TRAVIS_CARGO_NIGHTLY_FEATURE=""
     - secure: irv+bqxTUDhYjoEsFhAujf76MuzGUnbOTLCbyeUSfM28OQPqVNkp136MAIB9gz+OexD+UOeDP/CaobSUl5i/+22Utq/F93YQ8oBmRNFVHAhdE87NY0LxQwDlKPQhUQ+/R1Cv3adCR0++Tqmdd/PczCYHWsmF5ZNqA35g2590aTw9TTIjWTvhj1uknx3TBjag6t47hmO5uFjtaYvI7uOMN6e+Cs7f1Bi1vMd0MT7MQHkjw9h3E6mM4hScY3otWicaGCSzQ2yNuSIMDf1gj+YmWbvE3s7z1EsSQ20/e+Q7/P02yAoqq1Z6zURPpfZvINgbgQeVXv0sFocExnrG9raA+sbtFvyhBJzB2uLKNa1JJ4+dEPfd7yWndT/4zZTUYDNc40nu5GVgqgF/YSs4JhGDOD9FMXx9tjgFYvilx22txwPP7TP7cbQq8fulCDWvYy71VjsVWl0bZAm94uHbobhuq+X0jwio4C76t04ybkIgGfhsc0xD+ZMiRyxI3knNZ/pBwGFnqjsOkLc3ra3mhlSZtycCz/GUhwFmitrMqUos5BRnfRPfDjCsHZS6Vag85wO31Kp/aWaSHZkyFDqQMm3OfC4etGjfS7LyQOdNZUBs242WkHB42yNuUiPDyx2aefRM7jyZAD7yewPuXwLTnx6p/LjKCMLtZvdATR8aMtOyraU=
-    
+
 notifications:
   slack:
     secure: mrlFRtLb4nlX638iOiaeXU07mEz1LicgPaJ6o9zivwfS8N4NGlmCHxBrMgrFRlP7FCgb1suWOYHFwKnUw385PcZB9Moi3WjaaDsBrH8Ip+unHsW6n7PkcuHRIrlyaffH5hUaIt+gPBze4QZtonjDIB4TnvpmPWUbuAEzolQJvTfIp6est4LBnH84D85rzIAF3ItEwG+GWmCqkD/yjD+mLmkPsGUvYwrPx7Ymd9mfN0bCPsp4+TUeDTDBRzMNe6RGshlCj7UyhNpIiRml2LtDOZoTAsRxQreU3c+SDcB8n4vhCoR21bOKmM7Gu0dYAHQPRdMJ9emC7yILUbwGpORZuCwDHAwKHpmw1Kn3kQMC8JKTyz6To8aOTBKUee6CaEshI8iMAFuKUroF14AhFen0JYfFVI6YDa8ZemShKKF5L8Z2XwPgaedXoHOSyopCrqPsxO5TKwLGe9RWiE5+Jg8SONtiaswfYb5D9/RvLz25Gw51AGScpz+txdJfl9+JJ5OZVerKYf5MdA6XH2E4AOG3D1BSR4GpY80nBG6C3FbhaxVmnebtUMTguX+wXAnNVqu3hFy/vjYTVBEknoNEAbvbwrx4wLndxkjs4vuLJtWianClEIwn3AgshAn9QE0585lp2c4Mal9r8uVEZ6u3HcH2OE+GZT+5pZNBbwKSnuPSaqM=
