@@ -5,6 +5,7 @@
 
 extern crate rustc;
 extern crate combine;
+extern crate seax_util as seax;
 
 pub mod position;
 pub mod ast;
