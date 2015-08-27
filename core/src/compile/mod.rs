@@ -15,7 +15,7 @@ pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
 /// Trait for an object that can be compiled to LLVM IR
 pub trait ToIR {
-    fn to_ir(&self) -> IRResult;
+    fn to_ir(&self, context: LLVMContext) -> IRResult;
 }
 
 /// LLVM compilation context.
@@ -43,6 +43,7 @@ macro_rules! not_null {
 }
 
 impl<'a> LLVMContext<'a> {
+
     pub fn new(module_name: &str) -> Self {
         let name = CString::new(module_name).unwrap();
         unsafe {
@@ -54,6 +55,14 @@ impl<'a> LLVMContext<'a> {
               , names: SymbolTable::new()
             }
         }
+    }
+
+    /// Dump the module's contents to stderr for debugging
+    ///
+    /// Apparently this is the only reasonable way to get a textual
+    /// representation of a `ModuleRef` in `librustc_llvm`...
+    pub fn dump(&self) {
+        unsafe { llvm::LLVMDumpModule(self.llmod); }
     }
 }
 
