@@ -4,6 +4,7 @@ use rustc::lib::llvm;
 use rustc::lib::llvm::{ ContextRef
                       , ModuleRef
                       , ValueRef
+                      , BuilderRef
                   };
 use seax::compiler_tools::ForkTable;
 
@@ -26,6 +27,7 @@ pub trait ToIR {
 pub struct LLVMContext<'a> {
     pub llctx: ContextRef,
     pub llmod: ModuleRef,
+    pub llbuilder: BuilderRef,
     pub names: SymbolTable<'a>
 }
 
@@ -44,14 +46,13 @@ impl<'a> LLVMContext<'a> {
     pub fn new(module_name: &str) -> Self {
         let name = CString::new(module_name).unwrap();
         unsafe {
-            let c = not_null!(llvm::LLVMContextCreate());
-            let m = not_null!(
-                llvm::LLVMModuleCreateWithNameInContext(name.into_raw(),c)
-                );
-            LLVMContext { llctx: c
-                        , llmod: m
-                        , names: SymbolTable::new()
-                    }
+            let ctx = not_null!(llvm::LLVMContextCreate());
+            LLVMContext {
+                llctx: ctx
+              , llmod: not_null!(llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), ctx))
+              , llbuilder: not_null!(llvm::LLVMCreateBuilderInContext(ctx))
+              , names: SymbolTable::new()
+            }
         }
     }
 }
@@ -60,6 +61,7 @@ impl<'a> Drop for LLVMContext<'a> {
     fn drop(&mut self) {
         unsafe {
             llvm::LLVMDisposeModule(self.llmod);
+            llvm::LLVMDisposeBuilder(self.llbuilder);
             llvm::LLVMContextDispose(self.llctx);
         }
     }
