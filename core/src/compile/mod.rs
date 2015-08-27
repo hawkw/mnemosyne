@@ -32,22 +32,26 @@ pub struct LLVMContext<'a> {
 // because we are in the Raw Pointer Sadness Zone (read: unsafe),
 // it is necessary that we assert that everything exists.
 macro_rules! not_null {
-    ($target:expr) => {
-        if $target.is_null() {
-            panic!("assertion failed: {} null!", stringify!($target));
-        }
-    }
+    ($target:expr) => ({
+        let e = $target;
+        if e.is_null() {
+            panic!("assertion failed: {} returned null!", stringify!($target));
+        } else { e }
+    })
 }
 
 impl<'a> LLVMContext<'a> {
     pub fn new(module_name: &str) -> Self {
         let name = CString::new(module_name).unwrap();
         unsafe {
-            let c = llvm::LLVMContextCreate();
-            not_null!(c);
-            let m = llvm::LLVMModuleCreateWithNameInContext(name.into_raw(),c);
-            not_null!(m);
-            LLVMContext { llctx: c, llmod: m, names: SymbolTable::new() }
+            let c = not_null!(llvm::LLVMContextCreate());
+            let m = not_null!(
+                llvm::LLVMModuleCreateWithNameInContext(name.into_raw(),c)
+                );
+            LLVMContext { llctx: c
+                        , llmod: m
+                        , names: SymbolTable::new()
+                    }
         }
     }
 }
