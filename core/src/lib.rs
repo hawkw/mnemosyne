@@ -10,6 +10,8 @@
 #![crate_type = "lib"]
 #![feature(rustc_private)]
 #![feature(cstr_memory)]
+#![feature(static_recursion)]
+#![feature(box_syntax, box_patterns)]
 
 extern crate rustc;
 extern crate combine;
