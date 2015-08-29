@@ -5,6 +5,7 @@ authors = ["Hawk Weisman <hi@hawkweisman.me>"]
 
 [dependencies.mnemosyne-parser]
 path = "parser"
+
 [dependencies.mnemosyne]
 path = "core"
 

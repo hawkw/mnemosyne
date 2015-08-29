@@ -1,10 +1,13 @@
 use std::{fmt, iter};
-use super::position::Positional;
 use std::rc::Rc;
+use std::fmt::Write;
+
+use super::position::Positional;
 
 macro_rules! indent {
-    ($to:expr) => ( iter::repeat('\t').take($to)
-                                      .collect::<String>() )
+    ($to:expr) => ( iter::repeat('\t')
+                        .take($to)
+                        .collect::<String>() )
 }
 
 pub trait ASTNode {
@@ -25,34 +28,59 @@ pub enum Form {
 
 impl ASTNode for Form {
     fn to_sexpr(&self, level: usize) -> String {
-        unimplemented!()
+        match self {
+            &Form::Define(ref form) => form.to_sexpr(level),
+        }
     }
 }
 
 pub type Ident = Positional<String>;
 pub type Expr = Box<Positional<Form>>;
 
+impl ASTNode for Ident {
+    fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
+}
+
 #[derive(PartialEq, Clone, Debug)]
 pub enum DefForm {
     TopLevel { name: Ident
-             , value: Expr
              , annot: Ident
+             , value: Expr
              },
     Function { name: Ident
-             , formals: Vec<Positional<Formal>>
              , annot: Ident
+             , formals: Vec<Positional<Formal>>
              , body: Expr
              }
 }
 
 impl ASTNode for DefForm {
     fn to_sexpr(&self, level: usize) -> String {
-        let tab = indent!(level);
-        match self {
-            _ => unimplemented!() // todo: finish
+        match *self {
+            DefForm::TopLevel { ref name, ref annot, ref value } =>
+                format!("{}(define {} {} {})", indent!(level),
+                    name.to_sexpr(level),
+                    annot.to_sexpr(level),
+                    value.to_sexpr(level+1)
+                    ),
+            DefForm::Function { ref name, ref annot, ref formals, ref body } =>
+                format!("{}(define {} {} {}\n{})", indent!(level),
+                    name.to_sexpr(level),
+                    annot.to_sexpr(level),
+                    formals.iter().fold(String::new(), |mut s, f| {
+                        s.push_str(&f.to_sexpr(level)); s
+                        }),
+                    body.to_sexpr(level + 1)
+                    )
         }
     }
 }
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Formal { name: Ident, annot: Ident }
+
+impl ASTNode for Formal {
+    fn to_sexpr(&self, level: usize) -> String {
+        format!("{}: {}", *(self.name), *(self.annot))
+    }
+}
