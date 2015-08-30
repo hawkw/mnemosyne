@@ -1,8 +1,12 @@
 use super::{ASTNode, SymbolTable};
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
+pub type STCell<'a> = Rc<RefCell<SymbolTable<'a>>>;
 
 pub struct Annotated<'a, T> where T: ASTNode {
-    node: T, scope: SymbolTable<'a>
+    node: T, scope: STCell<'a>
 }
 
 #[derive(Debug, Clone)]
