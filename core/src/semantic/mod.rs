@@ -2,7 +2,10 @@ use std::{fmt, iter};
 use std::rc::Rc;
 use std::fmt::Write;
 
-use super::position::Positional;
+use ast::*;
+
+pub mod ast;
+pub mod types;
 
 macro_rules! indent {
     ($to:expr) => ( iter::repeat('\t')
@@ -18,14 +21,6 @@ pub trait ASTNode {
 
 }
 
-#[derive(PartialEq, Clone, Debug)]
-pub enum Form {
-    Define(DefForm),
-    // If(IfNode),
-    // Let(LetNode),
-    // Call(CallNode)
-}
-
 impl ASTNode for Form {
     fn to_sexpr(&self, level: usize) -> String {
         match self {
@@ -34,24 +29,8 @@ impl ASTNode for Form {
     }
 }
 
-pub type Ident = Positional<String>;
-pub type Expr = Box<Positional<Form>>;
-
 impl ASTNode for Ident {
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
-}
-
-#[derive(PartialEq, Clone, Debug)]
-pub enum DefForm {
-    TopLevel { name: Ident
-             , annot: Ident
-             , value: Expr
-             },
-    Function { name: Ident
-             , annot: Ident
-             , formals: Vec<Positional<Formal>>
-             , body: Expr
-             }
 }
 
 impl ASTNode for DefForm {
@@ -75,9 +54,6 @@ impl ASTNode for DefForm {
         }
     }
 }
-
-#[derive(PartialEq, Clone, Debug)]
-pub struct Formal { name: Ident, annot: Ident }
 
 impl ASTNode for Formal {
     fn to_sexpr(&self, level: usize) -> String {

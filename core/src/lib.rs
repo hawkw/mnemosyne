@@ -18,8 +18,10 @@ extern crate combine;
 extern crate seax_util as seax;
 
 pub mod position;
-pub mod ast;
+pub mod semantic;
 pub mod compile;
+
+pub use semantic::ast;
 
 use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
 
