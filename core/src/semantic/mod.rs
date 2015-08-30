@@ -10,6 +10,9 @@ pub mod types;
 use ast::*;
 use self::types::{Annotated, Type};
 
+/// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
+///
+/// This table should be forked upon entering a new scope.
 pub type SymbolTable<'a> = ForkTable<'a, String, Type>;
 
 macro_rules! indent {
@@ -18,24 +21,34 @@ macro_rules! indent {
                         .collect::<String>() )
 }
 
+/// Trait for a node in the abstract syntax tree.
+///
+/// This provides a visitor method for semantic analysis (which may be split
+/// into multiple transforms later), and a method for formatting the AST node
+/// as an S-expression.
 pub trait ASTNode: Sized {
 
-    /// Pretty-print the AST node as an S-expression
-    /// at the desired indentation level.
+    /// Pretty-print the AST node as an S-expression at the desired
+    /// indentation level.
+    ///
+    /// Note that this prints the desugared form and may not be a perfect
+    /// match for the original source code.
     fn to_sexpr(&self, level: usize) -> String;
+
     /// Analyse this node & annotate it with the appropriate type state.
     fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self>;
 
 }
 
 impl ASTNode for Form {
-
+    #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         match self {
             &Form::Define(ref form) => form.to_sexpr(level),
         }
     }
 
+    #[allow(unused_variables)]
     fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
@@ -43,9 +56,10 @@ impl ASTNode for Form {
 }
 
 impl ASTNode for Ident {
-
+    #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
 
+    #[allow(unused_variables)]
     fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
@@ -74,6 +88,7 @@ impl ASTNode for DefForm {
         }
     }
 
+    #[allow(unused_variables)]
     fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
@@ -81,12 +96,12 @@ impl ASTNode for DefForm {
 }
 
 impl ASTNode for Formal {
-
+    #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         format!("{}: {}", *(self.name), *(self.annot))
     }
 
-
+    #[allow(unused_variables)]
     fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
