@@ -1,8 +1,8 @@
-use super::ASTNode;
-use seax::compiler_tools::ForkTable;
+use super::{ASTNode, SymbolTable};
 
-pub struct Scoped<'a, T> where T: ASTNode {
-    node: T, scope: ForkTable<'a, String, Type>
+
+pub struct Annotated<'a, T> where T: ASTNode {
+    node: T, scope: SymbolTable<'a>
 }
 
 #[derive(Debug, Clone)]
