@@ -9,12 +9,13 @@ use rustc::lib::llvm::{ ContextRef
 use seax::compiler_tools::ForkTable;
 
 use position::Positional;
+use ast::Form;
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
-/// Trait for an object that can be compiled to LLVM IR
-pub trait ToIR {
+/// Trait for that which may join in The Great Work
+pub trait Compile {
     fn to_ir(&self, context: LLVMContext) -> IRResult;
 }
 
@@ -72,6 +73,25 @@ impl<'a> Drop for LLVMContext<'a> {
             llvm::LLVMDisposeModule(self.llmod);
             llvm::LLVMDisposeBuilder(self.llbuilder);
             llvm::LLVMContextDispose(self.llctx);
+        }
+    }
+}
+
+impl Compile for Form {
+    fn to_ir(&self, context: LLVMContext) -> IRResult {
+        match self {
+            &Form::Define(ref form) => form.compile(context)
+        }
+    }
+}
+
+impl Compile for DefForm {
+    fn to_ir(&self, context: LLVMContext) -> IRResult {
+        match *self {
+            DefForm::TopLevel { ref name, ref annot, ref value } =>
+                unimplemented!(),
+            DefForm::Function { ref name, ref annot, ref formals, ref body } =>
+                unimplemented!()
         }
     }
 }
