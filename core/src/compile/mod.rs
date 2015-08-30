@@ -1,4 +1,5 @@
 use std::ffi::CString;
+use std::convert::Into;
 
 use rustc::lib::llvm;
 use rustc::lib::llvm::{ ContextRef
@@ -9,7 +10,7 @@ use rustc::lib::llvm::{ ContextRef
 use seax::compiler_tools::ForkTable;
 
 use position::Positional;
-use ast::Form;
+use ast::{Form, DefForm};
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
@@ -80,7 +81,7 @@ impl<'a> Drop for LLVMContext<'a> {
 impl Compile for Form {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match self {
-            &Form::Define(ref form) => form.compile(context)
+            &Form::Define(ref form) => form.to_ir(context)
         }
     }
 }
@@ -93,12 +94,14 @@ impl Compile for DefForm {
             DefForm::Function { ref name, ref annot, ref formals, ref body } =>
                 unsafe {
                     let name_ptr // function name as C string pointer
-                        = CString::new(self.name).unwrap().as_ptr();
+                        = CString::new((&name.value).clone()).unwrap().as_ptr();
                     let prev_decl // check LLVM module for previous declaration
                         = llvm::LLVMGetNamedFunction(context.llmod, name_ptr);
 
                     if !prev_decl.is_null() { // a previous declaration exists
                         unimplemented!() // TODO: overloading rules happen here
+                    } else { // new function declaration
+                        unimplemented!()
                     }
                 }
         }

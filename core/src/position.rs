@@ -44,6 +44,7 @@ impl<T> Positional<T> {
         Positional { pos: Position::new(col, row)
                    , value: value }
     }
+    fn value(&self) -> &T { &self.value }
 }
 
 

@@ -12,7 +12,7 @@ pub enum Form {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Formal { name: Ident, annot: Ident }
+pub struct Formal { pub name: Ident, pub annot: Ident }
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum DefForm {
