@@ -91,7 +91,16 @@ impl Compile for DefForm {
             DefForm::TopLevel { ref name, ref annot, ref value } =>
                 unimplemented!(),
             DefForm::Function { ref name, ref annot, ref formals, ref body } =>
-                unimplemented!()
+                unsafe {
+                    let name_ptr // function name as C string pointer
+                        = CString::new(self.name).unwrap().as_ptr();
+                    let prev_decl // check LLVM module for previous declaration
+                        = llvm::LLVMGetNamedFunction(context.llmod, name_ptr);
+
+                    if !prev_decl.is_null() { // a previous declaration exists
+                        unimplemented!() // TODO: overloading rules happen here
+                    }
+                }
         }
     }
 }
