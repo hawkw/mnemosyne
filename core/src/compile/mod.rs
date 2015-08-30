@@ -89,9 +89,9 @@ impl Compile for Form {
 impl Compile for DefForm {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match *self {
-            DefForm::TopLevel { ref name, ref annot, ref value } =>
+            DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!(),
-            DefForm::Function { ref name, ref annot, ref formals, ref body } =>
+            DefForm::Function { ref name, ref body, .. } =>
                 unsafe {
                     let name_ptr // function name as C string pointer
                         = CString::new((&name.value).clone()).unwrap().as_ptr();
