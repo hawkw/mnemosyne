@@ -1,8 +1,16 @@
 use std::ops::{Deref, DerefMut};
 use std::fmt;
+
+use std::convert::From;
+
 use combine::primitives::SourcePosition;
 
-/// Struct representing a position within a source code file
+/// Struct representing a position within a source code file.
+///
+/// This represents positions using `i32`s because that's how
+/// positions are represented in `combine` (the parsing library
+/// that we will use for the Mnemosyne parser). I personally would
+/// have used `usize`s...
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Position {
     pub col: i32,
@@ -12,20 +20,39 @@ pub struct Position {
 
 impl Position {
 
-    fn new(col: i32, row: i32) -> Self {
+    /// Create a new `Position `at the given column and row.
+    #[inline]
+    pub fn new(col: i32, row: i32) -> Self {
         Position { col: col
                  , row: row
                  , raw: col + row
                  }
     }
 
-    fn from_combine(pos: SourcePosition) -> Self {
-        Position { col: pos.column
-                 , row: pos.line
-                 , raw: pos.column + pos.line
-                 }
-    }
 }
+
+impl From<SourcePosition> for Position {
+    /// Create a new `Position` from a `combine` `SourcePosition`.
+    ///
+    /// # Example
+    /// ```
+    /// let sp = SourcePosition { column: 1, line: 1 };
+    /// assert_eq!(Position::from(sp), Position::new(1,1));
+    /// ```
+    fn from(p: SourcePosition) -> Self { Position::new(p.column, p.line) }
+}
+
+impl From<(i32,i32)> for Position {
+    /// Create a new `Position` from a tuple of i32s.
+    ///
+    /// # Example
+    /// ```
+    /// let tuple: (i32,i32) = (1,1);
+    /// assert_eq!(Position::from(tuple), Position::new(1,1));
+    /// ```
+    fn from((col, row): (i32,i32)) -> Self { Position::new(col,row) }
+}
+
 
 impl fmt::Display for Position {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -40,11 +67,13 @@ pub struct Positional<T> {
 }
 
 impl<T> Positional<T> {
-    fn at(col: i32, row: i32, value: T) -> Positional<T> {
+    /// Create a new Positional marker at the given position.
+    pub fn at(col: i32, row: i32, value: T) -> Positional<T> {
         Positional { pos: Position::new(col, row)
                    , value: value }
     }
-    fn value(&self) -> &T { &self.value }
+
+    pub fn value(&self) -> &T { &self.value }
 }
 
 
