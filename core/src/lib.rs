@@ -14,6 +14,7 @@
 #![feature(box_syntax, box_patterns)]
 
 extern crate rustc;
+extern crate libc;
 extern crate combine;
 extern crate seax_util as seax;
 

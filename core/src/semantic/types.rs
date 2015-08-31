@@ -92,5 +92,6 @@ pub enum Primitive { Int
                    , Str
                    , Bool
                    , Float
+                   , Double
                    // TODO: finish
                    }

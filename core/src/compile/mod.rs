@@ -1,5 +1,8 @@
 use std::ffi::CString;
 use std::convert::Into;
+use std::mem;
+
+use libc::c_uint;
 
 use rustc::lib::llvm;
 use rustc::lib::llvm::{ ContextRef
@@ -17,7 +20,7 @@ use semantic::types::{Type, Reference, Primitive};
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
-const WORD_SIZE: c_uint = std::mem::size_of::<isize>();
+#[inline] fn word_size() -> c_uint { mem::size_of::<isize>() as c_uint }
 
 /// Trait for that which may join in The Great Work
 pub trait Compile {
@@ -118,7 +121,7 @@ impl Compile for DefForm {
 impl TranslateType for Type {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
         match *self {
-            Type::Ref(ref reference)  => reference.TranslateType(context),
+            Type::Ref(ref reference)  => reference.translate_type(context),
             Type::Prim(ref primitive) => primitive.translate_type(context),
             _ => unimplemented!() // TODO: figure this out
         }
@@ -133,16 +136,18 @@ impl TranslateType for Reference {
 
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
-        match *self {
-            Primitive::Int => // Integers are machine word size
-                llvm::LLVMIntTypeInContext(context, WORD_SIZE),
-            Primitive::Float => // Floats are single precision
-                llvm::LLVMGetFloatTypeInContext(context),
-            Primitive::Double => // Doubles are obvious precision
-                llvm::LLVMGetDoubleTypeInContext(context),
-            Primitive::Byte => // Bytes are 8 bits (duh)
-                llvm::LLVMGetInt8TypeInContext(context)
-            _ => unimplemented!() // TODO: figure this out
+        unsafe {
+            match *self {
+                Primitive::Int => // Integers are machine word size
+                    llvm::LLVMIntTypeInContext(context.llctx, word_size()),
+                Primitive::Float => // Floats are single precision
+                    llvm::LLVMFloatTypeInContext(context.llctx),
+                Primitive::Double => // Doubles are obvious precision
+                    llvm::LLVMDoubleTypeInContext(context.llctx),
+                Primitive::Byte => // Bytes are 8 bits (duh)
+                    llvm::LLVMInt8TypeInContext(context.llctx),
+                _ => unimplemented!() // TODO: figure this out
+            }
         }
     }
 }
