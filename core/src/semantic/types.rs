@@ -40,6 +40,7 @@ pub enum Type { Ref(Reference)
               , Algebraic //TODO: make me a thing
               , Function { params: Vec<Type>
                          , rt: Rc<Type> }
+              , Symbol(String)
               }
 
 /// Reference types
@@ -52,13 +53,12 @@ pub enum Reference { Borrowed(Rc<Type>) // TODO: borrowed from where?
                    , Raw(Rc<Type>)
                    }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Primitive { Int
                    , Uint
                    , Byte
                    , Char
                    , Str
                    , Bool
-                   , Symbol(String)
                    // TODO: finish
                    }
