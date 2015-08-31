@@ -36,7 +36,15 @@ pub trait ASTNode: Sized {
     fn to_sexpr(&self, level: usize) -> String;
 
     /// Analyse this node & annotate it with the appropriate type state.
-    fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self>;
+    ///
+    /// The `Annotated` type stores a reference to an AST node along with
+    /// the definitions visible at that node's scope.
+    ///
+    /// Essentially, this transforms our early IR (where type information
+    /// is just stored in strings from the source program) into a working
+    /// representation where types and symbol definitions are encoded in a
+    /// way the compiler can analyze.
+    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self>;
 
 }
 
@@ -60,7 +68,7 @@ impl ASTNode for Ident {
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
 
     #[allow(unused_variables)]
-    fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
 
@@ -89,7 +97,7 @@ impl ASTNode for DefForm {
     }
 
     #[allow(unused_variables)]
-    fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
 
@@ -102,7 +110,7 @@ impl ASTNode for Formal {
     }
 
     #[allow(unused_variables)]
-    fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
 
