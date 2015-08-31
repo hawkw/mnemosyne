@@ -11,7 +11,7 @@ use combine::primitives::SourcePosition;
 /// positions are represented in `combine` (the parsing library
 /// that we will use for the Mnemosyne parser). I personally would
 /// have used `usize`s...
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, PartialOrd, Ord)]
 pub struct Position {
     pub col: i32,
     pub row: i32,
