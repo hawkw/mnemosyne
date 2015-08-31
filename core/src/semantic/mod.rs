@@ -57,7 +57,7 @@ impl ASTNode for Form {
     }
 
     #[allow(unused_variables)]
-    fn analyze<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
         unimplemented!() //TODO: implement
     }
 
