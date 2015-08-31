@@ -38,6 +38,7 @@ impl<'a, T> Annotated<'a, T> where T: ASTNode {
 pub enum Type { Ref(Reference)
               , Prim(Primitive)
               , Algebraic //TODO: make me a thing
+              , Function { params: Vec<Type>, rt: Box<Type> }
               }
 
 /// Reference types
@@ -50,11 +51,13 @@ pub enum Reference { Borrowed(Box<Type>) // TODO: borrowed from where?
                    , Raw(Box<Type>)
                    }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum Primitive { Int
                    , Uint
                    , Byte
                    , Char
                    , Str
+                   , Bool
+                   , Symbol(String)
                    // TODO: finish
                    }
