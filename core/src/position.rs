@@ -36,8 +36,14 @@ impl From<SourcePosition> for Position {
     ///
     /// # Example
     /// ```
+    /// # extern crate combine;
+    /// # extern crate mnemosyne;
+    /// # use combine::primitives::SourcePosition;
+    /// # use mnemosyne::position::Position;
+    /// # fn main() {
     /// let sp = SourcePosition { column: 1, line: 1 };
     /// assert_eq!(Position::from(sp), Position::new(1,1));
+    /// # }
     /// ```
     fn from(p: SourcePosition) -> Self { Position::new(p.column, p.line) }
 }
@@ -47,6 +53,7 @@ impl From<(i32,i32)> for Position {
     ///
     /// # Example
     /// ```
+    /// # use mnemosyne::position::Position;
     /// let tuple: (i32,i32) = (1,1);
     /// assert_eq!(Position::from(tuple), Position::new(1,1));
     /// ```
