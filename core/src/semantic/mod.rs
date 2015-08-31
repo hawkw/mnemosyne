@@ -1,6 +1,4 @@
 use std::{fmt, iter};
-use std::rc::Rc;
-use std::fmt::Write;
 
 use seax::compiler_tools::ForkTable;
 
