@@ -38,17 +38,18 @@ impl<'a, T> Annotated<'a, T> where T: ASTNode {
 pub enum Type { Ref(Reference)
               , Prim(Primitive)
               , Algebraic //TODO: make me a thing
-              , Function { params: Vec<Type>, rt: Box<Type> }
+              , Function { params: Vec<Type>
+                         , rt: Rc<Type> }
               }
 
 /// Reference types
 ///
 /// TODO: how will lifetime analysis actually work?
 #[derive(Debug, Clone)]
-pub enum Reference { Borrowed(Box<Type>) // TODO: borrowed from where?
-                   , Moved(Box<Type>) // TODO: moved from where?
-                   , Owned(Box<Type>)
-                   , Raw(Box<Type>)
+pub enum Reference { Borrowed(Rc<Type>) // TODO: borrowed from where?
+                   , Moved(Rc<Type>) // TODO: moved from where?
+                   , Owned(Rc<Type>)
+                   , Raw(Rc<Type>)
                    }
 
 #[derive(Debug, Clone)]
