@@ -3,6 +3,7 @@ use super::{ASTNode, SymbolTable};
 use std::rc::Rc;
 use std::borrow::Borrow;
 use std::hash::Hash;
+use std::ops;
 
 // pub type STCell<'a> = Rc<RefCell<SymbolTable<'a>>>;
 
@@ -32,6 +33,12 @@ impl<'a, T> Annotated<'a, T> where T: ASTNode {
         self.scope.contains_key(name)
     }
 
+}
+
+impl<'a, T> ops::Deref for Annotated<'a, T>
+where T: ASTNode {
+    type Target = T;
+    fn deref(&self) -> &T { &self.node }
 }
 
 #[derive(Debug, Clone)]
