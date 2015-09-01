@@ -15,7 +15,11 @@ use seax::compiler_tools::ForkTable;
 
 use position::Positional;
 use ast::{Form, DefForm};
-use semantic::types::{Type, Reference, Primitive};
+use semantic::types::{ Type
+                     , Reference
+                     , Primitive
+                     , Annotated
+                     };
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
@@ -137,7 +141,7 @@ impl TranslateType for Reference {
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
         unsafe {
-            match *self {
+            not_null!(match *self {
                 Primitive::Int => // Integers are machine word size
                     llvm::LLVMIntTypeInContext(context.llctx, word_size()),
                 Primitive::Float => // Floats are single precision
@@ -147,7 +151,7 @@ impl TranslateType for Primitive {
                 Primitive::Byte => // Bytes are 8 bits (duh)
                     llvm::LLVMInt8TypeInContext(context.llctx),
                 _ => unimplemented!() // TODO: figure this out
-            }
+            })
         }
     }
 }
