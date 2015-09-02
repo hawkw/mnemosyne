@@ -1,7 +1,7 @@
 use std::{fmt, iter};
 use std::rc::Rc;
 
-use seax::compiler_tools::ForkTable;
+use ::forktable::ForkTable;
 
 pub mod ast;
 pub mod types;

@@ -5,6 +5,5 @@ authors = ["Hawk Weisman <hi@hawkweisman.me>"]
 
 [dependencies]
 combine = "^1.0.0"
-seax_util = "^0.1.2"
 log = "0.3"
 libc = "*"
