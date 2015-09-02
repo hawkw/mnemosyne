@@ -16,11 +16,11 @@
 extern crate rustc;
 extern crate libc;
 extern crate combine;
-extern crate seax_util as seax;
 
 pub mod position;
 pub mod semantic;
 pub mod compile;
+mod forktable;
 
 pub use semantic::ast;
 

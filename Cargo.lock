@@ -13,11 +13,6 @@ version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "byteorder"
-version = "0.3.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "clap"
 version = "1.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -51,7 +46,6 @@ dependencies = [
  "combine 1.0.0-beta.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "seax_util 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -59,15 +53,6 @@ name = "mnemosyne-parser"
 version = "0.1.0"
 dependencies = [
  "mnemosyne 0.1.0",
-]
-
-[[package]]
-name = "seax_util"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "byteorder 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

@@ -10,15 +10,16 @@ use rustc::lib::llvm::{ ContextRef
                       , ValueRef
                       , BuilderRef
                       , TypeRef
-                  };
-use seax::compiler_tools::ForkTable;
+                      };
 
+use forktable::ForkTable;
 use position::Positional;
 use ast::{Form, DefForm};
 use semantic::types::{ Type
                      , Reference
                      , Primitive
                      , Annotated
+                     , Scoped
                      };
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
@@ -92,7 +93,7 @@ impl<'a> Drop for LLVMContext<'a> {
     }
 }
 
-impl Compile for Form {
+impl<'a> Compile for Form<'a, Scoped> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match self {
             &Form::Define(ref form) => form.to_ir(context)
@@ -100,7 +101,7 @@ impl Compile for Form {
     }
 }
 
-impl Compile for DefForm {
+impl<'a> Compile for DefForm<'a, Scoped> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match *self {
             DefForm::TopLevel { ref name, ref value, .. } =>
