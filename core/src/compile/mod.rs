@@ -1,5 +1,4 @@
 use std::ffi::CString;
-use std::convert::Into;
 use std::mem;
 
 use libc::c_uint;
