@@ -20,7 +20,7 @@ use std::ops;
 /// Max Clive. This implemention is based primarily by the Scala
 /// reference implementation written by Hawk Weisman for the Decaf
 /// compiler, which is available [here](https://github.com/hawkw/decaf/blob/master/src/main/scala/com/meteorcode/common/ForkTable.scala).
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "unstable",
     stable(feature = "forktable", since = "0.0.1") )]
 pub struct ForkTable<'a, K, V>
