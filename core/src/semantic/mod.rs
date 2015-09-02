@@ -10,6 +10,8 @@ use ast::*;
 use self::types::{ Annotated
                  , Scoped
                  , Unscoped
+                 , ScopedState
+                 , UnscopedState
                  , ScopednessTypestate
                  , Type
                  };
@@ -17,7 +19,8 @@ use self::types::{ Annotated
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///
 /// This table should be forked upon entering a new scope.
-pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation<'a>>;
+pub type SymbolTable<'a>
+    = ForkTable<'a, String, SymbolAnnotation<'a>>;
 
 macro_rules! indent {
     ($to:expr) => ( iter::repeat('\t')
@@ -44,14 +47,14 @@ pub trait ASTNode: Sized {
 pub trait AnnotateTypes<'a>: Sized {
 
     #[allow(unused_variables)]
-    fn annotate_types(self, scope: SymbolTable)
-                      -> Annotated<'a, Self, Scoped> {
+    fn annotate_types(self, scope: SymbolTable) -> Scoped<'a, Self> {
         unimplemented!() //TODO: implement
     }
 }
 
 impl<'a, S> ASTNode for Form<'a, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+{
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
@@ -61,10 +64,9 @@ where S: ScopednessTypestate {
 
 }
 
-impl<'a> AnnotateTypes<'a> for Annotated<'a, Form<'a, Unscoped>, Unscoped> {
+impl<'a> AnnotateTypes<'a> for Unscoped<'a, Form<'a, UnscopedState>> {
     #[allow(unused_variables)]
-    fn annotate_types(self, scope: SymbolTable)
-                     -> Annotated<'a, Self, Scoped> {
+    fn annotate_types(self, scope: SymbolTable) -> Scoped<'a, Self> {
         unimplemented!() //TODO: implement
     }
 }
@@ -100,10 +102,9 @@ where S: ScopednessTypestate {
 
 }
 
-impl<'a> AnnotateTypes<'a> for Annotated<'a, DefForm<'a, Unscoped>, Unscoped> {
+impl<'a> AnnotateTypes<'a> for Unscoped<'a, DefForm<'a, UnscopedState>> {
     #[allow(unused_variables)]
-    fn annotate_types(self, scope: SymbolTable)
-                      -> Annotated<'a, Self, Scoped> {
+    fn annotate_types(self, scope: SymbolTable) -> Scoped<'a, Self>{
         unimplemented!() //TODO: implement
     }
 }
@@ -125,5 +126,5 @@ pub struct SymbolAnnotation<'a> {
     /// This should be defined iff the symbol signifies a constant value
     /// or a constant expression, or if we were able to prove that the value
     /// remains constant within the current scope.
-    pub proven_value: Option<Rc<Expr<'a, Scoped>>>
+    pub proven_value: Option<Rc<Expr<'a, ScopedState>>>
 }

@@ -18,7 +18,7 @@ use ast::{Form, DefForm};
 use semantic::types::{ Type
                      , Reference
                      , Primitive
-                     , Annotated
+                     , ScopedState
                      , Scoped
                      };
 
@@ -93,17 +93,17 @@ impl<'a> Drop for LLVMContext<'a> {
     }
 }
 
-impl<'a> Compile for Form<'a, Scoped> {
+impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
-        match self {
-            &Form::Define(ref form) => form.to_ir(context)
+        match **self {
+            Form::Define(ref form) => unimplemented!()
         }
     }
 }
 
-impl<'a> Compile for DefForm<'a, Scoped> {
+impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
-        match *self {
+        match **self {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!(),
             DefForm::Function { ref name, ref body, .. } =>

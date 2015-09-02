@@ -24,14 +24,14 @@ use std::ops;
 #[cfg_attr(feature = "unstable",
     stable(feature = "forktable", since = "0.0.1") )]
 pub struct ForkTable<'a, K, V>
-where K: Eq + Hash,
-      K: 'a,
-      V: 'a
+where K: Eq + Hash
+    , K: 'a
+    , V: 'a
 {
-    table: HashMap<K, V>,
-    whiteouts: HashSet<K>,
-    parent: Option<&'a ForkTable<'a, K, V>>,
-    level: usize
+    table: HashMap<K, V>
+  , whiteouts: HashSet<K>
+  , parent: Option<&'a ForkTable<'a, K, V>>
+  , level: usize
 }
 
 #[cfg_attr(feature = "unstable",
@@ -80,8 +80,8 @@ where K: Eq + Hash
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
-    where K: Borrow<Q>,
-          Q: Hash + Eq
+    where K: Borrow<Q>
+        , Q: Hash + Eq
     {
         if self.whiteouts.contains(key) {
             None
@@ -137,8 +137,8 @@ where K: Eq + Hash
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn get_mut<Q: ?Sized>(&mut self, key: &Q) -> Option<&mut V>
-    where K: Borrow<Q>,
-          Q: Hash + Eq
+    where K: Borrow<Q>
+        , Q: Hash + Eq
     {
         self.table.get_mut(key)
     }
@@ -292,8 +292,8 @@ where K: Eq + Hash
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn contains_key<Q: ?Sized>(&self, key: &Q) -> bool
-    where K: Borrow<Q>,
-          Q: Hash + Eq
+    where K: Borrow<Q>
+        , Q: Hash + Eq
     {
         !self.whiteouts.contains(key) &&
          self.table.contains_key(key)
@@ -336,8 +336,8 @@ where K: Eq + Hash
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn chain_contains_key<Q:? Sized>(&self, key: &Q) -> bool
-    where K: Borrow<Q>,
-          Q: Hash + Eq
+    where K: Borrow<Q>
+       , Q: Hash + Eq
     {
         self.table.contains_key(key) ||
             (!self.whiteouts.contains(key) &&
@@ -357,7 +357,7 @@ where K: Eq + Hash
     /// parent `ForkTable`.
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
-    pub fn fork(&'a self) -> ForkTable<'a, K,V> {
+    pub fn fork(&'a self) -> ForkTable<'a, K, V> {
         ForkTable {
             table: HashMap::new(),
             whiteouts: HashSet::new(),
@@ -412,9 +412,9 @@ where K: Eq + Hash
 #[cfg_attr(feature = "unstable",
     stable(feature = "forktable", since = "0.1.2") )]
 impl<'a, 'b, K, Q: ?Sized, V> ops::Index<&'b Q> for ForkTable<'a, K, V>
-where K: Borrow<Q>,
-      K: Eq + Hash,
-      Q: Eq + Hash
+where K: Borrow<Q>
+    , K: Eq + Hash
+    , Q: Eq + Hash
 {
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.1.2") )]
@@ -444,9 +444,9 @@ where K: Borrow<Q>,
 #[cfg_attr(feature = "unstable",
     stable(feature = "forktable", since = "0.1.2") )]
 impl<'a, 'b, K, Q: ?Sized, V> ops::IndexMut<&'b Q> for ForkTable<'a, K, V>
-where K: Borrow<Q>,
-      K: Eq + Hash,
-      Q: Eq + Hash
+where K: Borrow<Q>
+    , K: Eq + Hash
+    , Q: Eq + Hash
 {
     #[inline]
     #[cfg_attr(feature = "unstable",
