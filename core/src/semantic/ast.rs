@@ -1,11 +1,13 @@
 use ::position::Positional;
+use super::types::{Annotated, ScopednessTypestate};
+use std::rc::Rc;
 
 pub type Ident = Positional<String>;
-pub type Expr = Box<Positional<Form>>;
+pub type Expr<'a, S: ScopednessTypestate> = Rc<Annotated<'a, Form<'a, S>, S>>;
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum Form {
-    Define(DefForm),
+pub enum Form<'a, S: ScopednessTypestate> {
+    Define(DefForm<'a, S>),
     // If(IfNode),
     // Let(LetNode),
     // Call(CallNode)
@@ -15,14 +17,14 @@ pub enum Form {
 pub struct Formal { pub name: Ident, pub annot: Ident }
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum DefForm {
+pub enum DefForm<'a, S: ScopednessTypestate> {
     TopLevel { name: Ident
              , annot: Ident
-             , value: Expr
+             , value: Expr<'a, S>
              },
     Function { name: Ident
              , annot: Ident
-             , formals: Vec<Positional<Formal>>
-             , body: Expr
+             , formals: Vec<Annotated<'a, Formal, S>>
+             , body: Expr<'a, S>
              }
 }

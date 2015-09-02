@@ -33,8 +33,7 @@ impl ScopednessTypestate for Unscoped { fn is_scoped() -> bool {false} }
 /// An AST node which has been annotated with position &
 /// (possibly) scope information.
 pub struct Annotated<'a, T, S>
-where S: ScopednessTypestate,
-      T: ASTNode {
+where S: ScopednessTypestate {
     pub node: T,
     pub position: Position,
     scope: Option<SymbolTable<'a>>,
@@ -42,9 +41,8 @@ where S: ScopednessTypestate,
 }
 
 /// Due to Evil Typesystem Hacking reasons, this impl only exists
-/// for annotations which are in the Scoped typestate.
-impl<'a, T> Annotated<'a, T, Scoped>
-where T: ASTNode {
+/// for annotations which are in theScoped typestate.
+impl<'a, T> Annotated<'a, T, Scoped>  {
 
     /// Get the type signature associated with the given name.
     ///
@@ -76,8 +74,7 @@ where T: ASTNode {
 
 }
 
-impl<'a, T> Annotated<'a, T, Unscoped>
-where T: ASTNode {
+impl<'a, T> Annotated<'a, T, Unscoped> {
 
     /// Consume this unscoped annotation to produce a new
     /// annotation in the scoped typestate with the given

@@ -12,7 +12,7 @@ use self::types::{Annotated, Scoped, ScopednessTypestate, Type};
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///
 /// This table should be forked upon entering a new scope.
-pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation>;
+pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation<'a>>;
 
 macro_rules! indent {
     ($to:expr) => ( iter::repeat('\t')
@@ -48,17 +48,18 @@ pub trait ASTNode: Sized {
 
 }
 
-impl ASTNode for Form {
+impl<'a, S> ASTNode for Annotated<'a, Form<'a, S>, S>
+where S: ScopednessTypestate {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
-        match self {
-            &Form::Define(ref form) => form.to_sexpr(level),
+        match *self {
+            Form::Define(ref form) => form.to_sexpr(level),
         }
     }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable)
-                         -> Annotated<'a, Self, Scoped> {
+    fn annotate_types<'b>(self, scope: SymbolTable)
+                         -> Annotated<'b, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
@@ -76,7 +77,8 @@ impl ASTNode for Ident {
 
 }
 
-impl ASTNode for DefForm {
+impl<'a, S> ASTNode for Annotated<'a, DefForm<'a, S>, S>
+where S: ScopednessTypestate {
 
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
@@ -99,8 +101,8 @@ impl ASTNode for DefForm {
     }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable)
-        -> Annotated<'a, Self, Scoped> {
+    fn annotate_types<'b>(self, scope: SymbolTable)
+                        -> Annotated<'b, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
@@ -120,7 +122,7 @@ impl ASTNode for Formal {
 
 }
 
-pub struct SymbolAnnotation {
+pub struct SymbolAnnotation<'a> {
     /// The type of the symbol
     pub ty: Type,
     /// An optional proven value for the symbol.
@@ -128,5 +130,5 @@ pub struct SymbolAnnotation {
     /// This should be defined iff the symbol signifies a constant value
     /// or a constant expression, or if we were able to prove that the value
     /// remains constant within the current scope.
-    pub proven_value: Option<Rc<Expr>>
+    pub proven_value: Option<Rc<Expr<'a, Scoped>>>
 }
