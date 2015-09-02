@@ -1,4 +1,5 @@
 use std::{fmt, iter};
+use std::rc::Rc;
 
 use seax::compiler_tools::ForkTable;
 
@@ -6,12 +7,12 @@ pub mod ast;
 pub mod types;
 
 use ast::*;
-use self::types::{Annotated, Type};
+use self::types::{Annotated, Scoped, ScopednessTypestate, Type};
 
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///
 /// This table should be forked upon entering a new scope.
-pub type SymbolTable<'a> = ForkTable<'a, String, Type>;
+pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation>;
 
 macro_rules! indent {
     ($to:expr) => ( iter::repeat('\t')
@@ -42,7 +43,8 @@ pub trait ASTNode: Sized {
     /// is just stored in strings from the source program) into a working
     /// representation where types and symbol definitions are encoded in a
     /// way the compiler can analyze.
-    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self>;
+    fn annotate_types<'a>(self, scope: SymbolTable)
+                         -> Annotated<'a, Self, Scoped> ;
 
 }
 
@@ -55,7 +57,8 @@ impl ASTNode for Form {
     }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable)
+                         -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
@@ -66,7 +69,8 @@ impl ASTNode for Ident {
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable)
+                         -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
@@ -95,7 +99,8 @@ impl ASTNode for DefForm {
     }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable)
+        -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
@@ -108,8 +113,20 @@ impl ASTNode for Formal {
     }
 
     #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable) -> Annotated<'a, Self> {
+    fn annotate_types<'a>(self, scope: SymbolTable)
+                         -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
 
+}
+
+pub struct SymbolAnnotation {
+    /// The type of the symbol
+    pub ty: Type,
+    /// An optional proven value for the symbol.
+    ///
+    /// This should be defined iff the symbol signifies a constant value
+    /// or a constant expression, or if we were able to prove that the value
+    /// remains constant within the current scope.
+    pub proven_value: Option<Rc<Expr>>
 }

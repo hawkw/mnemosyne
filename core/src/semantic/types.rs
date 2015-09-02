@@ -1,17 +1,41 @@
-use super::{ASTNode, SymbolTable};
+use super::{ASTNode, SymbolTable, SymbolAnnotation};
+use ::position::Position;
 
 use std::rc::Rc;
 use std::borrow::Borrow;
 use std::hash::Hash;
 use std::ops;
+use std::marker::PhantomData;
 
 // pub type STCell<'a> = Rc<RefCell<SymbolTable<'a>>>;
 
-pub struct Annotated<'a, T> where T: ASTNode {
-    node: T, scope: Rc<SymbolTable<'a>>
+//==-----------------------------------------------------==
+//      Warning: evil typesystem hacking to follow
+//==-----------------------------------------------------==
+// This is basically a reimplementation of the typestate
+// system that Rust briefly had.
+pub trait ScopednessTypestate { fn is_scoped() -> bool; }
+pub struct Scoped;
+pub struct Unscoped;
+impl ScopednessTypestate for Scoped { fn is_scoped() -> bool {true} }
+impl ScopednessTypestate for Unscoped { fn is_scoped() -> bool {false} }
+//==------- exiting typesystem danger zone --------------==
+
+/// An AST node which has been annotated with position &
+/// (possibly) scope information.
+pub struct Annotated<'a, T, S>
+where S: ScopednessTypestate,
+      T: ASTNode {
+    pub node: T,
+    pub position: Position,
+    scope: Option<SymbolTable<'a>>,
+    my_typestate: PhantomData<S>
 }
 
-impl<'a, T> Annotated<'a, T> where T: ASTNode {
+/// Due to Evil Typesystem Hacking reasons, this impl only exists
+/// for annotations which are in the Scoped typestate.
+impl<'a, T> Annotated<'a, T, Scoped>
+where T: ASTNode {
 
     /// Get the type signature associated with the given name.
     ///
@@ -19,9 +43,12 @@ impl<'a, T> Annotated<'a, T> where T: ASTNode {
     /// associated with that name in the current scope. The argument
     /// can be any type `Q` such that `String: Borrow<Q>` (i.e.
     /// you can pass an `&str` to this function).
-    pub fn get_type<Q: ?Sized>(&self, name: &Q) -> Option<&Type>
-    where String: Borrow<Q>, Q: Hash + Eq {
-        self.scope.get(name)
+    pub fn get_type<Q: ?Sized>(&self, name: &Q) -> Option<&SymbolAnnotation>
+    where String: Borrow<Q>,
+          Q: Hash + Eq {
+        self.scope
+            .expect("VERY FATAL ERROR: Node in scoped typestate had no scope")
+            .get(name)
     }
 
     /// Check if the given name is defined in this scope.
@@ -29,14 +56,35 @@ impl<'a, T> Annotated<'a, T> where T: ASTNode {
     /// The argument can be any type `Q` such that `String: Borrow<Q>`
     /// (i.e. you can pass an `&str` to this function).
     pub fn is_defined_here<Q: ?Sized>(&self, name: &Q) -> bool
-    where String: Borrow<Q>, Q: Hash + Eq {
-        self.scope.contains_key(name)
+    where String: Borrow<Q>,
+          Q: Hash + Eq {
+        self.scope
+            .expect("VERY FATAL ERROR: Node in scoped typestate had no scope")
+            .contains_key(name)
     }
 
 }
 
-impl<'a, T> ops::Deref for Annotated<'a, T>
+impl<'a, T> Annotated<'a, T, Unscoped>
 where T: ASTNode {
+
+    /// Consume this unscoped annotation to produce a new
+    /// annotation in the scoped typestate with the given
+    /// scope.
+    pub fn with_scope(self, scope: SymbolTable<'a>)
+        -> Annotated<'a, T, Scoped> {
+        Annotated {
+            node: self.node,
+            position: self.position,
+            scope: Some(scope),
+            my_typestate: PhantomData
+        }
+    }
+}
+
+impl<'a, T, S> ops::Deref for Annotated<'a, T, S>
+where S: ScopednessTypestate,
+      T: ASTNode {
     type Target = T;
     fn deref(&self) -> &T { &self.node }
 }
