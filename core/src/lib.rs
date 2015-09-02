@@ -20,7 +20,7 @@ extern crate combine;
 pub mod position;
 pub mod semantic;
 pub mod compile;
-mod forktable;
+pub mod forktable;
 
 pub use semantic::ast;
 

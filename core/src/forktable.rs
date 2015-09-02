@@ -2,8 +2,8 @@ use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::{Keys,Values};
 use std::hash::Hash;
 use std::borrow::Borrow;
-use std::cmp::max;
 use std::ops;
+
 /// An associative map data structure for representing scopes.
 ///
 /// A `ForkTable` functions similarly to a standard associative map
@@ -62,7 +62,7 @@ where K: Eq + Hash
     /// # Examples
     ///
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
     /// table.insert(1, "One");
@@ -70,7 +70,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get(&2), None);
     /// ```
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
     ///
@@ -119,7 +119,7 @@ where K: Eq + Hash
     /// # Examples
     ///
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get_mut(&1), None);
     /// table.insert(1isize, "One");
@@ -127,7 +127,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get_mut(&2), None);
     /// ```
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
     ///
@@ -169,7 +169,7 @@ where K: Eq + Hash
     ///
     /// # Examples
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// table.insert(1, "One");
     ///
@@ -177,7 +177,7 @@ where K: Eq + Hash
     /// assert_eq!(table.contains_key(&1), false);
     /// ```
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
     /// assert_eq!(level_1.contains_key(&1), true);
@@ -228,7 +228,7 @@ where K: Eq + Hash
     /// Simply inserting an entry:
     ///
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
     /// table.insert(1, "One");
@@ -238,7 +238,7 @@ where K: Eq + Hash
     /// Overwriting the value associated with a key:
     ///
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
     /// assert_eq!(table.insert(1, "one"), None);
@@ -273,14 +273,14 @@ where K: Eq + Hash
     ///
     /// # Examples
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.contains_key(&1), true);
     /// ```
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.contains_key(&1), false);
     /// level_1.insert(1, "One");
@@ -317,14 +317,14 @@ where K: Eq + Hash
     ///
     /// # Examples
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.chain_contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.chain_contains_key(&1), true);
     /// ```
     /// ```
-    /// # use seax_util::compiler_tools::ForkTable;
+    /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.chain_contains_key(&1), false);
     /// level_1.insert(1, "One");
@@ -404,8 +404,7 @@ where K: Eq + Hash
 /// This is just a wrapper for `get(&key)`
 ///
 /// ```
-/// # #![cfg_attr(feature = "unstable", feature(forktable))]
-/// # use seax_util::compiler_tools::ForkTable;
+/// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");
 /// assert_eq!(table[&1], "One");
@@ -436,8 +435,7 @@ where K: Borrow<Q>,
 /// This is just a wrapper for `get_mut(&key)`
 ///
 /// ```
-/// # #![cfg_attr(feature = "unstable", feature(forktable))]
-/// # use seax_util::compiler_tools::ForkTable;
+/// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");
 /// table[&1] = "one";
