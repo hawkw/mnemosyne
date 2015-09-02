@@ -104,8 +104,8 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match **self {
             DefForm::TopLevel { ref name, ref value, .. } =>
-                unimplemented!(),
-            DefForm::Function { ref name, ref body, .. } =>
+                unimplemented!()
+         ,  DefForm::Function { ref name, ref body, .. } =>
                 unsafe {
                     let name_ptr // function name as C string pointer
                         = CString::new((&name.value).clone()).unwrap().as_ptr();
@@ -125,9 +125,9 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
 impl TranslateType for Type {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
         match *self {
-            Type::Ref(ref reference)  => reference.translate_type(context),
-            Type::Prim(ref primitive) => primitive.translate_type(context),
-            _ => unimplemented!() // TODO: figure this out
+            Type::Ref(ref reference)  => reference.translate_type(context)
+          , Type::Prim(ref primitive) => primitive.translate_type(context)
+          , _ => unimplemented!() // TODO: figure this out
         }
     }
 }
@@ -143,14 +143,14 @@ impl TranslateType for Primitive {
         unsafe {
             not_null!(match *self {
                 Primitive::Int => // Integers are machine word size
-                    llvm::LLVMIntTypeInContext(context.llctx, word_size()),
-                Primitive::Float => // Floats are single precision
-                    llvm::LLVMFloatTypeInContext(context.llctx),
-                Primitive::Double => // Doubles are obvious precision
-                    llvm::LLVMDoubleTypeInContext(context.llctx),
-                Primitive::Byte => // Bytes are 8 bits (duh)
-                    llvm::LLVMInt8TypeInContext(context.llctx),
-                _ => unimplemented!() // TODO: figure this out
+                    llvm::LLVMIntTypeInContext(context.llctx, word_size())
+              , Primitive::Float => // Floats are single precision
+                    llvm::LLVMFloatTypeInContext(context.llctx)
+              , Primitive::Double => // Doubles are obvious precision
+                    llvm::LLVMDoubleTypeInContext(context.llctx)
+              , Primitive::Byte => // Bytes are 8 bits (duh)
+                    llvm::LLVMInt8TypeInContext(context.llctx)
+              , _ => unimplemented!() // TODO: figure this out
             })
         }
     }
