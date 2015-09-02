@@ -14,6 +14,16 @@ This repository contains `mnemosyne`, the Mnemosyne compiler implemented as a li
 
 Mnemosyne is being developed and implemented by [Hawk Weisman](http://hawkweisman.me) as [senior thesis research](https://github.com/hawkw/senior-thesis) at Allegheny College.
 
+
+About Mnemosyne
+---------------
+
+Mnemosyne's main goal is to provide programmers with the safety and elegance of modern functional programming languages while still being a viable choice for high-performance and low-level programming tasks. Primary to this objective is the use of automatic compile-time memory management through ownership types and lifetime analysis, which gives programmers the tools to write high-performance systems and applications that guarantee memory safety without garbage collection. A general focus is placed on the use of zero-cost abstractions and on resolving costly operations at compile-time rather than at runtime.
+
+Mnemosyne is a statically-typed functional programming language. Its syntax is primarily inspired by the LISP family of languages, particularly Scheme, Typed Racket, and to a lesser extent, Clojure. Its semantics and compiler design, however, are influenced more by Haskell and languages in the ML family, Rust, and C++.
+
+Please note that this Mnemosyne implementation is intended primarily as a prototype or technology demonstration. Many major planned features have not yet been implemented.
+
 Instructions
 ------------
 
