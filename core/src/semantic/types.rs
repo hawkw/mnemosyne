@@ -14,6 +14,15 @@ use std::marker::PhantomData;
 //==-----------------------------------------------------==
 // This is basically a reimplementation of the typestate
 // system that Rust briefly had.
+macro_rules! scope_typestate_err {
+    ($err_site:expr) => {
+        panic!("VERY TRAGIC ERROR: Typestate assertion failed during {}.\n \
+            A node in the scoped typestate had no scope. Something has gone \
+            terribly, terribly wrong. Contact the Mnemosyne implementors.",
+            $err_site
+        )}
+}
+
 pub trait ScopednessTypestate { fn is_scoped() -> bool; }
 pub struct Scoped;
 pub struct Unscoped;
@@ -43,12 +52,13 @@ where T: ASTNode {
     /// associated with that name in the current scope. The argument
     /// can be any type `Q` such that `String: Borrow<Q>` (i.e.
     /// you can pass an `&str` to this function).
-    pub fn get_type<Q: ?Sized>(&self, name: &Q) -> Option<&SymbolAnnotation>
+    pub fn get_type<Q: ?Sized>(&self, name: &'a Q) -> Option<&SymbolAnnotation>
     where String: Borrow<Q>,
           Q: Hash + Eq {
-        self.scope
-            .expect("VERY FATAL ERROR: Node in scoped typestate had no scope")
-            .get(name)
+        match self.scope {
+            Some(ref table) => table.get(name),
+            None => scope_typestate_err!("get_type()")
+        }
     }
 
     /// Check if the given name is defined in this scope.
@@ -58,9 +68,10 @@ where T: ASTNode {
     pub fn is_defined_here<Q: ?Sized>(&self, name: &Q) -> bool
     where String: Borrow<Q>,
           Q: Hash + Eq {
-        self.scope
-            .expect("VERY FATAL ERROR: Node in scoped typestate had no scope")
-            .contains_key(name)
+        match self.scope {
+            Some(ref table) => table.contains_key(name),
+            None => scope_typestate_err!("is_defined_here()")
+        }
     }
 
 }
