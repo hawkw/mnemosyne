@@ -7,7 +7,12 @@ pub mod ast;
 pub mod types;
 
 use ast::*;
-use self::types::{Annotated, Scoped, ScopednessTypestate, Type};
+use self::types::{ Annotated
+                 , Scoped
+                 , Unscoped
+                 , ScopednessTypestate
+                 , Type
+                 };
 
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///
@@ -34,21 +39,18 @@ pub trait ASTNode: Sized {
     /// match for the original source code.
     fn to_sexpr(&self, level: usize) -> String;
 
-    /// Analyse this node & annotate it with the appropriate type state.
-    ///
-    /// The `Annotated` type stores a reference to an AST node along with
-    /// the definitions visible at that node's scope.
-    ///
-    /// Essentially, this transforms our early IR (where type information
-    /// is just stored in strings from the source program) into a working
-    /// representation where types and symbol definitions are encoded in a
-    /// way the compiler can analyze.
-    fn annotate_types<'a>(self, scope: SymbolTable)
-                         -> Annotated<'a, Self, Scoped> ;
-
 }
 
-impl<'a, S> ASTNode for Annotated<'a, Form<'a, S>, S>
+pub trait AnnotateTypes<'a>: Sized {
+
+    #[allow(unused_variables)]
+    fn annotate_types(self, scope: SymbolTable)
+                      -> Annotated<'a, Self, Scoped> {
+        unimplemented!() //TODO: implement
+    }
+}
+
+impl<'a, S> ASTNode for Form<'a, S>
 where S: ScopednessTypestate {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
@@ -57,27 +59,23 @@ where S: ScopednessTypestate {
         }
     }
 
+}
+
+impl<'a> AnnotateTypes<'a> for Annotated<'a, Form<'a, Unscoped>, Unscoped> {
     #[allow(unused_variables)]
-    fn annotate_types<'b>(self, scope: SymbolTable)
-                         -> Annotated<'b, Self, Scoped> {
+    fn annotate_types(self, scope: SymbolTable)
+                     -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
-
 }
 
 impl ASTNode for Ident {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
 
-    #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable)
-                         -> Annotated<'a, Self, Scoped> {
-        unimplemented!() //TODO: implement
-    }
-
 }
 
-impl<'a, S> ASTNode for Annotated<'a, DefForm<'a, S>, S>
+impl<'a, S> ASTNode for DefForm<'a, S>
 where S: ScopednessTypestate {
 
     fn to_sexpr(&self, level: usize) -> String {
@@ -100,12 +98,14 @@ where S: ScopednessTypestate {
         }
     }
 
+}
+
+impl<'a> AnnotateTypes<'a> for Annotated<'a, DefForm<'a, Unscoped>, Unscoped> {
     #[allow(unused_variables)]
-    fn annotate_types<'b>(self, scope: SymbolTable)
-                        -> Annotated<'b, Self, Scoped> {
+    fn annotate_types(self, scope: SymbolTable)
+                      -> Annotated<'a, Self, Scoped> {
         unimplemented!() //TODO: implement
     }
-
 }
 
 impl ASTNode for Formal {
@@ -114,14 +114,9 @@ impl ASTNode for Formal {
         format!("{}: {}", *(self.name), *(self.annot))
     }
 
-    #[allow(unused_variables)]
-    fn annotate_types<'a>(self, scope: SymbolTable)
-                         -> Annotated<'a, Self, Scoped> {
-        unimplemented!() //TODO: implement
-    }
-
 }
 
+#[derive(Clone,Debug,PartialEq)]
 pub struct SymbolAnnotation<'a> {
     /// The type of the symbol
     pub ty: Type,

@@ -1,4 +1,7 @@
-use super::{ASTNode, SymbolTable, SymbolAnnotation};
+use super::{ ASTNode
+           , SymbolTable
+           , SymbolAnnotation
+           };
 use ::position::Position;
 
 use std::rc::Rc;
@@ -6,6 +9,7 @@ use std::borrow::Borrow;
 use std::hash::Hash;
 use std::ops;
 use std::marker::PhantomData;
+use std::fmt;
 
 // pub type STCell<'a> = Rc<RefCell<SymbolTable<'a>>>;
 
@@ -22,16 +26,26 @@ macro_rules! scope_typestate_err {
             $err_site
         )}
 }
-
 pub trait ScopednessTypestate { fn is_scoped() -> bool; }
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Scoped;
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Unscoped;
 impl ScopednessTypestate for Scoped { fn is_scoped() -> bool {true} }
 impl ScopednessTypestate for Unscoped { fn is_scoped() -> bool {false} }
+impl fmt::Display for Scoped {
+    fn fmt(&self, f: &mut fmt::Formatter)
+        -> fmt::Result { write!(f, "Scoped") }
+}
+impl fmt::Display for Unscoped {
+    fn fmt(&self, f: &mut fmt::Formatter)
+        -> fmt::Result { write!(f,"Unscoped") }
+}
 //==------- exiting typesystem danger zone --------------==
 
 /// An AST node which has been annotated with position &
 /// (possibly) scope information.
+#[derive(Clone, Debug)]
 pub struct Annotated<'a, T, S>
 where S: ScopednessTypestate {
     pub node: T,
@@ -50,9 +64,11 @@ impl<'a, T> Annotated<'a, T, Scoped>  {
     /// associated with that name in the current scope. The argument
     /// can be any type `Q` such that `String: Borrow<Q>` (i.e.
     /// you can pass an `&str` to this function).
-    pub fn get_type<Q: ?Sized>(&self, name: &'a Q) -> Option<&SymbolAnnotation>
-    where String: Borrow<Q>,
-          Q: Hash + Eq {
+    pub fn get_type<Q: ?Sized>(&'a self,
+                               name: &'a Q) -> Option<&'a SymbolAnnotation>
+                               where String: Borrow<Q>,
+                                     Q: Hash + Eq
+    {
         match self.scope {
             Some(ref table) => table.get(name),
             None => scope_typestate_err!("get_type()")
@@ -97,7 +113,37 @@ where S: ScopednessTypestate,
     fn deref(&self) -> &T { &self.node }
 }
 
-#[derive(Debug, Clone)]
+impl<'a, T, S> fmt::Display for Annotated<'a, T, S>
+where T: fmt::Display,
+      S: ScopednessTypestate {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} at {}", self.node, self.position)
+    }
+}
+
+// impl<'a, T> fmt::Debug for Annotated<'a, T, Scoped>
+// where T: fmt::Debug {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{:?}, annotated with scope", self.node)
+//     }
+// }
+//
+// impl<'a, T> fmt::Debug for Annotated<'a, T, Unscoped>
+// where T: fmt::Debug {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "{:?}, unscoped", self.node)
+//     }
+// }
+
+impl<'a, T, S> PartialEq for Annotated<'a, T, S>
+where S: ScopednessTypestate,
+      T: PartialEq {
+    fn eq(&self, other: &Annotated<'a, T, S>) -> bool {
+        self.node == other.node
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Type {
     /// Reference types
     Ref(Reference),
@@ -119,7 +165,7 @@ pub enum Type {
 /// Reference types (pointers)
 ///
 /// TODO: how will lifetime analysis actually work?
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Reference {
     /// A reference borrowed from another scope.
     ///
@@ -147,7 +193,7 @@ pub enum Reference {
 /// TODO: add some form of provable-refinement (i.e. we know that some value
 /// is not just a bool at compile time but that it's true/false, or we know
 /// some value is not just a number but the number 1382, or whatever).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Primitive { Int
                    , Uint
                    , Byte

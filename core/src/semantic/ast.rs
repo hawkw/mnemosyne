@@ -3,7 +3,8 @@ use super::types::{Annotated, ScopednessTypestate};
 use std::rc::Rc;
 
 pub type Ident = Positional<String>;
-pub type Expr<'a, S: ScopednessTypestate> = Rc<Annotated<'a, Form<'a, S>, S>>;
+pub type Expr<'a, S: ScopednessTypestate>
+    = Rc<Annotated<'a, Form<'a, S>, S>>;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
@@ -14,7 +15,9 @@ pub enum Form<'a, S: ScopednessTypestate> {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Formal { pub name: Ident, pub annot: Ident }
+pub struct Formal { pub name: Ident
+                  , pub annot: Ident
+                  }
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum DefForm<'a, S: ScopednessTypestate> {
