@@ -5,16 +5,11 @@ use ::forktable::ForkTable;
 
 pub mod ast;
 pub mod types;
+pub mod annotations;
 
 use ast::*;
-use self::types::{ Annotated
-                 , Scoped
-                 , Unscoped
-                 , ScopedState
-                 , UnscopedState
-                 , ScopednessTypestate
-                 , Type
-                 };
+use self::annotations::*;
+use self::types::Type;
 
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///

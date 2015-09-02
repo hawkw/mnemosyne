@@ -14,12 +14,11 @@ use rustc::lib::llvm::{ ContextRef
 use forktable::ForkTable;
 use position::Positional;
 use ast::{Form, DefForm};
-use semantic::types::{ Type
-                     , Reference
-                     , Primitive
-                     , ScopedState
-                     , Scoped
-                     };
+
+use semantic::annotations::{ ScopedState
+                           , Scoped
+                           };
+use semantic::types::*;
 
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;

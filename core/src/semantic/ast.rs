@@ -1,5 +1,7 @@
 use ::position::Positional;
-use super::types::{Annotated, ScopednessTypestate};
+use super::annotations::{ Annotated
+                        , ScopednessTypestate
+                        };
 use std::rc::Rc;
 
 pub type Ident = Positional<String>;
