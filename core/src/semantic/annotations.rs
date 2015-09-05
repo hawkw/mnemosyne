@@ -19,8 +19,8 @@ macro_rules! scope_typestate_err {
         panic!("VERY TRAGIC ERROR: Typestate assertion failed during {}.\n \
             A node in the scoped typestate had no scope. Something has gone \
             terribly, terribly wrong. Contact the Mnemosyne implementors.",
-            $err_site
-        )}
+            $err_site)
+        }
 }
 pub trait ScopednessTypestate { fn is_scoped() -> bool; }
 #[derive(Copy, Clone, Debug, PartialEq)]

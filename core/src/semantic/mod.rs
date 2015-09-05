@@ -53,7 +53,10 @@ where S: ScopednessTypestate
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
-            Form::Define(ref form) => form.to_sexpr(level),
+            Form::Define(ref form) => form.to_sexpr(level)
+          , Form::If { .. } => unimplemented!()
+          , Form::Call { .. } => unimplemented!()
+          , Form::Let { .. } => unimplemented!()
         }
     }
 
