@@ -11,6 +11,7 @@ pub type Expr<'a, S: ScopednessTypestate>
     = Rc<Annotated< 'a
                   , Form<'a, S>
                   , S>>;
+
 pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
 
 pub type Bindings<'a, S: ScopednessTypestate>
