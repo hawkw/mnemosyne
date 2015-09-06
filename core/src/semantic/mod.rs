@@ -107,18 +107,44 @@ where S: ScopednessTypestate {
         match *self {
             LetForm::Let { ref bindings, ref body } =>
                 format!("{}(let [{}]\n{})"
-                       , indent!(level)
-                       , bindings.iter()
-                                 .fold(String::new(), |mut s, binding| {
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
                                     write!(s, "{}\n", binding.to_sexpr(level));
                                     s
                                  })
-                       , body.iter()
-                             .fold(String::new(), |mut s, expr| {
-                                write!(s, "{}", expr.to_sexpr(level + 1));
-                                s
-                             })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                              write!(s, "{}", expr.to_sexpr(level + 1));
+                              s
+                          })
                        )
+          , LetForm::LetRec { ref bindings, ref body } =>
+                format!("{}(letrec [{}]\n{})"
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    s
+                               })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                                write!(s, "{}", expr.to_sexpr(level + 1)); s
+                            })
+                          )
+          , LetForm::LetSplat { ref bindings, ref body } =>
+                format!("{}(let* [{}]\n{})"
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    s
+                               })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                                write!(s, "{}", expr.to_sexpr(level + 1)); s
+                            })
+                          )
           , _ => unimplemented!()
         }
     }
