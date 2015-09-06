@@ -95,12 +95,11 @@ impl<'a, T> Unscoped<'a, T> {
     /// annotation in the scoped typestate with the given
     /// scope.
     pub fn with_scope(self, scope: SymbolTable<'a>) -> Scoped<'a, T>{
-        Annotated {
-            node: self.node
-          , position: self.position
-          , scope: Some(scope)
-          , my_typestate: PhantomData
-        }
+        Annotated { node: self.node
+                  , position: self.position
+                  , scope: Some(scope)
+                  , my_typestate: PhantomData
+                  }
     }
 }
 
