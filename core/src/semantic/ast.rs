@@ -10,6 +10,7 @@ pub type Expr<'a, S: ScopednessTypestate>
     = Rc<Annotated< 'a
                   , Form<'a, S>
                   , S>>;
+pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
@@ -18,13 +19,9 @@ pub enum Form<'a, S: ScopednessTypestate> {
        , if_clause: Expr<'a, S>
        , else_clause: Option<Expr<'a, S>>
        }
-  , Let { bindings: Vec<Annotated< 'a
-                                 , Binding<'a, S>
-                                 , S>>
-        , body: Expr<'a, S>
-        }
+  , Let(LetForm<'a, S>)
   , Call { fun: Ident
-         , body: Vec<Expr<'a, S>>
+         , body: Body<'a, S>
          }
 }
 
@@ -38,12 +35,25 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
     TopLevel { name: Ident
              , annot: Ident
              , value: Expr<'a, S>
-             },
-    Function { name: Ident
+             }
+  , Function { name: Ident
              , annot: Ident
              , formals: Vec<Annotated<'a, Formal, S>>
-             , body: Expr<'a, S>
+             , body: Body<'a, S>
              }
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub enum LetForm<'a, S: ScopednessTypestate> {
+    Binding { bindings: Vec<Annotated< 'a
+                                     , Binding<'a, S>
+                                     , S>>
+            , body: Body<'a, S>
+           }
+  , Invocation { proc_id: Ident
+               , init: Binding<'a, S>
+               , body: Body<'a, S>
+               }
 }
 
 #[derive(PartialEq, Clone, Debug)]

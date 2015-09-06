@@ -1,4 +1,5 @@
-use std::{fmt, iter};
+use std::iter;
+use std::fmt::Write;
 use std::rc::Rc;
 
 use ::forktable::ForkTable;
@@ -54,9 +55,9 @@ where S: ScopednessTypestate
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
             Form::Define(ref form) => form.to_sexpr(level)
+          , Form::Let(ref form) => form.to_sexpr(level)
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
-          , Form::Let { .. } => unimplemented!()
         }
     }
 
@@ -90,12 +91,25 @@ where S: ScopednessTypestate {
                 format!("{}(define {} {} {}\n{})", indent!(level),
                     name.to_sexpr(level),
                     annot.to_sexpr(level),
-                    formals.iter().fold(String::new(), |mut s, f| {
-                        s.push_str(&f.to_sexpr(level)); s
-                        }),
-                    body.to_sexpr(level + 1)
+                    formals.iter()
+                           .fold(String::new(), |mut s, f| {
+                                s.push_str(&f.to_sexpr(level)); s
+                            }),
+                    body.iter()
+                        .fold(String::new(), |mut s, f| {
+                                write!(s, "{}\n", &f.to_sexpr(level + 1)); s
+                            }),
                     )
         }
+    }
+
+}
+
+impl<'a, S> ASTNode for LetForm<'a, S>
+where S: ScopednessTypestate {
+
+    fn to_sexpr(&self, level: usize) -> String {
+        unimplemented!()
     }
 
 }

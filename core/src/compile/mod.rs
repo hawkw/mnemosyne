@@ -95,9 +95,9 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         match **self {
             Form::Define(ref form) => unimplemented!()
+          , Form::Let(ref form) => unimplemented!()
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
-          , Form::Let { .. } => unimplemented!()
         }
     }
 }
