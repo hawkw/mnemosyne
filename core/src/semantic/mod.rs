@@ -32,7 +32,7 @@ macro_rules! indent {
 pub trait ASTNode: Sized {
 
     /// Pretty-print the AST node as an S-expression at the desired
-    /// indentation level.
+    /// indentation level.]
     ///
     /// Note that this prints the desugared form and may not be a perfect
     /// match for the original source code.

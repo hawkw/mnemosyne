@@ -6,11 +6,17 @@ use super::types::Type;
 use std::rc::Rc;
 
 pub type Ident = Positional<String>;
+
 pub type Expr<'a, S: ScopednessTypestate>
     = Rc<Annotated< 'a
                   , Form<'a, S>
                   , S>>;
 pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
+
+pub type Bindings<'a, S: ScopednessTypestate>
+    = Vec<Annotated< 'a
+                   , Binding<'a, S>
+                   , S>>;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
@@ -43,18 +49,25 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
              }
 }
 
+
 #[derive(PartialEq, Clone, Debug)]
 pub enum LetForm<'a, S: ScopednessTypestate> {
-    Binding { bindings: Vec<Annotated< 'a
-                                     , Binding<'a, S>
-                                     , S>>
-            , body: Body<'a, S>
-           }
+    Let { bindings: Bindings<'a, S>
+        , body: Body<'a, S>
+        }
   , Invocation { proc_id: Ident
                , init: Binding<'a, S>
                , body: Body<'a, S>
                }
+  , LetRec { bindings: Bindings<'a, S>
+           , body: Body<'a, S>
+           }
+  , LetSplat { bindings: Bindings<'a, S>
+             , body: Body<'a, S>
+             }
+
 }
+
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Binding<'a, S: ScopednessTypestate> {
