@@ -1,9 +1,3 @@
-use super::{ ASTNode
-           , SymbolTable
-           , SymbolAnnotation
-           };
-use ::position::Position;
-
 use std::rc::Rc;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -20,7 +14,8 @@ pub enum Type {
     ///
     /// Represented as a vector of parameters and a return type.
     Function { params: Vec<Type>
-             , rt: Rc<Type> },
+             , rt: Rc<Type>
+             },
     /// A unique symbol type (`'symbol` syntax)
     Symbol(String)
 }
