@@ -58,7 +58,7 @@ where S: ScopednessTypestate
           , Form::Let(ref form) => form.to_sexpr(level)
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
-          , Form::Lambda { .. } => unimplemented!()
+          , Form::Lambda(ref fun) => fun.to_sexpr(level)
         }
     }
 
@@ -83,24 +83,18 @@ where S: ScopednessTypestate {
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
             DefForm::TopLevel { ref name, ref annot, ref value } =>
-                format!("{}(define {} {} {})", indent!(level),
-                    name.to_sexpr(level),
-                    annot.to_sexpr(level),
-                    value.to_sexpr(level+1)
-                    ),
-            DefForm::Function { ref name, ref annot, ref formals, ref body } =>
-                format!("{}(define {} {} {}\n{})", indent!(level),
-                    name.to_sexpr(level),
-                    annot.to_sexpr(level),
-                    formals.iter()
-                           .fold(String::new(), |mut s, f| {
-                                s.push_str(&f.to_sexpr(level)); s
-                            }),
-                    body.iter()
-                        .fold(String::new(), |mut s, f| {
-                                write!(s, "{}\n", &f.to_sexpr(level + 1)); s
-                            }),
-                    )
+                format!("{}(define {} {} {})"
+                  , indent!(level)
+                  , name.to_sexpr(level)
+                  , annot.to_sexpr(level)
+                  , value.to_sexpr(level + 1)
+                  )
+          , DefForm::Function { ref name, ref fun } =>
+                format!("{}(define {} {}\n)"
+                  , indent!(level)
+                  , name.to_sexpr(level)
+                  , fun.to_sexpr(level)
+                  )
         }
     }
 
@@ -113,6 +107,15 @@ where S: ScopednessTypestate {
         unimplemented!()
     }
 
+}
+
+impl<'a, S> ASTNode for Function<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        unimplemented!()
+    }
 }
 
 impl<'a> AnnotateTypes<'a> for Unscoped<'a, DefForm<'a, UnscopedState>> {

@@ -98,7 +98,7 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
           , Form::Let(ref form) => unimplemented!()
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
-          , Form::Lambda { .. } => unimplemented!()
+          , Form::Lambda(ref fun) => unimplemented!()
         }
     }
 }
@@ -108,7 +108,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
         match **self {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!()
-         ,  DefForm::Function { ref name, ref body, .. } =>
+         ,  DefForm::Function { ref name, ref fun } =>
                 unsafe {
                     let name_ptr // function name as C string pointer
                         = CString::new((&name.value).clone()).unwrap().as_ptr();

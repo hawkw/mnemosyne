@@ -29,10 +29,7 @@ pub enum Form<'a, S: ScopednessTypestate> {
   , Call { fun: Ident
          , body: Body<'a, S>
          }
-  , Lambda { formals: Vec<Annotated<'a, Formal, S>>
-           , annot: Ident
-           , body: Body<'a, S>
-           }
+  , Lambda(Function<'a, S>)
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -47,9 +44,7 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
              , value: Expr<'a, S>
              }
   , Function { name: Ident
-             , annot: Ident
-             , formals: Vec<Annotated<'a, Formal, S>>
-             , body: Body<'a, S>
+             , fun: Function<'a,S>
              }
 }
 
@@ -72,10 +67,16 @@ pub enum LetForm<'a, S: ScopednessTypestate> {
 
 }
 
-
 #[derive(PartialEq, Clone, Debug)]
 pub struct Binding<'a, S: ScopednessTypestate> {
     pub name: Ident
   , pub typ: Type
   , pub value: Expr<'a, S>
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Function<'a, S: ScopednessTypestate> {
+    pub formals: Vec<Annotated<'a, Formal, S>>
+  , pub annot: Ident
+  , pub body: Body<'a, S>
 }
