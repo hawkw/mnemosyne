@@ -98,6 +98,7 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
           , Form::Let(ref form) => unimplemented!()
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
+          , Form::Lambda { .. } => unimplemented!()
         }
     }
 }

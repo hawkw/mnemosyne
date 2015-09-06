@@ -58,6 +58,7 @@ where S: ScopednessTypestate
           , Form::Let(ref form) => form.to_sexpr(level)
           , Form::If { .. } => unimplemented!()
           , Form::Call { .. } => unimplemented!()
+          , Form::Lambda { .. } => unimplemented!()
         }
     }
 

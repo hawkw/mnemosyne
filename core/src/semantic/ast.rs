@@ -29,6 +29,10 @@ pub enum Form<'a, S: ScopednessTypestate> {
   , Call { fun: Ident
          , body: Body<'a, S>
          }
+  , Lambda { formals: Vec<Annotated<'a, Formal, S>>
+           , annot: Ident
+           , body: Body<'a, S>
+           }
 }
 
 #[derive(PartialEq, Clone, Debug)]
