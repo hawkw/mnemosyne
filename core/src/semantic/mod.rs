@@ -104,12 +104,37 @@ impl<'a, S> ASTNode for LetForm<'a, S>
 where S: ScopednessTypestate {
 
     fn to_sexpr(&self, level: usize) -> String {
-        unimplemented!()
+        match *self {
+            LetForm::Let { ref bindings, ref body } =>
+                format!("{}(let [{}]\n{})"
+                       , indent!(level)
+                       , bindings.iter()
+                                 .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    s
+                                 })
+                       , body.iter()
+                             .fold(String::new(), |mut s, binding| {
+                                write!(s, "{}", binding.to_sexpr(level + 1));
+                                s
+                             })
+                       )
+          , _ => unimplemented!()
+        }
     }
 
 }
 
 impl<'a, S> ASTNode for Function<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        unimplemented!()
+    }
+}
+
+impl<'a, S> ASTNode for Binding<'a, S>
 where S: ScopednessTypestate
 {
     #[allow(unused_variables)]
