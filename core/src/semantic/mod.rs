@@ -110,12 +110,14 @@ where S: ScopednessTypestate {
                     , indent!(level)
                     , bindings.iter()
                               .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
                                     s
                                  })
                     , body.iter()
                           .fold(String::new(), |mut s, expr| {
-                              write!(s, "{}", expr.to_sexpr(level + 1));
+                              write!(s, "{}", expr.to_sexpr(level + 1))
+                                .expect("Could not write to string!");
                               s
                           })
                        )
@@ -124,7 +126,8 @@ where S: ScopednessTypestate {
                     , indent!(level)
                     , bindings.iter()
                               .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
                                     s
                                })
                     , body.iter()
@@ -137,12 +140,15 @@ where S: ScopednessTypestate {
                     , indent!(level)
                     , bindings.iter()
                               .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level));
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
                                     s
                                })
                     , body.iter()
                           .fold(String::new(), |mut s, expr| {
-                                write!(s, "{}", expr.to_sexpr(level + 1)); s
+                                write!(s, "{}", expr.to_sexpr(level + 1))
+                                    .expect("Could not write to string!");
+                                s
                             })
                           )
           , _ => unimplemented!()
