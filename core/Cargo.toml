@@ -7,3 +7,4 @@ authors = ["Hawk Weisman <hi@hawkweisman.me>"]
 combine = "^1.0.0"
 log = "0.3"
 libc = "*"
+clippy = "*"
