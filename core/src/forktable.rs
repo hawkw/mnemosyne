@@ -384,9 +384,7 @@ where K: Eq + Hash
     /// order. Iterator element type is &'b V.
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since  = "0.1.2") )]
-    pub fn values<'b>(&'b self) -> Values<'b, K, V> {
-        self.table.values()
-    }
+    pub fn values(&self) -> Values<K, V> { self.table.values() }
 
     /// Wrapper for the backing map's `keys()` function.
     ///
@@ -394,9 +392,7 @@ where K: Eq + Hash
     /// order. Iterator element type is &'b K.
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since  = "0.1.2") )]
-    pub fn keys<'b>(&'b self) -> Keys<'b, K, V>{
-        self.table.keys()
-    }
+    pub fn keys(&self) -> Keys<K, V> { self.table.keys() }
 }
 
 /// Allows `table[&key]` indexing syntax.
