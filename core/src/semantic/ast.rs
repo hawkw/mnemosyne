@@ -8,9 +8,9 @@ use std::rc::Rc;
 pub type Ident = Positional<String>;
 
 pub type Expr<'a, S: ScopednessTypestate>
-    = Rc<Annotated< 'a
-                  , Form<'a, S>
-                  , S>>;
+    = Annotated< 'a
+                , Form<'a, S>
+                , S>;
 
 pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
 
@@ -22,9 +22,9 @@ pub type Bindings<'a, S: ScopednessTypestate>
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
     Define(DefForm<'a, S>)
-  , If { condition: Expr<'a, S>
-       , if_clause: Expr<'a, S>
-       , else_clause: Option<Expr<'a, S>>
+  , If { condition: Rc<Expr<'a, S>>
+       , if_clause: Rc<Expr<'a, S>>
+       , else_clause: Option<Rc<Expr<'a, S>>>
        }
   , Let(LetForm<'a, S>)
   , Call { fun: Ident
@@ -42,7 +42,7 @@ pub struct Formal { pub name: Ident
 pub enum DefForm<'a, S: ScopednessTypestate> {
     TopLevel { name: Ident
              , annot: Ident
-             , value: Expr<'a, S>
+             , value: Rc<Expr<'a, S>>
              }
   , Function { name: Ident
              , fun: Function<'a,S>
@@ -72,7 +72,7 @@ pub enum LetForm<'a, S: ScopednessTypestate> {
 pub struct Binding<'a, S: ScopednessTypestate> {
     pub name: Ident
   , pub typ: Type
-  , pub value: Expr<'a, S>
+  , pub value: Rc<Expr<'a, S>>
 }
 
 #[derive(PartialEq, Clone, Debug)]
