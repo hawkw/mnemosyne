@@ -12,11 +12,10 @@ use combine::primitives::SourcePosition;
 /// that we will use for the Mnemosyne parser). I personally would
 /// have used `usize`s...
 #[derive(Copy, Clone, PartialEq, Eq, Debug, PartialOrd, Ord)]
-pub struct Position {
-    pub col: i32,
-    pub row: i32,
-    pub raw: i32
-}
+pub struct Position { pub col: i32
+                    , pub row: i32
+                    , pub raw: i32
+                    }
 
 impl Position {
 
@@ -68,10 +67,9 @@ impl fmt::Display for Position {
 }
 
 #[derive(Clone, Debug)]
-pub struct Positional<T> {
-    pub pos: Position,
-    pub value: T
-}
+pub struct Positional<T> { pub pos: Position
+                         , pub value: T
+                         }
 
 impl<T> Positional<T> {
     /// Create a new Positional marker at the given position.

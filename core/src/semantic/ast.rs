@@ -8,14 +8,14 @@ use std::rc::Rc;
 pub type Ident = Positional<String>;
 
 pub type Expr<'a, S: ScopednessTypestate>
-    = Annotated< 'a
-                , Form<'a, S>
-                , S>;
+    = Annotated<'a
+               , Form<'a, S>
+               , S>;
 
 pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
 
 pub type Bindings<'a, S: ScopednessTypestate>
-    = Vec<Annotated< 'a
+    = Vec<Annotated<'a
                    , Binding<'a, S>
                    , S>>;
 
@@ -31,6 +31,7 @@ pub enum Form<'a, S: ScopednessTypestate> {
          , body: Body<'a, S>
          }
   , Lambda(Function<'a, S>)
+  , Logical(Logical<'a, S>)
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -49,6 +50,18 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
              }
 }
 
+/// Logical `and` and `or` expressions
+///
+/// The general expectation is that these will generally be parsed as infix.
+#[derive(PartialEq, Clone, Debug)]
+pub enum Logical<'a, S: ScopednessTypestate> {
+    And { a: Rc<Expr<'a, S>>
+        , b: Rc<Expr<'a, S>>
+        }
+  , Or { a: Rc<Expr<'a, S>>
+       , b: Rc<Expr<'a, S>>
+       }
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum LetForm<'a, S: ScopednessTypestate> {

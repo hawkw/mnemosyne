@@ -54,11 +54,12 @@ where S: ScopednessTypestate
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
-            Form::Define(ref form) => form.to_sexpr(level)
-          , Form::Let(ref form) => form.to_sexpr(level)
-          , Form::If { .. } => unimplemented!()
-          , Form::Call { .. } => unimplemented!()
-          , Form::Lambda(ref fun) => fun.to_sexpr(level)
+            Form::Define(ref form)  => form.to_sexpr(level)
+          , Form::Let(ref form)     => form.to_sexpr(level)
+          , Form::If { .. }         => unimplemented!()
+          , Form::Call { .. }       => unimplemented!()
+          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
+          , Form::Logical(ref form) => form.to_sexpr(level)
         }
     }
 
@@ -155,6 +156,26 @@ where S: ScopednessTypestate {
         }
     }
 
+}
+
+impl<'a, S> ASTNode for Logical<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        match *self {
+            Logical::And { ref a, ref b } =>
+                format!( "(and {} {})"
+                       , a.to_sexpr(level)
+                       , b.to_sexpr(level)
+                       )
+         ,  Logical::Or { ref a, ref b }  =>
+                format!( "(and {} {})"
+                       , a.to_sexpr(level)
+                       , b.to_sexpr(level)
+                       )
+        }
+    }
 }
 
 impl<'a, S> ASTNode for Function<'a, S>
