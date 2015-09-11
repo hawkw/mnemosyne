@@ -13,7 +13,9 @@ use rustc::lib::llvm::{ ContextRef
 
 use forktable::ForkTable;
 use position::Positional;
-use ast::{Form, DefForm};
+use ast::{ Form
+         , DefForm
+         , Ident };
 
 use semantic::annotations::{ ScopedState
                            , Scoped
@@ -57,6 +59,17 @@ macro_rules! not_null {
     })
 }
 
+macro_rules! optionalise {
+    ($target:expr) => ({
+        unsafe {
+            let e = $target;
+            if e.is_null() {
+                None
+            } else { Some(e) }
+        }
+    })
+}
+
 impl<'a> LLVMContext<'a> {
 
     pub fn new(module_name: &str) -> Self {
@@ -78,6 +91,32 @@ impl<'a> LLVMContext<'a> {
     /// representation of a `ModuleRef` in `librustc_llvm`...
     pub fn dump(&self) {
         unsafe { llvm::LLVMDumpModule(self.llmod); }
+    }
+
+    pub fn isize_type(&self) -> Option<TypeRef> {
+        optionalise!(llvm::LLVMIntTypeInContext(self.llctx, word_size()))
+    }
+
+    pub fn float_type(&self) -> Option<TypeRef> {
+        optionalise!(llvm::LLVMFloatTypeInContext(self.llctx))
+    }
+    pub fn double_type(&self) -> Option<TypeRef> {
+        optionalise!(llvm::LLVMDoubleTypeInContext(self.llctx))
+    }
+    pub fn byte_type(&self) -> Option<TypeRef> {
+        optionalise!(llvm::LLVMInt8TypeInContext(self.llctx))
+    }
+
+    pub fn get_fn_decl(&self, name: &Ident) -> Option<ValueRef> {
+        CString::new((&name.value).clone())
+            .map(|s| optionalise!(s.as_ptr()))
+            .map(|o| o.and_then(|p|
+                        optionalise!(llvm::LLVMGetNamedFunction(self.llmod, p)))
+                )
+            .expect(&format!(
+                    "Could not create C string for function name: {:?}"
+                    , name
+                  ))
     }
 }
 
@@ -109,19 +148,12 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
         match **self {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!()
-         ,  DefForm::Function { ref name, ref fun } =>
-                unsafe {
-                    let name_ptr // function name as C string pointer
-                        = CString::new((&name.value).clone()).unwrap().as_ptr();
-                    let prev_decl // check LLVM module for previous declaration
-                        = llvm::LLVMGetNamedFunction(context.llmod, name_ptr);
-
-                    if !prev_decl.is_null() { // a previous declaration exists
-                        unimplemented!() // TODO: overloading rules happen here
-                    } else { // new function declaration
-                        unimplemented!()
-                    }
+         ,  DefForm::Function { ref name, ref fun } => {
+                match context.get_fn_decl(name) {
+                    Some(previous) => unimplemented!()
+                  , None => unimplemented!()
                 }
+            }
         }
     }
 }
@@ -144,18 +176,12 @@ impl TranslateType for Reference {
 
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
-        unsafe {
-            not_null!(match *self {
-                Primitive::Int => // Integers are machine word size
-                    llvm::LLVMIntTypeInContext(context.llctx, word_size())
-              , Primitive::Float => // Floats are single precision
-                    llvm::LLVMFloatTypeInContext(context.llctx)
-              , Primitive::Double => // Doubles are obvious precision
-                    llvm::LLVMDoubleTypeInContext(context.llctx)
-              , Primitive::Byte => // Bytes are 8 bits (duh)
-                    llvm::LLVMInt8TypeInContext(context.llctx)
+        match *self {
+                Primitive::Int      => context.isize_type()
+              , Primitive::Float    => context.float_type()
+              , Primitive::Double   => context.double_type()
+              , Primitive::Byte     => context.byte_type()
               , _ => unimplemented!() // TODO: figure this out
-            })
-        }
+        }.expect(&format!("Could not get {:?} type from LLVM", *self))
     }
 }

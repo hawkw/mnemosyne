@@ -12,7 +12,7 @@ pub enum Type {
     Algebraic(Vec<Type>),
     /// A function.
     ///
-    /// Representedw as a vector of parameters and a return type.
+    /// Represented as a vector of parameters and a return type.
     Function { params: Vec<Type>
              , rt: Rc<Type>
              },
