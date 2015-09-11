@@ -36,3 +36,7 @@ Note that Mnemosyne currently requires features available only on the nightly Ru
 Build Mnemosyne with the command `$ cargo build --release`  from the root directory of this repository. This will build a debug executable of Manganese, the Mnemosyne compiler. This executable will be output to `target/release/mn`. Alternatively, the command `$ cargo build` without the `--release` option will generate a less highly optimised debug executable. This is useful for Mnemosyne development and testing purposes.
 
 The command `$ cargo test` will run all of the tests for Manganese, and all the Mnemosyne integration tests. To run tests for the Mnemosyne Core and Parser modules as well, run the commands `$ cargo test -p mnemosyne` and `$cargo test -p mnemosyne-parser`, respectively.
+
+### Contributing
+
+Since Mnemosyne is currently being implemented as part of my senior thesis research, I cannot accept code contributions from the community at this time. Community feedback and comments, however, are always quite welcome; and if you find any problems or bugs, please do not hesitate report them on the issue tracker. For more information on how to contribute to Mnemosyne, please see [CONTRIBUTING.md](https://github.com/hawkw/mnemosyne/blob/master/CONTRIBUTING.md).
