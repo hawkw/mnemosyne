@@ -94,3 +94,21 @@ pub struct Function<'a, S: ScopednessTypestate> {
   , pub annot: Ident
   , pub body: Body<'a, S>
 }
+
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Data<'a, S: ScopednessTypestate> {
+    pub name: Ident
+  , pub variants: Vec<Variant<'a, S>>
+}
+
+impl<'a, S> Data<'a, S>
+where S: ScopednessTypestate {
+    pub fn is_algebraic(&self) -> bool { self.variants.len() > 1 }
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Variant<'a, S: ScopednessTypestate> {
+    pub name: Ident
+  , pub fields: Vec<Annotated<'a, Formal, S>>
+}

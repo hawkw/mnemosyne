@@ -61,12 +61,10 @@ macro_rules! not_null {
 
 macro_rules! optionalise {
     ($target:expr) => ({
-        unsafe {
-            let e = $target;
+            let e = unsafe { $target };
             if e.is_null() {
                 None
             } else { Some(e) }
-        }
     })
 }
 
@@ -176,12 +174,13 @@ impl TranslateType for Reference {
 
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
-        match *self {
-                Primitive::Int      => context.isize_type()
-              , Primitive::Float    => context.float_type()
-              , Primitive::Double   => context.double_type()
-              , Primitive::Byte     => context.byte_type()
-              , _ => unimplemented!() // TODO: figure this out
-        }.expect(&format!("Could not get {:?} type from LLVM", *self))
+        match *self { Primitive::Int      => context.isize_type()
+                    , Primitive::Float    => context.float_type()
+                    , Primitive::Double   => context.double_type()
+                    , Primitive::Byte     => context.byte_type()
+                    , _ => unimplemented!() // TODO: figure this out
+                    }.expect(
+                        &format!("Could not get {:?} type from LLVM", *self)
+                        )
     }
 }
