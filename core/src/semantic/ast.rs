@@ -1,9 +1,14 @@
 use ::position::Positional;
 use super::annotations::{ Annotated
                         , ScopednessTypestate
+                        , ScopedState
+                        , Scoped
                         };
 use super::types::Type;
+
 use std::rc::Rc;
+use std::borrow::Borrow;
+use std::hash::Hash;
 
 pub type Ident = Positional<String>;
 
@@ -18,6 +23,36 @@ pub type Bindings<'a, S: ScopednessTypestate>
     = Vec<Annotated<'a
                    , Binding<'a, S>
                    , S>>;
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Module<'a, S: ScopednessTypestate> {
+    pub name: Ident
+  , pub exporting: Vec<Ident>
+  , pub body: Body<'a, S>
+}
+
+impl<'a, S> Module<'a, S> where S: ScopednessTypestate {
+
+    /// Returns true if the namespace is exporting any names
+    #[inline] pub fn is_lib (&self) -> bool { !self.exporting.is_empty() }
+
+}
+
+impl<'a> Scoped<'a, Module<'a, ScopedState>>{
+
+    pub fn has_name<Q: ?Sized>(&self, name: &Q) -> bool
+    where String: Borrow<Q>
+        , String: PartialEq<Q>
+        , Q: Hash + Eq
+    {
+        self.is_defined_here(name) &&
+        self.node.exporting
+            .iter()
+            .find(|ref i| &i.value == name)
+            .is_some()
+    }
+
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
