@@ -35,6 +35,14 @@ version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "combine-language"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "combine 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "libc"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -61,6 +69,8 @@ dependencies = [
 name = "mnemosyne-parser"
 version = "0.1.0"
 dependencies = [
+ "combine 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "combine-language 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnemosyne 0.1.0",
 ]
 
