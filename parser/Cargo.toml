@@ -5,3 +5,7 @@ authors = ["Hawk Weisman <hi@hawkweisman.me>"]
 
 [dependencies.mnemosyne]
 path = "../core"
+
+[dependencies]
+combine = "^1.0.0"
+combine-language = "0.7.0"
