@@ -10,27 +10,10 @@ use combine_language::{ LanguageEnv
                       };
 
 use core::semantic::*;
+use core::position::*;
 
 type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
                             -> ParseResult<T, I>;
-
-struct LangParser<'a: 'b, 'b, I, T>
-where I: Stream<Item=char>
-    , I: 'b
-{
-    env: &'b LanguageEnv<'a, I>
-  , parser: ParseFn<'a, I, T>
-}
-
-impl<'a, 'b, I, T> Parser for LangParser<'a, 'b, I, T>
-where I: Stream<Item=char> {
-    type Output = T;
-    type Input = I;
-
-    fn parse_state(&mut self, input: State<I>) -> ParseResult<T, I> {
-        (self.parser)(self.env, input)
-    }
-}
 
 pub fn parse_module<N>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
@@ -54,8 +37,8 @@ where N: ASTNode + Sized {
                       ].iter().map(|x| (*x).into()).collect()
         }
       , op: Identifier {
-            start: satisfy(|c| alpha_ext.contains(c))
-          , rest:  satisfy(|c| alpha_ext.contains(c))
+            start: satisfy(|c| ops.contains(c))
+          , rest:  satisfy(|c| ops.contains(c))
           , reserved: [ "=>", "->", "\\", "|"].iter().map(|x| (*x).into())
                                                      .collect()
         }
