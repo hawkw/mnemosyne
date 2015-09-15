@@ -33,7 +33,7 @@ pub struct Module<'a, S: ScopednessTypestate> {
 
 impl<'a, S> Module<'a, S> where S: ScopednessTypestate {
 
-    /// Returns true if the namespace is exporting any names
+    /// Returns true if the namespace is exporting any nages
     #[inline] pub fn is_lib (&self) -> bool { !self.exporting.is_empty() }
 
 }

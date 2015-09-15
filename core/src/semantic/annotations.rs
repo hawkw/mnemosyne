@@ -8,7 +8,9 @@ use super::{ ASTNode
            , SymbolTable
            , SymbolAnnotation
            };
-use position::Position;
+use position::{ Position
+              , Positional
+              };
 //==-----------------------------------------------------==
 //      Warning: evil typesystem hacking to follow
 //==-----------------------------------------------------==
@@ -89,7 +91,8 @@ impl<'a, T> Scoped<'a, T> {
 
 }
 
-impl<'a, T> Unscoped<'a, T> {
+impl<'a, T> Unscoped<'a, T>
+where T: ASTNode {
 
     /// Consume this unscoped annotation to produce a new
     /// annotation in the scoped typestate with the given
@@ -101,6 +104,15 @@ impl<'a, T> Unscoped<'a, T> {
                   , my_typestate: PhantomData
                   }
     }
+
+    pub fn new(node: T, position: Position) -> Self {
+        Annotated { node: node
+                  , position: position
+                  , scope: None
+                  , my_typestate: PhantomData
+                  }
+    }
+
 }
 
 impl<'a, T, S> ops::Deref for Annotated<'a, T, S>
@@ -118,6 +130,12 @@ where S: ScopednessTypestate
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} at {}", self.node, self.position)
     }
+}
+
+impl<'a, T> From<Positional<T>> for Unscoped<'a, T>
+where T: ASTNode {
+
+    fn from(p: Positional<T>) -> Self { Unscoped::new(p.value, p.pos) }
 }
 
 // impl<'a, T> fmt::Debug for Annotated<'a, T, Scoped>

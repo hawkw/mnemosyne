@@ -3,19 +3,19 @@ extern crate combine_language;
 extern crate mnemosyne as core;
 
 use combine::*;
-use combine::primitives::{ Stream };
 use combine_language::{ LanguageEnv
                       , LanguageDef
                       , Identifier
                       };
+use combine::primitives::{ Stream };
 
 use core::semantic::*;
 use core::position::*;
 
-type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
-                            -> ParseResult<T, I>;
+// type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
+//                             -> ParseResult<T, I>;
 
-pub fn parse_module<N>(code: &str) -> Result<Vec<N>, ParseError<&str>>
+pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
     let alpha_ext = "+-*/<=>!?:$%_~^";
     let ops = "+-*/|=<>";

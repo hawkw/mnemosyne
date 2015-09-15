@@ -2,7 +2,7 @@
 name = "mn"
 version = "0.1.0"
 dependencies = [
- "clap 1.2.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnemosyne 0.1.0",
  "mnemosyne-parser 0.1.0",
 ]
@@ -14,7 +14,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "clap"
-version = "1.2.5"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "ansi_term 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
