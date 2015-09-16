@@ -14,10 +14,13 @@ use combine::primitives::{ Stream
 
 use core::semantic::*;
 use core::semantic::annotations::UnscopedState;
+use core::semantic::ast::*;
 use core::position::*;
 
 type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
                             -> ParseResult<T, I>;
+
+type U = UnscopedState;
 
 /// Wraps a parsing function with a language definition environment.
 ///
@@ -74,33 +77,29 @@ where I: Stream<Item=char>
     , I::Item: Positioner<Position = SourcePosition>
     , I::Range: 'b {
 
+
         /// Wrap a function into a MnParser with this environment
         fn parser<T>(&'b self, parser: ParseFn<'a, I, T>)
                     -> MnParser<'a, 'b, I, T> {
             MnParser { env: self, parser: parser }
         }
 
+        fn parse_def(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+            unimplemented!()
+        }
+
+        fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
+            unimplemented!()
+        }
+
+        fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
+            unimplemented!()
+        }
+
+        fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+            unimplemented!()
+        }
 }
-
-
-fn def<'a, I>(env: &LanguageEnv<'a, I>,
-              input: State<I>) -> ParseResult<ast::Form<'a, UnscopedState>, I>
-where I: Stream<Item=char> {
-
-    unimplemented!()
-}
-
-fn expr<'a, I>(env: &LanguageEnv<'a, I>, input: State<I>)
-              -> ParseResult<ast::Expr<'a, UnscopedState>, I>
-where I: Stream<Item=char> {
-    // env.parens( choice([ form(
-    //                     ])
-    //           )
-    //    .parse_state(input)
-    unimplemented!()
-
-}
-
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
     let alpha_ext = "+-*/<=>!?:$%_~^";
