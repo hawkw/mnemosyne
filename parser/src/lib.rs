@@ -88,12 +88,26 @@ where I: Stream<Item=char>
             unimplemented!()
         }
 
+        fn parse_if(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+            unimplemented!()
+        }
+
+        fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+            unimplemented!()
+        }
+
+        fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+            unimplemented!()
+        }
+
         fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
             let pos = Position::from(input.position.clone());
             self.env
-                .parens(choice([
-                        self.parser(MnEnv::parse_def)
-                    ]))
+                .parens(choice([ self.parser(MnEnv::parse_def)
+                               , self.parser(MnEnv::parse_if)
+                               , self.parser(MnEnv::parse_lambda)
+                               , self.parser(MnEnv::parse_let)
+                               ]))
                 .map(|f| Annotated::new(f, pos) )
                 .parse_state(input)
         }
@@ -106,6 +120,17 @@ where I: Stream<Item=char>
             unimplemented!()
         }
 
+        fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+            unimplemented!()
+        }
+
+        fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+            unimplemented!()
+        }
+
+        fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
+            unimplemented!()
+        }
 }
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
