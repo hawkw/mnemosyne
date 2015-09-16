@@ -10,10 +10,64 @@ use combine_language::{ LanguageEnv
 use combine::primitives::{ Stream };
 
 use core::semantic::*;
+use core::semantic::annotations::UnscopedState;
 use core::position::*;
 
-// type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
-//                             -> ParseResult<T, I>;
+type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
+                            -> ParseResult<T, I>;
+
+#[derive(Copy)]
+struct MnParser<'a: 'b, 'b, I, T>
+where I: Stream<Item=char>
+    , I::Range: 'b
+    , I: 'b {
+        env: &'b LanguageEnv<'a, I>
+      , parser: ParseFn<'a, I, T>
+}
+
+impl<'a, 'b, I, T> Clone for MnParser<'a, 'b, I, T>
+where I: Stream<Item=char>
+    , I::Range: 'b
+    , I: 'b
+    , 'a: 'b {
+
+    fn clone(&self) -> Self {
+        MnParser { env: self.env , parser: self.parser }
+    }
+}
+
+impl<'a, 'b, I, T> Parser for MnParser<'a, 'b, I, T>
+where I: Stream<Item=char>
+    , I::Range: 'b
+    , I: 'b
+    , 'a: 'b {
+
+    type Input = I;
+    type Output = T;
+
+    fn parse_state(&mut self, input: State<I>) -> ParseResult<T, I> {
+        (self.parser)(self.env, input)
+    }
+
+}
+
+fn def<'a, I>(env: &LanguageEnv<'a, I>,
+              input: State<I>) -> ParseResult<ast::Form<'a, UnscopedState>, I>
+where I: Stream<Item=char> {
+
+    unimplemented!()
+}
+
+fn expr<'a, I>(env: &LanguageEnv<'a, I>, input: State<I>)
+              -> ParseResult<ast::Expr<'a, UnscopedState>, I>
+where I: Stream<Item=char> {
+    // env.parens( choice([ form(
+    //                     ])
+    //           )
+    //    .parse_state(input)
+    unimplemented!()
+
+}
 
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
