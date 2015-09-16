@@ -63,9 +63,22 @@ where I: Stream<Item = char>
     env: LanguageEnv<'a, I>
 }
 
-impl<'a, I> MnEnv<'a, I>
+impl <'a, I> std::ops::Deref for MnEnv<'a, I>
+where I: Stream<Item=char> {
+    type Target = LanguageEnv<'a, I>;
+    fn deref(&self) -> &LanguageEnv<'a, I> { &self.env }
+}
+
+impl<'a, 'b, I> MnEnv<'a, I>
 where I: Stream<Item=char>
-    , I::Item: Positioner<Position = SourcePosition> {
+    , I::Item: Positioner<Position = SourcePosition>
+    , I::Range: 'b {
+
+        /// Wrap a function into a MnParser with this environment
+        fn parser<T>(&'b self, parser: ParseFn<'a, I, T>)
+                    -> MnParser<'a, 'b, I, T> {
+            MnParser { env: self, parser: parser }
+        }
 
 }
 
