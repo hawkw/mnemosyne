@@ -77,7 +77,6 @@ where I: Stream<Item=char>
     , I::Item: Positioner<Position = SourcePosition>
     , I::Range: 'b {
 
-
         /// Wrap a function into a MnParser with this environment
         fn parser<T>(&'b self, parser: ParseFn<'a, I, T>)
                     -> MnParser<'a, 'b, I, T> {
@@ -99,6 +98,7 @@ where I: Stream<Item=char>
         fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
             unimplemented!()
         }
+
 }
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
@@ -131,6 +131,7 @@ where N: ASTNode + Sized {
       , comment_start: string("#|").map(|_| ())
       , comment_end: string("|#").map(|_| ())
     });
+    let env = MnEnv { env: env };
 
     env.white_space()
        .parse(code);
