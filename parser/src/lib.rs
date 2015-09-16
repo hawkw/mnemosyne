@@ -13,12 +13,13 @@ use combine::primitives::{ Stream
                          };
 
 use core::semantic::*;
-use core::semantic::annotations::UnscopedState;
+use core::semantic::annotations::{ Annotated
+                                 , UnscopedState
+                                 };
 use core::semantic::ast::*;
 use core::position::*;
 
-type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
-                            -> ParseResult<T, I>;
+type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 
 type U = UnscopedState;
 
@@ -30,7 +31,7 @@ struct MnParser<'a: 'b, 'b, I, T>
 where I: Stream<Item=char>
     , I::Range: 'b
     , I: 'b {
-        env: &'b LanguageEnv<'a, I>
+        env: &'b MnEnv<'a, I>
       , parser: ParseFn<'a, I, T>
 }
 
@@ -88,11 +89,17 @@ where I: Stream<Item=char>
         }
 
         fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
-            unimplemented!()
+            let pos = Position::from(input.position.clone());
+            self.env
+                .parens(choice([
+                        self.parser(MnEnv::parse_def)
+                    ]))
+                .map(|f| Annotated::new(f, pos) )
+                .parse_state(input)
         }
 
         fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
-            unimplemented!()
+            self.parser(MnEnv::parse_expr)
         }
 
         fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
