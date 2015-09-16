@@ -7,7 +7,10 @@ use combine_language::{ LanguageEnv
                       , LanguageDef
                       , Identifier
                       };
-use combine::primitives::{ Stream };
+use combine::primitives::{ Stream
+                         , Positioner
+                         , SourcePosition
+                         };
 
 use core::semantic::*;
 use core::semantic::annotations::UnscopedState;
@@ -16,6 +19,9 @@ use core::position::*;
 type ParseFn<'a, I, T> = fn (&LanguageEnv<'a, I>, State<I>)
                             -> ParseResult<T, I>;
 
+/// Wraps a parsing function with a language definition environment.
+///
+/// TODO: this could probably push identifiers to the symbol table here?
 #[derive(Copy)]
 struct MnParser<'a: 'b, 'b, I, T>
 where I: Stream<Item=char>
@@ -50,6 +56,19 @@ where I: Stream<Item=char>
     }
 
 }
+
+struct MnEnv<'a, I>
+where I: Stream<Item = char>
+    , I::Item: Positioner<Position = SourcePosition> {
+    env: LanguageEnv<'a, I>
+}
+
+impl<'a, I> MnEnv<'a, I>
+where I: Stream<Item=char>
+    , I::Item: Positioner<Position = SourcePosition> {
+
+}
+
 
 fn def<'a, I>(env: &LanguageEnv<'a, I>,
               input: State<I>) -> ParseResult<ast::Form<'a, UnscopedState>, I>
