@@ -13,9 +13,6 @@
 #![feature(static_recursion)]
 #![feature(result_expect)]
 #![feature(box_syntax, box_patterns)]
-#![feature(plugin)]
-
-#![plugin(clippy)]
 
 extern crate rustc;
 extern crate libc;

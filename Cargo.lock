@@ -22,16 +22,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "clippy"
-version = "0.0.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "unicode-normalization 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "combine"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -39,7 +31,7 @@ name = "combine-language"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "combine 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "combine 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -59,8 +51,7 @@ dependencies = [
 name = "mnemosyne"
 version = "0.1.0"
 dependencies = [
- "clippy 0.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "combine 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "combine 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -69,7 +60,7 @@ dependencies = [
 name = "mnemosyne-parser"
 version = "0.1.0"
 dependencies = [
- "combine 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "combine 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "combine-language 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "mnemosyne 0.1.0",
 ]
@@ -77,10 +68,5 @@ dependencies = [
 [[package]]
 name = "strsim"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "unicode-normalization"
-version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
