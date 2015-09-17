@@ -104,7 +104,7 @@ where I: Stream<Item=char>
         }
 
         fn parse_binding(&self, input: State<I>)
-                        -> ParseResult< Unscoped<'a, Binding<'a, U>>, I> {
+                        -> ParseResult<Unscoped<'a, Binding<'a, U>>, I> {
             let pos = input.position.clone();
             self.parser(MnEnv::parse_name)
                 .and(self.type_annotation())
@@ -189,11 +189,8 @@ where I: Stream<Item=char>
             self.parser(MnEnv::parse_name)
         }
 
-        fn binding(&'b self) -> MnParser< 'a, 'b, I
-                                        , Annotated<'a
-                                        , Binding<'a, U>
-                                        , U>>
-        {
+        fn binding(&'b self)
+                  -> MnParser< 'a, 'b, I, Unscoped<'a, Binding<'a, U>>> {
             self.parser(MnEnv::parse_binding)
         }
 
