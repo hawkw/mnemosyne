@@ -100,6 +100,17 @@ where I: Stream<Item=char>
             unimplemented!()
         }
 
+        fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+            let pos = Position::from(input.position.clone());
+            self.env.identifier::<'b>()
+                    .and(many(self.parser(MnEnv::parse_expr)))
+                    .map(|(name, args)| Form::Call {
+                            fun: Positional { pos: pos, value: name }
+                          , body: args
+                    })
+                    .parse_state(input)
+        }
+
         fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
             let pos = Position::from(input.position.clone());
             self.env
@@ -107,6 +118,7 @@ where I: Stream<Item=char>
                                , self.parser(MnEnv::parse_if)
                                , self.parser(MnEnv::parse_lambda)
                                , self.parser(MnEnv::parse_let)
+                               , self.parser(MnEnv::parse_call)
                                ]))
                 .map(|f| Annotated::new(f, pos) )
                 .parse_state(input)
