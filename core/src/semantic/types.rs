@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::fmt;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Type {
@@ -18,6 +19,20 @@ pub enum Type {
              },
     /// A unique symbol type (`'symbol` syntax)
     Symbol(String)
+}
+
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self { &Type::Ref(ref r) =>  write!(f, "{}", r)
+                   , &Type::Prim(ref p) => write!(f, "{}", p)
+                   , &Type::Algebraic(ref variants) =>
+                        unimplemented!()
+                   , &Type::Function { ref params, ref rt } =>
+                        unimplemented!()
+                   , &Type::Symbol(ref s) => write!(f, "{}", s)
+                   }
+    }
 }
 
 /// Reference types (pointers)
@@ -46,6 +61,16 @@ pub enum Reference {
     Raw(Rc<Type>)
 }
 
+impl fmt::Display for Reference {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self { Reference::Borrowed(ref t) =>  write!(f, "&{}", t)
+                    , Reference::Moved(ref t) =>  write!(f, "move {}", t)
+                    , Reference::Unique(ref t) =>  write!(f, "@{}", t)
+                    , Reference::Raw(ref t) =>  write!(f, "*{}", t)
+                    }
+    }
+}
+
 /// Language primitive types
 ///
 /// TODO: add some form of provable-refinement (i.e. we know that some value
@@ -62,3 +87,15 @@ pub enum Primitive { Int
                    , Double
                    // TODO: finish
                    }
+
+impl fmt::Display for Primitive {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match *self { Primitive::Int     => write!(f, "int")
+                   , Primitive::Uint    => write!(f, "uint")
+                   , Primitive::Double  => write!(f, "double")
+                   , Primitive::Float   => write!(f, "float")
+                   , Primitive::Bool    => write!(f, "bool")
+                   , _ => unimplemented!()
+                   }
+   }
+}
