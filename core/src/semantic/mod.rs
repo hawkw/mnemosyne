@@ -87,7 +87,7 @@ where S: ScopednessTypestate {
                 format!("{}(define {} {} {})"
                   , indent!(level)
                   , name.to_sexpr(level)
-                  , annot.to_sexpr(level)
+                  , annot
                   , value.to_sexpr(level + 1)
                   )
           , DefForm::Function { ref name, ref fun } =>
