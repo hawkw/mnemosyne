@@ -102,13 +102,14 @@ where I: Stream<Item=char>
 
         fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
             let pos = Position::from(input.position.clone());
-            self.env.identifier::<'b>()
-                    .and(many(self.parser(MnEnv::parse_expr)))
-                    .map(|(name, args)| Form::Call {
-                            fun: Positional { pos: pos, value: name }
-                          , body: args
-                    })
-                    .parse_state(input)
+            self.env
+                .identifier::<'b>()
+                .and(many(self.parser(MnEnv::parse_expr)))
+                .map(|(name, args)| Form::Call {
+                        fun: Positional { pos: pos, value: name }
+                      , body: args
+                })
+                .parse_state(input)
         }
 
         fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {

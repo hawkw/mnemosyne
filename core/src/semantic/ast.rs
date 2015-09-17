@@ -56,6 +56,8 @@ impl<'a> Scoped<'a, Module<'a, ScopedState>>{
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Form<'a, S: ScopednessTypestate> {
+    // TODO: maybe definitions aren't expressions?
+    // (they don't return a value...)
     Define(DefForm<'a, S>)
   , If { condition: Rc<Expr<'a, S>>
        , if_clause: Rc<Expr<'a, S>>
