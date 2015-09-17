@@ -102,7 +102,7 @@ where I: Stream<Item=char>
                     DefForm::TopLevel { name: name
                                       , annot: ty
                                       , value: body });
-        self.reserved("defn")
+        self.reserved("defn").or(self.reserved("define"))
             .with(function_form.or(top_level))
             .map(Form::Define)
             .parse_state(input)
