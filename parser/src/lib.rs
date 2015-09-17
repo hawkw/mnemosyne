@@ -100,7 +100,20 @@ where I: Stream<Item=char>
         }
 
         fn parse_type(&self, input: State<I>) -> ParseResult<types::Type, I> {
-            unimplemented!()
+            let primitive =
+                choice([ self.reserved("int")
+                             .with(value(types::Primitive::Int))
+                       , self.reserved("float")
+                             .with(value(types::Primitive::Float))
+                       , self.reserved("double")
+                             .with(value(types::Primitive::Double))
+                       , self.reserved("bool")
+                             .with(value(types::Primitive::Bool))
+                       ])
+                       .map(|primitive| types::Type::Prim(primitive));
+                       
+            choice([ primitive ])
+                .parse_state(input)
         }
 
         fn parse_binding(&self, input: State<I>)
@@ -217,6 +230,12 @@ where N: ASTNode + Sized {
                       , "quasiquote"        , "quote"
                       , "set!"              , "unquote"
                       , "unquote-splicing"
+                      , "i8"                , "u8"
+                      , "i16"               , "u16"
+                      , "i32"               , "u32"         , "f32"
+                      , "i64"               , "u64"         , "f64"
+                      , "int"               , "uint"        , "float"
+                      , "bool"                              , "double"
                       ].iter().map(|x| (*x).into()).collect()
         }
       , op: Identifier {
