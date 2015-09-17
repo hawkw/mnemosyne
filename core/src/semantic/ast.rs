@@ -79,7 +79,7 @@ pub struct Formal { pub name: Ident
 #[derive(PartialEq, Clone, Debug)]
 pub enum DefForm<'a, S: ScopednessTypestate> {
     TopLevel { name: Ident
-             , annot: Ident
+             , annot: Type
              , value: Rc<Expr<'a, S>>
              }
   , Function { name: Ident

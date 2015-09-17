@@ -94,8 +94,16 @@ where I: Stream<Item=char>
                   .and(self.function())
                   .map(|(name, fun)| DefForm::Function { name: name
                                                        , fun: fun });
+        let top_level
+            = self.name()
+                  .and(self.type_annotation())
+                  .and(self.expr())
+                  .map(|((name, ty), body)|
+                    DefForm::TopLevel { name: name
+                                      , annot: ty
+                                      , value: body });
         self.reserved("defn")
-            .with(function_form)
+            .with(function_form.or(top_level))
             .map(Form::Define)
             .parse_state(input)
     }
