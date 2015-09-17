@@ -122,7 +122,9 @@ where I: Stream<Item=char>
 
     fn parse_primitive_ty(&self, input: State<I>) -> ParseResult<Type, I> {
         choice([ self.reserved("int")
-                     .with(value(Primitive::Int))
+                     .with(value(Primitive::IntSize))
+               , self.reserved("uint")
+                     .with(value(Primitive::IntSize))
                , self.reserved("float")
                      .with(value(Primitive::Float))
                , self.reserved("double")

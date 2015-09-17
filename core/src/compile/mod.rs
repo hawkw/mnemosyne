@@ -25,7 +25,7 @@ use semantic::types::*;
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
-#[inline] fn word_size() -> c_uint { mem::size_of::<isize>() as c_uint }
+#[inline] fn word_size() -> usize { mem::size_of::<isize>() }
 
 /// Trait for that which may join in The Great Work
 pub trait Compile {
@@ -91,8 +91,8 @@ impl<'a> LLVMContext<'a> {
         unsafe { llvm::LLVMDumpModule(self.llmod); }
     }
 
-    pub fn isize_type(&self) -> Option<TypeRef> {
-        optionalise!(llvm::LLVMIntTypeInContext(self.llctx, word_size()))
+    pub fn int_type(&self, size: usize) -> Option<TypeRef> {
+        optionalise!(llvm::LLVMIntTypeInContext(self.llctx, size as c_uint))
     }
 
     pub fn float_type(&self) -> Option<TypeRef> {
@@ -174,10 +174,15 @@ impl TranslateType for Reference {
 
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
-        match *self { Primitive::Int      => context.isize_type()
-                    , Primitive::Float    => context.float_type()
-                    , Primitive::Double   => context.double_type()
-                    , Primitive::Byte     => context.byte_type()
+        match *self { Primitive::IntSize    => context.int_type(word_size())
+                    , Primitive::UintSize   => context.int_type(word_size())
+                    , Primitive::Int(bits)
+                        => context.int_type(bits as usize)
+                    , Primitive::Uint(bits)
+                        => context.int_type(bits as usize)
+                    , Primitive::Float      => context.float_type()
+                    , Primitive::Double     => context.double_type()
+                    , Primitive::Byte       => context.byte_type()
                     , _ => unimplemented!() // TODO: figure this out
                     }.expect(
                         &format!("Could not get {:?} type from LLVM", *self)

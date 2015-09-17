@@ -77,8 +77,10 @@ impl fmt::Display for Reference {
 /// is not just a bool at compile time but that it's true/false, or we know
 /// some value is not just a number but the number 1382, or whatever).
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Primitive { Int
-                   , Uint
+pub enum Primitive { Int(Int)
+                   , IntSize
+                   , Uint(Int)
+                   , UintSize
                    , Byte
                    , Char
                    , Str
@@ -87,14 +89,22 @@ pub enum Primitive { Int
                    , Double
                    // TODO: finish
                    }
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum Int { Int8  = 8
+             , Int16 = 16
+             , Int32 = 32
+             , Int64 = 64
+             }
 
 impl fmt::Display for Primitive {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-       match *self { Primitive::Int     => write!(f, "int")
-                   , Primitive::Uint    => write!(f, "uint")
-                   , Primitive::Double  => write!(f, "double")
-                   , Primitive::Float   => write!(f, "float")
-                   , Primitive::Bool    => write!(f, "bool")
+       match *self { Primitive::Int(bits)  => write!(f, "i{}", bits as isize)
+                   , Primitive::Uint(bits) => write!(f, "u{}", bits as isize)
+                   , Primitive::IntSize    => write!(f, "int")
+                   , Primitive::UintSize   => write!(f, "uint")
+                   , Primitive::Double     => write!(f, "double")
+                   , Primitive::Float      => write!(f, "float")
+                   , Primitive::Bool       => write!(f, "bool")
                    , _ => unimplemented!()
                    }
    }
