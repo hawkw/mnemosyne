@@ -15,6 +15,7 @@ use combine::primitives::{ Stream
 use core::semantic::*;
 use core::semantic::annotations::{ Annotated
                                  , UnscopedState
+                                 , Unscoped
                                  };
 use core::semantic::ast::*;
 use core::position::*;
@@ -103,15 +104,11 @@ where I: Stream<Item=char>
         }
 
         fn parse_binding(&self, input: State<I>)
-                        -> ParseResult<Annotated<'a
-                                                , Binding<'a, UnscopedState>
-                                                , UnscopedState>
-                                                , I>
-        {
+                        -> ParseResult< Unscoped<'a, Binding<'a, U>>, I> {
             let pos = input.position.clone();
             self.parser(MnEnv::parse_name)
-                .and(self.parser(MnEnv::parse_type))
-                .and(self.parser(MnEnv::parse_expr))
+                .and(self.type_annotation())
+                .and(self.expr())
                 .map(|((name, typ), value)|
                     Annotated::new( Binding { name: name
                                             , typ: typ
@@ -126,8 +123,8 @@ where I: Stream<Item=char>
 
             let binding_form =
                 self.reserved("let")
-                    .with(many(self.parens(self.parser(MnEnv::parse_binding))))
-                    .and(many(self.parser(MnEnv::parse_expr)))
+                    .with(many(self.parens(self.binding())))
+                    .and(many(self.expr()))
                     .map(|(bindings, body)| LetForm::Let { bindings: bindings
                                                          , body: body });
 
@@ -145,9 +142,8 @@ where I: Stream<Item=char>
         }
 
         fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-            let pos = Position::from(input.position.clone());
-            self.parser(MnEnv::parse_name)
-                .and(many(self.parser(MnEnv::parse_expr)))
+            self.name()
+                .and(many(self.expr()))
                 .map(|(name, args)| Form::Call { fun: name, body: args })
                 .parse_state(input)
         }
@@ -155,11 +151,11 @@ where I: Stream<Item=char>
         fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
             let pos = Position::from(input.position.clone());
             self.env
-                .parens(choice([ self.parser(MnEnv::parse_def)
-                               , self.parser(MnEnv::parse_if)
-                               , self.parser(MnEnv::parse_lambda)
-                               , self.parser(MnEnv::parse_let)
-                               , self.parser(MnEnv::parse_call)
+                .parens(choice([ self.def()
+                               , self.if_form()
+                               , self.lambda()
+                               , self.let_form()
+                               , self.call()
                                ]))
                 .map(|f| Annotated::new(f, pos) )
                 .parse_state(input)
@@ -170,19 +166,39 @@ where I: Stream<Item=char>
         }
 
         fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            unimplemented!()
+            self.parser(MnEnv::parse_def)
         }
 
         fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            unimplemented!()
+            self.parser(MnEnv::parse_if)
         }
 
         fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            unimplemented!()
+            self.parser(MnEnv::parse_let)
         }
 
         fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
-            unimplemented!()
+            self.parser(MnEnv::parse_lambda)
+        }
+
+        fn call(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+            self.parser(MnEnv::parse_call)
+        }
+
+        fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
+            self.parser(MnEnv::parse_name)
+        }
+
+        fn binding(&'b self) -> MnParser< 'a, 'b, I
+                                        , Annotated<'a
+                                        , Binding<'a, U>
+                                        , U>>
+        {
+            self.parser(MnEnv::parse_binding)
+        }
+
+        fn type_annotation(&'b self) -> MnParser<'a, 'b, I, types::Type> {
+            self.parser(MnEnv::parse_type)
         }
 }
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
