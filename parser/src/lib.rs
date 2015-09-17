@@ -17,6 +17,7 @@ use core::semantic::annotations::{ Annotated
                                  , UnscopedState
                                  , Unscoped
                                  };
+use core::semantic::types::*;
 use core::semantic::ast::*;
 use core::position::*;
 
@@ -99,20 +100,43 @@ where I: Stream<Item=char>
             unimplemented!()
         }
 
-        fn parse_type(&self, input: State<I>) -> ParseResult<types::Type, I> {
-            let primitive =
-                choice([ self.reserved("int")
-                             .with(value(types::Primitive::Int))
-                       , self.reserved("float")
-                             .with(value(types::Primitive::Float))
-                       , self.reserved("double")
-                             .with(value(types::Primitive::Double))
-                       , self.reserved("bool")
-                             .with(value(types::Primitive::Bool))
-                       ])
-                       .map(|primitive| types::Type::Prim(primitive));
-                       
-            choice([ primitive ])
+        fn parse_primitive_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+            choice([ self.reserved("int")
+                         .with(value(Primitive::Int))
+                   , self.reserved("float")
+                         .with(value(Primitive::Float))
+                   , self.reserved("double")
+                         .with(value(Primitive::Double))
+                   , self.reserved("bool")
+                         .with(value(Primitive::Bool))
+                   ])
+                   .map(|primitive| Type::Prim(primitive))
+                   .parse_state(input)
+        }
+
+        fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+            char('*').with(self.type_annotation())
+                     .map(|t| Type::Ref(Reference::Raw(Rc::new(t))))
+                     .parse_state(input)
+        }
+
+        fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+            char('@').with(self.type_annotation())
+                     .map(|t| Type::Ref(Reference::Unique(Rc::new(t))))
+                     .parse_state(input)
+        }
+
+        fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+            char('&').with(self.type_annotation())
+                     .map(|t| Type::Ref(Reference::Borrowed(Rc::new(t))))
+                     .parse_state(input)
+        }
+        fn parse_type(&self, input: State<I>) -> ParseResult<Type, I> {
+            choice([ self.parser(MnEnv::parse_primitive_ty)
+                   , self.parser(MnEnv::raw_ptr_ty)
+                   , self.parser(MnEnv::unique_ptr_ty)
+                   , self.parser(MnEnv::borrow_ptr_ty)
+                   ])
                 .parse_state(input)
         }
 
