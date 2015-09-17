@@ -101,7 +101,7 @@ where I: Stream<Item=char>
                   .map(|((name, ty), body)|
                     DefForm::TopLevel { name: name
                                       , annot: ty
-                                      , value: body });
+                                      , value: Rc::new(body) });
         self.reserved("defn").or(self.reserved("define"))
             .with(function_form.or(top_level))
             .map(Form::Define)
