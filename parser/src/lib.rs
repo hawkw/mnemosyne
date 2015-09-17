@@ -82,158 +82,175 @@ where I: Stream<Item=char>
     , I::Item: Positioner<Position = SourcePosition>
     , I::Range: 'b {
 
-        /// Wrap a function into a MnParser with this environment
-        fn parser<T>(&'b self, parser: ParseFn<'a, I, T>)
-                    -> MnParser<'a, 'b, I, T> {
-            MnParser { env: self, parser: parser }
-        }
+    /// Wrap a function into a MnParser with this environment
+    fn parser<T>(&'b self, parser: ParseFn<'a, I, T>)
+                -> MnParser<'a, 'b, I, T> {
+        MnParser { env: self, parser: parser }
+    }
 
-        fn parse_def(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-            unimplemented!()
-        }
+    fn parse_def(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+        let function_form
+            = self.name()
+                  .and(self.function())
+                  .map(|(name, fun)| DefForm::Function { name: name
+                                                       , fun: fun });
+        self.reserved("defn")
+            .with(function_form)
+            .map(Form::Define)
+            .parse_state(input)
+    }
 
-        fn parse_if(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-            unimplemented!()
-        }
+    fn parse_if(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+        unimplemented!()
+    }
 
-        fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-            unimplemented!()
-        }
+    fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+        unimplemented!()
+    }
 
-        fn parse_primitive_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-            choice([ self.reserved("int")
-                         .with(value(Primitive::Int))
-                   , self.reserved("float")
-                         .with(value(Primitive::Float))
-                   , self.reserved("double")
-                         .with(value(Primitive::Double))
-                   , self.reserved("bool")
-                         .with(value(Primitive::Bool))
-                   ])
-                   .map(|primitive| Type::Prim(primitive))
-                   .parse_state(input)
-        }
+    fn parse_function(&self, input: State<I>) -> ParseResult<Function<'a, U>, I> {
+        unimplemented!()
+    }
 
-        fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-            char('*').with(self.type_annotation())
-                     .map(|t| Type::Ref(Reference::Raw(Rc::new(t))))
-                     .parse_state(input)
-        }
+    fn parse_primitive_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+        choice([ self.reserved("int")
+                     .with(value(Primitive::Int))
+               , self.reserved("float")
+                     .with(value(Primitive::Float))
+               , self.reserved("double")
+                     .with(value(Primitive::Double))
+               , self.reserved("bool")
+                     .with(value(Primitive::Bool))
+               ])
+               .map(|primitive| Type::Prim(primitive))
+               .parse_state(input)
+    }
 
-        fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-            char('@').with(self.type_annotation())
-                     .map(|t| Type::Ref(Reference::Unique(Rc::new(t))))
-                     .parse_state(input)
-        }
+    fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+        char('*').with(self.type_annotation())
+                 .map(|t| Type::Ref(Reference::Raw(Rc::new(t))))
+                 .parse_state(input)
+    }
 
-        fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-            char('&').with(self.type_annotation())
-                     .map(|t| Type::Ref(Reference::Borrowed(Rc::new(t))))
-                     .parse_state(input)
-        }
-        fn parse_type(&self, input: State<I>) -> ParseResult<Type, I> {
-            choice([ self.parser(MnEnv::parse_primitive_ty)
-                   , self.parser(MnEnv::raw_ptr_ty)
-                   , self.parser(MnEnv::unique_ptr_ty)
-                   , self.parser(MnEnv::borrow_ptr_ty)
-                   ])
-                .parse_state(input)
-        }
+    fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+        char('@').with(self.type_annotation())
+                 .map(|t| Type::Ref(Reference::Unique(Rc::new(t))))
+                 .parse_state(input)
+    }
 
-        fn parse_binding(&self, input: State<I>)
-                        -> ParseResult<Unscoped<'a, Binding<'a, U>>, I> {
-            let pos = input.position.clone();
-            self.parser(MnEnv::parse_name)
-                .and(self.type_annotation())
-                .and(self.expr())
-                .map(|((name, typ), value)|
-                    Annotated::new( Binding { name: name
-                                            , typ: typ
-                                            , value: Rc::new(value)
-                                            }
-                                   , Position::from(pos)
-                               ))
-                .parse_state(input)
-        }
+    fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+        char('&').with(self.type_annotation())
+                 .map(|t| Type::Ref(Reference::Borrowed(Rc::new(t))))
+                 .parse_state(input)
+    }
+    fn parse_type(&self, input: State<I>) -> ParseResult<Type, I> {
+        choice([ self.parser(MnEnv::parse_primitive_ty)
+               , self.parser(MnEnv::raw_ptr_ty)
+               , self.parser(MnEnv::unique_ptr_ty)
+               , self.parser(MnEnv::borrow_ptr_ty)
+               ])
+            .parse_state(input)
+    }
 
-        fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+    fn parse_binding(&self, input: State<I>)
+                    -> ParseResult<Unscoped<'a, Binding<'a, U>>, I> {
+        let pos = input.position.clone();
+        self.parser(MnEnv::parse_name)
+            .and(self.type_annotation())
+            .and(self.expr())
+            .map(|((name, typ), value)|
+                Annotated::new( Binding { name: name
+                                        , typ: typ
+                                        , value: Rc::new(value)
+                                        }
+                               , Position::from(pos)
+                           ))
+            .parse_state(input)
+    }
 
-            let binding_form =
-                self.reserved("let")
-                    .with(many(self.parens(self.binding())))
-                    .and(many(self.expr()))
-                    .map(|(bindings, body)| LetForm::Let { bindings: bindings
-                                                         , body: body });
+    fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
 
-            choice([ binding_form ])
-                .map(Form::Let)
-                .parse_state(input)
-        }
-
-        fn parse_name (&self, input: State<I>) -> ParseResult<Ident, I> {
-            let position = input.position.clone();
-            self.env.identifier::<'b>()
-                .map(|name| Positional { pos: Position::from(position)
-                                       , value: name })
-                .parse_state(input)
-        }
-
-        fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-            self.name()
+        let binding_form =
+            self.reserved("let")
+                .with(many(self.parens(self.binding())))
                 .and(many(self.expr()))
-                .map(|(name, args)| Form::Call { fun: name, body: args })
-                .parse_state(input)
-        }
+                .map(|(bindings, body)| LetForm::Let { bindings: bindings
+                                                     , body: body });
 
-        fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
-            let pos = Position::from(input.position.clone());
-            self.env
-                .parens(choice([ self.def()
-                               , self.if_form()
-                               , self.lambda()
-                               , self.let_form()
-                               , self.call()
-                               ]))
-                .map(|f| Annotated::new(f, pos) )
-                .parse_state(input)
-        }
+        choice([ binding_form ])
+            .map(Form::Let)
+            .parse_state(input)
+    }
 
-        fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
-            self.parser(MnEnv::parse_expr)
-        }
+    fn parse_name (&self, input: State<I>) -> ParseResult<Ident, I> {
+        let position = input.position.clone();
+        self.env.identifier::<'b>()
+            .map(|name| Positional { pos: Position::from(position)
+                                   , value: name })
+            .parse_state(input)
+    }
 
-        fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            self.parser(MnEnv::parse_def)
-        }
+    fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+        self.name()
+            .and(many(self.expr()))
+            .map(|(name, args)| Form::Call { fun: name, body: args })
+            .parse_state(input)
+    }
 
-        fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            self.parser(MnEnv::parse_if)
-        }
+    fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
+        let pos = Position::from(input.position.clone());
+        self.env
+            .parens(choice([ self.def()
+                           , self.if_form()
+                           , self.lambda()
+                           , self.let_form()
+                           , self.call()
+                           ]))
+            .map(|f| Annotated::new(f, pos) )
+            .parse_state(input)
+    }
 
-        fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            self.parser(MnEnv::parse_let)
-        }
+    fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
+        self.parser(MnEnv::parse_expr)
+    }
 
-        fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
-            self.parser(MnEnv::parse_lambda)
-        }
+    fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_def)
+    }
 
-        fn call(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
-            self.parser(MnEnv::parse_call)
-        }
+    fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_if)
+    }
 
-        fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
-            self.parser(MnEnv::parse_name)
-        }
+    fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_let)
+    }
 
-        fn binding(&'b self)
-                  -> MnParser< 'a, 'b, I, Unscoped<'a, Binding<'a, U>>> {
-            self.parser(MnEnv::parse_binding)
-        }
+    fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_lambda)
+    }
 
-        fn type_annotation(&'b self) -> MnParser<'a, 'b, I, types::Type> {
-            self.parser(MnEnv::parse_type)
-        }
+    fn call(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_call)
+    }
+
+    fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
+        self.parser(MnEnv::parse_name)
+    }
+
+    fn binding(&'b self)
+              -> MnParser< 'a, 'b, I, Unscoped<'a, Binding<'a, U>>> {
+        self.parser(MnEnv::parse_binding)
+    }
+
+    fn type_annotation(&'b self) -> MnParser<'a, 'b, I, types::Type> {
+        self.parser(MnEnv::parse_type)
+    }
+
+    fn function(&'b self) -> MnParser<'a, 'b, I, Function<'a, U>> {
+        self.parser(MnEnv::parse_function)
+    }
+
 }
 pub fn parse_module<N: ?Sized>(code: &str) -> Result<Vec<N>, ParseError<&str>>
 where N: ASTNode + Sized {
