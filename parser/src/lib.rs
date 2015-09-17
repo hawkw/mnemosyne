@@ -27,6 +27,9 @@ type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 
 type U = UnscopedState;
 
+/// Unicode code point for the lambda character
+const LAMBDA: &'static str = "\u{03bb}";
+
 /// Wraps a parsing function with a language definition environment.
 ///
 /// TODO: this could probably push identifiers to the symbol table here?
@@ -113,7 +116,11 @@ where I: Stream<Item=char>
     }
 
     fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-        unimplemented!()
+        self.reserved("lambda")
+            .or(self.reserved(LAMBDA))
+            .with(self.function())
+            .map(Form::Lambda)
+            .parse_state(input)
     }
 
     fn parse_function(&self, input: State<I>) -> ParseResult<Function<'a, U>, I> {
@@ -291,7 +298,7 @@ where N: ASTNode + Sized {
                       , "data"              , "define"
                       , "defn"              , "delay"
                       , "do"                , "else"
-                      , "if"                , "lambda"
+                      , "if"                , "lambda"      , LAMBDA
                       , "let"               , "let*"
                       , "letrec"            , "or"
                       , "quasiquote"        , "quote"
