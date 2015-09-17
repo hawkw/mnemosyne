@@ -19,6 +19,8 @@ use core::semantic::annotations::{ Annotated
 use core::semantic::ast::*;
 use core::position::*;
 
+use std::rc::Rc;
+
 type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 
 type U = UnscopedState;
@@ -96,19 +98,57 @@ where I: Stream<Item=char>
             unimplemented!()
         }
 
-        fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+        fn parse_type(&self, input: State<I>) -> ParseResult<types::Type, I> {
             unimplemented!()
+        }
+
+        fn parse_binding(&self, input: State<I>)
+                        -> ParseResult<Annotated<'a
+                                                , Binding<'a, UnscopedState>
+                                                , UnscopedState>
+                                                , I>
+        {
+            let pos = input.position.clone();
+            self.parser(MnEnv::parse_name)
+                .and(self.parser(MnEnv::parse_type))
+                .and(self.parser(MnEnv::parse_expr))
+                .map(|((name, typ), value)|
+                    Annotated::new( Binding { name: name
+                                            , typ: typ
+                                            , value: Rc::new(value)
+                                            }
+                                   , Position::from(pos)
+                               ))
+                .parse_state(input)
+        }
+
+        fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
+
+            let binding_form =
+                self.reserved("let")
+                    .with(many(self.parens(self.parser(MnEnv::parse_binding))))
+                    .and(many(self.parser(MnEnv::parse_expr)))
+                    .map(|(bindings, body)| LetForm::Let { bindings: bindings
+                                                         , body: body });
+
+            choice([ binding_form ])
+                .map(Form::Let)
+                .parse_state(input)
+        }
+
+        fn parse_name (&self, input: State<I>) -> ParseResult<Ident, I> {
+            let position = input.position.clone();
+            self.env.identifier::<'b>()
+                .map(|name| Positional { pos: Position::from(position)
+                                       , value: name })
+                .parse_state(input)
         }
 
         fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
             let pos = Position::from(input.position.clone());
-            self.env
-                .identifier::<'b>()
+            self.parser(MnEnv::parse_name)
                 .and(many(self.parser(MnEnv::parse_expr)))
-                .map(|(name, args)| Form::Call {
-                        fun: Positional { pos: pos, value: name }
-                      , body: args
-                })
+                .map(|(name, args)| Form::Call { fun: name, body: args })
                 .parse_state(input)
         }
 
