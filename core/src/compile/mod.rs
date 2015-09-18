@@ -112,7 +112,7 @@ impl<'a> LLVMContext<'a> {
                         optionalise!(llvm::LLVMGetNamedFunction(self.llmod, p)))
                 )
             .expect(&format!(
-                    "Could not create C string for function name: {:?}"
+                      "Could not create C string for function name: {:?}"
                     , name
                   ))
     }
@@ -137,6 +137,7 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
           , Form::Call { .. } => unimplemented!()
           , Form::Lambda(ref fun) => unimplemented!()
           , Form::Logical(ref exp) => unimplemented!()
+          , Form::Constant(ref c) => unimplemented!()
         }
     }
 }

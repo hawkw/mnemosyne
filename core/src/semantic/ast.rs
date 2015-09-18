@@ -9,6 +9,7 @@ use super::types::Type;
 use std::rc::Rc;
 use std::borrow::Borrow;
 use std::hash::Hash;
+use std::fmt;
 
 pub type Ident = Positional<String>;
 
@@ -69,6 +70,7 @@ pub enum Form<'a, S: ScopednessTypestate> {
          }
   , Lambda(Function<'a, S>)
   , Logical(Logical<'a, S>)
+  , Constant(Const)
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -101,6 +103,19 @@ pub enum Logical<'a, S: ScopednessTypestate> {
 }
 
 #[derive(PartialEq, Clone, Debug)]
+pub enum Const { IntConst(i64)
+               , UintConst(u64)
+               }
+
+impl fmt::Display for Const {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self { Const::IntConst(ref n)    => write!(f, "{}", n)
+                    , Const::UintConst(ref n)   => write!(f, "{}", n)
+                    }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug)]
 pub enum LetForm<'a, S: ScopednessTypestate> {
     Let { bindings: Bindings<'a, S>
         , body: Body<'a, S>
@@ -115,7 +130,6 @@ pub enum LetForm<'a, S: ScopednessTypestate> {
   , LetSplat { bindings: Bindings<'a, S>
              , body: Body<'a, S>
              }
-
 }
 
 #[derive(PartialEq, Clone, Debug)]

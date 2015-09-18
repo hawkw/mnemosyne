@@ -30,6 +30,8 @@ type U = UnscopedState;
 /// Unicode code point for the lambda character
 const LAMBDA: &'static str = "\u{03bb}";
 
+mod tests;
+
 /// Wraps a parsing function with a language definition environment.
 ///
 /// TODO: this could probably push identifiers to the symbol table here?
@@ -237,6 +239,16 @@ where I: Stream<Item=char>
            .parse_state(input)
     }
 
+    fn int_const(&'b self) -> MnParser<'a, 'b, I, Const> {
+        self.parser(MnEnv::parse_int_const)
+    }
+
+    #[allow(dead_code)]
+    fn parse_int_const(&self, input: State<I>) -> ParseResult<Const, I> {
+        self.integer()
+            .map(Const::IntConst)
+            .parse_state(input)
+    }
 
     fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
 
@@ -276,6 +288,8 @@ where I: Stream<Item=char>
                            , self.let_form()
                            , self.call()
                            ]))
+            .or(self.int_const()
+                    .map(Form::Constant))
             .map(|f| Annotated::new(f, pos) )
             .parse_state(input)
     }

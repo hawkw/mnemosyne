@@ -57,9 +57,18 @@ where S: ScopednessTypestate
             Form::Define(ref form)  => form.to_sexpr(level)
           , Form::Let(ref form)     => form.to_sexpr(level)
           , Form::If { .. }         => unimplemented!()
-          , Form::Call { .. }       => unimplemented!()
+          , Form::Call { ref fun, ref body } =>
+                format!( "({}{})"
+                       , fun.to_sexpr(level)
+                       , body.iter()
+                             .fold(String::new(), |mut s, expr| {
+                                   write!(s, " {}", expr.to_sexpr(level))
+                                       .expect("Could not write to string!");
+                                   s
+                              }))
           , Form::Lambda(ref fun)   => fun.to_sexpr(level)
           , Form::Logical(ref form) => form.to_sexpr(level)
+          , Form::Constant(ref c)   => format!("{}", c)
         }
     }
 
