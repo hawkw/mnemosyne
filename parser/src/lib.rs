@@ -346,10 +346,12 @@ pub fn parse_module<'a>(code: &'a str)
         ident: Identifier {
             start: letter().or(satisfy(move |c| alpha_ext.contains(c)))
           , rest: alpha_num().or(satisfy(move |c| alpha_ext.contains(c)))
-          , reserved: [ "and"               , "begin"
+          , reserved: [ // a number of these reserved words have no meaning yet
+                        "and"               , "begin"
                       , "case"              , "cond"
-                      , "data"              , "define"
-                      , "defn"              , "delay"
+                      , "data"
+                      , "define"            , "defn"        , "def"
+                      , "delay"             , "fn"
                       , "do"                , "else"
                       , "if"                , "lambda"      , LAMBDA
                       , "let"               , "let*"        , "letrec"
@@ -362,6 +364,7 @@ pub fn parse_module<'a>(code: &'a str)
                       , "i64"               , "u64"         , "f64"
                       , "int"               , "uint"        , "float"
                       , "bool"                              , "double"
+                      , "ref"               , "move"        , "borrow"
                       ].iter().map(|x| (*x).into())
                        .collect()
         }
