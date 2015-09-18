@@ -1,6 +1,8 @@
 Def syntax
 ----------
 
+Here are a couple options for how type signatures for function definition might end up looking. I'm personally leaning towards the Haskell/Lux style syntax, but we'll see...
+
 #### Haskell/Lux style signatures
 
 Matching function syntax with general def (where `(fn <signature> <body>)` means the same thing as `(lambda <signature> <body>)`, and function bodies are defined in the Haskellular pattern-matchy style).
