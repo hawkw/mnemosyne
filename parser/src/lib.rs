@@ -28,7 +28,9 @@ type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 type U = UnscopedState;
 
 /// Unicode code point for the lambda character
-const LAMBDA: &'static str = "\u{03bb}";
+const LAMBDA: &'static str      = "\u{03bb}";
+const ARROW: &'static str       = "\u{8594}";
+const FAT_ARROW: &'static str   = "\u{8685}";
 
 mod tests;
 
@@ -340,7 +342,7 @@ pub fn parse_module<'a>(code: &'a str)
                         -> Result< Vec<Expr<'a, UnscopedState>>
                                  , ParseError<&str>>
  {
-    let alpha_ext = "+-*/<=>!?:$%_~^";
+    let alpha_ext = "+-*/<=>!:$%_~^";
     let ops = "+-*/|=<>";
     let env = LanguageEnv::new(LanguageDef {
         ident: Identifier {
@@ -358,6 +360,7 @@ pub fn parse_module<'a>(code: &'a str)
                       , "or"
                       , "quasiquote"        , "quote"       , "unquote"
                       , "set!"              , "unquote-splicing"
+                      , "struct"            , "union"
                       , "i8"                , "u8"
                       , "i16"               , "u16"
                       , "i32"               , "u32"         , "f32"
@@ -373,8 +376,8 @@ pub fn parse_module<'a>(code: &'a str)
       , op: Identifier {
             start: satisfy(move |c| ops.contains(c))
           , rest:  satisfy(move |c| ops.contains(c))
-          , reserved: [ "=>", "->", "\\", "|"].iter().map(|x| (*x).into())
-                                                     .collect()
+          , reserved: [ "=>", "->", "\\", "|", ARROW, FAT_ARROW]
+                .iter().map(|x| (*x).into()).collect()
         }
       , comment_line: string(";").map(|_| ())
       , comment_start: string("#|").map(|_| ())
