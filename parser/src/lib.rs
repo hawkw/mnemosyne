@@ -91,6 +91,7 @@ where I: Stream<Item=char>
         MnParser { env: self, parser: parser }
     }
 
+    #[allow(dead_code)]
     fn parse_def(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
         let function_form
             = self.name()
@@ -105,16 +106,28 @@ where I: Stream<Item=char>
                     DefForm::TopLevel { name: name
                                       , annot: ty
                                       , value: Rc::new(body) });
+
         self.reserved("defn").or(self.reserved("define"))
             .with(function_form.or(top_level))
             .map(Form::Define)
             .parse_state(input)
     }
 
+    #[allow(dead_code)]
     fn parse_if(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
-        unimplemented!()
+        self.reserved("if")
+            .with(self.expr())
+            .and(self.expr())
+            .and(optional(self.expr()))
+            .map(|((cond, if_clause), else_clause)|
+                Form::If { condition: Rc::new(cond)
+                         , if_clause: Rc::new(if_clause)
+                         , else_clause: else_clause.map(Rc::new)
+                         })
+            .parse_state(input)
     }
 
+    #[allow(dead_code)]
     fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
         self.reserved("lambda")
             .or(self.reserved(LAMBDA))
@@ -123,10 +136,12 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
+    #[allow(dead_code)]
     fn parse_function(&self, input: State<I>) -> ParseResult<Function<'a, U>, I> {
         unimplemented!()
     }
 
+    #[allow(dead_code)]
     fn parse_primitive_ty(&self, input: State<I>) -> ParseResult<Type, I> {
         choice([ self.reserved("int")
                      .with(value(Primitive::IntSize))
@@ -200,6 +215,28 @@ where I: Stream<Item=char>
                            ))
             .parse_state(input)
     }
+
+    #[allow(dead_code)]
+    fn parse_logical(&self, input: State<I>)
+                    -> ParseResult<Logical<'a, U>, I> {
+        let and = self.reserved("and")
+                      .with(self.expr())
+                      .and(self.expr())
+                      .map(|(a, b)| Logical::And { a: Rc::new(a)
+                                                 , b: Rc::new(b)
+                                                 });
+
+         let or = self.reserved("or")
+                      .with(self.expr())
+                      .and(self.expr())
+                      .map(|(a, b)| Logical::And { a: Rc::new(a)
+                                                 , b: Rc::new(b)
+                                                 });
+
+        and.or(or)
+           .parse_state(input)
+    }
+
 
     fn parse_let(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
 
@@ -299,10 +336,10 @@ where N: ASTNode + Sized {
                       , "defn"              , "delay"
                       , "do"                , "else"
                       , "if"                , "lambda"      , LAMBDA
-                      , "let"               , "let*"
-                      , "letrec"            , "or"
-                      , "quasiquote"        , "quote"
-                      , "set!"              , "unquote"
+                      , "let"               , "let*"        , "letrec"
+                      , "or"
+                      , "quasiquote"        , "quote"       , "unquote"
+                      , "set!"
                       , "unquote-splicing"
                       , "i8"                , "u8"
                       , "i16"               , "u16"
@@ -310,7 +347,8 @@ where N: ASTNode + Sized {
                       , "i64"               , "u64"         , "f64"
                       , "int"               , "uint"        , "float"
                       , "bool"                              , "double"
-                      ].iter().map(|x| (*x).into()).collect()
+                      ].iter().map(|x| (*x).into())
+                       .collect()
         }
       , op: Identifier {
             start: satisfy(|c| ops.contains(c))
