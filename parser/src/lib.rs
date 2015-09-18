@@ -348,7 +348,7 @@ pub fn parse_module<'a>(code: &'a str)
           , rest: alpha_num().or(satisfy(move |c| alpha_ext.contains(c)))
           , reserved: [ // a number of these reserved words have no meaning yet
                         "and"               , "begin"
-                      , "case"              , "cond"
+                      , "case"              , "cond"        , "class"
                       , "data"
                       , "define"            , "defn"        , "def"
                       , "delay"             , "fn"
@@ -365,6 +365,8 @@ pub fn parse_module<'a>(code: &'a str)
                       , "int"               , "uint"        , "float"
                       , "bool"                              , "double"
                       , "ref"               , "move"        , "borrow"
+                      , "trait"             , "typeclass"
+                      , "instance"          , "impl"
                       ].iter().map(|x| (*x).into())
                        .collect()
         }
