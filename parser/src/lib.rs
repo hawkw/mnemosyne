@@ -342,7 +342,7 @@ pub fn parse_module<'a>(code: &'a str)
                         -> Result< Vec<Expr<'a, UnscopedState>>
                                  , ParseError<&str>>
  {
-    let alpha_ext = "+-*/<=>!:$%_~^";
+    let alpha_ext = "+-*/<=>!:$%_^";
     let ops = "+-*/|=<>";
     let env = LanguageEnv::new(LanguageDef {
         ident: Identifier {
