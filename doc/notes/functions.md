@@ -29,7 +29,7 @@ The same, with infix sugar
     )))
 ```
 
-With infix sugar & tab sugar (this is starting to look a lot less like Lisp, to the extent that I had to use Python syntax highlighting.)
+With [infix sugar & tab sugar](http://srfi.schemers.org/srfi-110/srfi-110.html) (this is starting to look a lot less like Lisp, to the extent that I had to use Python syntax highlighting.)
 
 ```python
 def quicksort fn { List -> List }
