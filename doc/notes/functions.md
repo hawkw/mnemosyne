@@ -1,7 +1,12 @@
 Def syntax
 ----------
 
-Here are a couple options for how type signatures for function definition might end up looking. I'm personally leaning towards the Haskell/Lux style syntax, but we'll see...
+Here are a couple options for how type signatures for function definition might end up looking. 
+
+I'm personally leaning strongly towards the Haskelloid type signature style; both aesthetically (the code seems less messy, and I can also accept the unicode `→` and `⇒` arrows, which I think is great) and because it seems more Ideologically Correct: I like that it encourages the programmer to think of functions as curryable (which, I suppose, is kind of the point), and it also forces the use of pattern-matching for function definitions if you want to bind names to arguments.
+
+The latter is worth having 'cause it seems to me that if you already have to pattern match in order to bind names to your arguments, you might more readily realise that you can just use matching to destructure something, rather than saying things like `(cond (eq 'thing (car x)) (let ((y (cadr) x) (z (caddr x))) ...)` or whatever... The unfortunate flipside to all this is that it means I have to write a robust pattern matching implementation much earlier in my development process, which sounds Hard & Scary :cold_sweat:.
+
 
 #### Haskell/Lux style signatures
 
