@@ -89,6 +89,20 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
              }
 }
 
+#[derive(PartialEq, Clone, Debug)]
+pub struct Class<'a, S: ScopednessTypestate> {
+    name: Ident
+  , ty_param: Ident
+  , defs: Vec<Prototype<'a, S>>
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct Instance<'a, S: ScopednessTypestate> {
+    pub class: Ident
+  , pub ty: Type
+  , pub functions: Vec<Function<'a, S>>
+}
+
 /// Logical `and` and `or` expressions
 ///
 /// The general expectation is that these will generally be parsed as infix.
@@ -146,6 +160,11 @@ pub struct Function<'a, S: ScopednessTypestate> {
   , pub body: Body<'a, S>
 }
 
+#[derive(PartialEq, Clone, Debug)]
+pub struct Prototype<'a, S: ScopednessTypestate> {
+    pub formals: Vec<Annotated<'a, Formal, S>>
+  , pub annot: Ident
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Data<'a, S: ScopednessTypestate> {
