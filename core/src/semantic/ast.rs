@@ -1,3 +1,10 @@
+use std::rc::Rc;
+use std::borrow::Borrow;
+use std::hash::Hash;
+use std::{ fmt
+         , iter
+         };
+
 use ::position::Positional;
 use super::annotations::{ Annotated
                         , ScopednessTypestate
@@ -5,11 +12,7 @@ use super::annotations::{ Annotated
                         , Scoped
                         };
 use super::types;
-
-use std::rc::Rc;
-use std::borrow::Borrow;
-use std::hash::Hash;
-use std::fmt;
+use super::SymbolTable;
 
 pub type Ident = Positional<String>;
 
@@ -24,6 +27,31 @@ pub type Bindings<'a, S: ScopednessTypestate>
     = Vec<Annotated<'a
                    , Binding<'a, S>
                    , S>>;
+
+/// Trait for a node in the abstract syntax tree.
+///
+/// This provides a visitor method for semantic analysis (which may be split
+/// into multiple transforms later), and a method for formatting the AST node
+/// as an S-expression.
+pub trait Node: Sized {
+
+   /// Pretty-print the AST node as an S-expression at the desired
+   /// indentation level.]
+   ///
+   /// Note that this prints the desugared form and may not be a perfect
+   /// match for the original source code.
+   fn to_sexpr(&self, level: usize) -> String;
+
+}
+
+pub trait AnnotateTypes<'a>: Sized {
+
+   #[allow(unused_variables)]
+   fn annotate_types(self, scope: SymbolTable) -> Scoped<'a, Self> {
+       unimplemented!() //TODO: implement
+   }
+}
+
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Module<'a, S: ScopednessTypestate> {
@@ -180,4 +208,161 @@ where S: ScopednessTypestate {
 pub struct Variant<'a, S: ScopednessTypestate> {
     pub name: Ident
   , pub fields: Vec<Annotated<'a, Formal, S>>
+}
+
+impl<'a, S> Node for Form<'a, S>
+where S: ScopednessTypestate {
+   #[allow(unused_variables)]
+   fn to_sexpr(&self, level: usize) -> String {
+       match *self {
+           Form::Define(ref form)  => form.to_sexpr(level)
+         , Form::Let(ref form)     => form.to_sexpr(level)
+         , Form::If { .. }         => unimplemented!()
+         , Form::Call { ref fun, ref body } =>
+               format!( "({}{})"
+                      , fun.to_sexpr(level)
+                      , body.iter()
+                            .fold(String::new(), |mut s, expr| {
+                                  write!(s, " {}", expr.to_sexpr(level))
+                                      .expect("Could not write to string!");
+                                  s
+                             }))
+         , Form::Lambda(ref fun)   => fun.to_sexpr(level)
+         , Form::Logical(ref form) => form.to_sexpr(level)
+         , Form::Constant(ref c)   => format!("{}", c)
+       }
+   }
+
+}
+
+impl<'a, S> Node for DefForm<'a, S>
+where S: ScopednessTypestate {
+
+    fn to_sexpr(&self, level: usize) -> String {
+        match *self {
+            DefForm::TopLevel { ref name, ref annot, ref value } =>
+                format!("{}(define {} {} {})"
+                  , indent!(level)
+                  , name.to_sexpr(level)
+                  , annot
+                  , value.to_sexpr(level + 1)
+                  )
+          , DefForm::Function { ref name, ref fun } =>
+                format!("{}(define {} {}\n)"
+                  , indent!(level)
+                  , name.to_sexpr(level)
+                  , fun.to_sexpr(level)
+                  )
+        }
+    }
+
+}
+
+impl<'a, S> Node for LetForm<'a, S>
+where S: ScopednessTypestate {
+
+    fn to_sexpr(&self, level: usize) -> String {
+        match *self {
+            LetForm::Let { ref bindings, ref body } =>
+                format!("{}(let [{}]\n{})"
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
+                                    s
+                                 })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                              write!(s, "{}", expr.to_sexpr(level + 1))
+                                .expect("Could not write to string!");
+                              s
+                          })
+                       )
+          , LetForm::LetRec { ref bindings, ref body } =>
+                format!("{}(letrec [{}]\n{})"
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
+                                    s
+                               })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                                write!(s, "{}", expr.to_sexpr(level + 1)); s
+                            })
+                          )
+          , LetForm::LetSplat { ref bindings, ref body } =>
+                format!("{}(let* [{}]\n{})"
+                    , indent!(level)
+                    , bindings.iter()
+                              .fold(String::new(), |mut s, binding| {
+                                    write!(s, "{}\n", binding.to_sexpr(level))
+                                        .expect("Could not write to string!");
+                                    s
+                               })
+                    , body.iter()
+                          .fold(String::new(), |mut s, expr| {
+                                write!(s, "{}", expr.to_sexpr(level + 1))
+                                    .expect("Could not write to string!");
+                                s
+                            })
+                          )
+          , _ => unimplemented!()
+        }
+    }
+
+}
+
+impl<'a, S> Node for Logical<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        match *self {
+            Logical::And { ref a, ref b } =>
+                format!( "(and {} {})"
+                       , a.to_sexpr(level)
+                       , b.to_sexpr(level)
+                       )
+         ,  Logical::Or { ref a, ref b }  =>
+                format!( "(and {} {})"
+                       , a.to_sexpr(level)
+                       , b.to_sexpr(level)
+                       )
+        }
+    }
+}
+
+impl<'a, S> Node for Function<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        unimplemented!()
+    }
+}
+
+impl<'a, S> Node for Binding<'a, S>
+where S: ScopednessTypestate
+{
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        unimplemented!()
+    }
+}
+
+impl Node for Formal {
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        format!("{}: {}", *(self.name), *(self.annot))
+    }
+
+}
+
+impl Node for Ident {
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
+
 }

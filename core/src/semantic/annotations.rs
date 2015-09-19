@@ -4,9 +4,10 @@ use std::ops;
 use std::fmt;
 use std::marker::PhantomData;
 
-use super::{ ASTNode
+use ast;
+
+use super::{ SymbolAnnotation
            , SymbolTable
-           , SymbolAnnotation
            };
 use position::{ Position
               , Positional
@@ -92,7 +93,7 @@ impl<'a, T> Scoped<'a, T> {
 }
 
 impl<'a, T> Unscoped<'a, T>
-where T: ASTNode {
+where T: ast::Node {
 
     /// Consume this unscoped annotation to produce a new
     /// annotation in the scoped typestate with the given
@@ -117,7 +118,7 @@ where T: ASTNode {
 
 impl<'a, T, S> ops::Deref for Annotated<'a, T, S>
 where S: ScopednessTypestate
-    , T: ASTNode
+    , T: ast::Node
 {
     type Target = T;
     fn deref(&self) -> &T { &self.node }
@@ -133,7 +134,7 @@ where S: ScopednessTypestate
 }
 
 impl<'a, T> From<Positional<T>> for Unscoped<'a, T>
-where T: ASTNode {
+where T: ast::Node {
 
     fn from(p: Positional<T>) -> Self { Unscoped::new(p.value, p.pos) }
 }
