@@ -1,7 +1,13 @@
 use std::rc::Rc;
 use std::fmt;
+use std::iter;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+use ast;
+
+const ARROW: &'static str       = "\u{8594}";
+const FAT_ARROW: &'static str   = "\u{8685}";
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     /// Reference types
     Ref(Reference),
@@ -12,11 +18,7 @@ pub enum Type {
     /// Represented as a vector of variants.
     Algebraic(Vec<Type>),
     /// A function.
-    ///
-    /// Represented as a vector of parameters and a return type.
-    Function { params: Vec<Type>
-             , rt: Rc<Type>
-             },
+    Function(Signature),
     /// A unique symbol type (`'symbol` syntax)
     Symbol(String)
 }
@@ -28,17 +30,60 @@ impl fmt::Display for Type {
                    , &Type::Prim(ref p) => write!(f, "{}", p)
                    , &Type::Algebraic(ref variants) =>
                         unimplemented!()
-                   , &Type::Function { ref params, ref rt } =>
-                        unimplemented!()
+                   , &Type::Function(ref fun) => write!(f, "{}", fun)
                    , &Type::Symbol(ref s) => write!(f, "{}", s)
                    }
+    }
+}
+
+/// A function signature
+#[derive(Clone, Debug, PartialEq)]
+pub struct Signature { /// Any typeclass constraints on the function
+                       pub constraints: Option<Vec<Constraint>>
+                     , /// The actual function type chain globule
+                       pub typechain: Vec<Type>
+                     }
+
+ impl fmt::Display for Signature {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         unimplemented!()
+     }
+ }
+
+ impl super::ASTNode for Signature {
+     fn to_sexpr(&self, level: usize) -> String {
+         format!( "{indent}{}({arrow} {})"
+                , self.constraints
+                     .map(|cs| format!( "({arrow} {})"
+                                      , cs.iter()
+                                          .fold( String::new()
+                                               , |s, c| write!(&s, "{}", c) )
+                                       , arrow = FAT_ARROW )
+                        )
+                    .unwrap_or(String::from(""))
+                , self.typechain.iter()
+                                .fold( String::new()
+                                     , |s, t| write!(&s, "{}", t) )
+                , arrow  = ARROW
+                , indent = indent!(level)
+                )
+     }
+ }
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Constraint { pub typeclass: ast::Ident
+                      , pub generics: Vec<ast::Ident> }
+
+impl fmt::Display for Constraint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        unimplemented!()
     }
 }
 
 /// Reference types (pointers)
 ///
 /// TODO: how will lifetime analysis actually work?
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Reference {
     /// A reference borrowed from another scope.
     ///

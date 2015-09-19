@@ -4,10 +4,6 @@ use std::rc::Rc;
 
 use ::forktable::ForkTable;
 
-pub mod ast;
-pub mod types;
-pub mod annotations;
-
 use ast::*;
 use self::annotations::*;
 use self::types::Type;
@@ -18,11 +14,16 @@ use self::types::Type;
 pub type SymbolTable<'a>
     = ForkTable<'a, String, SymbolAnnotation<'a>>;
 
+#[macro_use]
 macro_rules! indent {
     ($to:expr) => ( iter::repeat('\t')
                         .take($to)
                         .collect::<String>() )
 }
+
+pub mod ast;
+pub mod types;
+pub mod annotations;
 
 /// Trait for a node in the abstract syntax tree.
 ///
@@ -219,6 +220,7 @@ impl ASTNode for Formal {
     }
 
 }
+
 
 #[derive(Clone,Debug,PartialEq)]
 pub struct SymbolAnnotation<'a> {
