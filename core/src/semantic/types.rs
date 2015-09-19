@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use std::fmt;
+use std::fmt::Write;
 use std::iter;
 
 use ast;
@@ -43,6 +44,14 @@ pub struct Signature { /// Any typeclass constraints on the function
                      , /// The actual function type chain globule
                        pub typechain: Vec<Type>
                      }
+impl Signature {
+    /// The uncurried return type of the function
+    ///
+    /// This just returns the last element in the type glob
+    pub fn return_type(&self) -> &Type { &self.typechain[0] }
+    /// Returns the arity of the function
+    pub fn arity(&self) -> usize { self.typechain.len() - 1 }
+}
 
  impl fmt::Display for Signature {
      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -50,20 +59,35 @@ pub struct Signature { /// Any typeclass constraints on the function
      }
  }
 
+ macro_rules! append {
+     ($s:expr, $t:expr) => {
+         write!($s, "{}", $t)
+            .expect("Could not write to string!")
+        $s
+    }
+ }
+
+ fn concat_all<A,B>(xs: B) -> String
+ where A: fmt::Display
+     , B: Iterator<Item=A>
+{
+    xs.fold(String::new(), |mut s, x| {
+        write!(&mut s, "{}", x).expect("Could not append to string!");
+        s
+    })
+}
+
  impl super::ASTNode for Signature {
      fn to_sexpr(&self, level: usize) -> String {
          format!( "{indent}{}({arrow} {})"
                 , self.constraints
-                     .map(|cs| format!( "({arrow} {})"
-                                      , cs.iter()
-                                          .fold( String::new()
-                                               , |s, c| write!(&s, "{}", c) )
-                                       , arrow = FAT_ARROW )
+                      .clone()
+                      .map(|ref cs| format!( "({arrow} {})"
+                                      , concat_all(cs.iter())
+                                      , arrow = FAT_ARROW )
                         )
                     .unwrap_or(String::from(""))
-                , self.typechain.iter()
-                                .fold( String::new()
-                                     , |s, t| write!(&s, "{}", t) )
+                , concat_all(self.typechain.iter())
                 , arrow  = ARROW
                 , indent = indent!(level)
                 )

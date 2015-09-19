@@ -4,7 +4,7 @@ use super::annotations::{ Annotated
                         , ScopedState
                         , Scoped
                         };
-use super::types::Type;
+use super::types;
 
 use std::rc::Rc;
 use std::borrow::Borrow;
@@ -81,7 +81,7 @@ pub struct Formal { pub name: Ident
 #[derive(PartialEq, Clone, Debug)]
 pub enum DefForm<'a, S: ScopednessTypestate> {
     TopLevel { name: Ident
-             , annot: Type
+             , annot: types::Type
              , value: Rc<Expr<'a, S>>
              }
   , Function { name: Ident
@@ -99,7 +99,7 @@ pub struct Class<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Instance<'a, S: ScopednessTypestate> {
     pub class: Ident
-  , pub ty: Type
+  , pub ty: types::Type
   , pub functions: Vec<Function<'a, S>>
 }
 
@@ -149,14 +149,13 @@ pub enum LetForm<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Binding<'a, S: ScopednessTypestate> {
     pub name: Ident
-  , pub typ: Type
+  , pub typ: types::Type
   , pub value: Rc<Expr<'a, S>>
 }
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Function<'a, S: ScopednessTypestate> {
-    pub formals: Vec<Annotated<'a, Formal, S>>
-  , pub annot: Ident
+    pub sig: types::Signature
   , pub body: Body<'a, S>
 }
 
