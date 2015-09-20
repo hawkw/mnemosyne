@@ -249,27 +249,56 @@ where I: Stream<Item=char>
         self.parser(MnEnv::parse_constraint)
     }
 
-    fn parse_fun_ty(&self, input: State<I>) -> ParseResult<Signature, I> {
+    fn parse_prefix_sig(&self, input: State<I>) -> ParseResult<Signature, I> {
+        self.parens(self.reserved_op("->")
+                        .or(self.reserved_op(ARROW))
+                        .with(optional(many1(self.constraint())))
+                        .and(many1(self.type_name())) )
+            .map(|(cs, glob)| Signature { constraints: cs
+                                        , typechain: glob })
+            .parse_state(input)
+    }
 
-        let prefix =
-            self.parens(self.reserved_op("->")
-                            .or(self.reserved_op(ARROW))
-                            .with(optional(many1(self.constraint())))
-                            .and(many1(self.type_name())) )
-                .map(|(cs, glob)| Signature { constraints: cs
-                                            , typechain: glob });
+    fn parse_infix_sig(&self, input: State<I>) -> ParseResult<Signature, I> {
+        self.braces(optional(many1(self.constraint()))
+                        .and(sep_by1::< Vec<Type>
+                                      , _, _>( self.lex(self.type_name())
+                                             , self.reserved_op("->")
+                                                   .or(self.reserved_op(ARROW))
+                                             )))
+            .map(|(cs, glob)| Signature { constraints: cs
+                                        , typechain: glob })
+            .parse_state(input)
+    }
 
-        let infix =
-            self.braces(optional(many1(self.constraint()))
-                            .and(sep_by1::< Vec<Type>
-                                          , _, _>( self.lex(self.type_name())
-                                                 , self.reserved_op("->")
-                                                       .or(self.reserved_op(ARROW))
-                                                 )))
-                .map(|(cs, glob)| Signature { constraints: cs
-                                            , typechain: glob });
-        prefix.or(infix)
-              .parse_state(input)
+    fn parse_signature(&self, input: State<I>) -> ParseResult<Signature, I> {
+
+        // let prefix =
+        //     self.parens(self.reserved_op("->")
+        //                     .or(self.reserved_op(ARROW))
+        //                     .with(optional(many1(self.constraint())))
+        //                     .and(many1(self.type_name())) )
+        //         .map(|(cs, glob)| Signature { constraints: cs
+        //                                     , typechain: glob });
+        //
+        // let infix =
+        //     self.braces(optional(many1(self.constraint()))
+        //                     .and(sep_by1::< Vec<Type>
+        //                                   , _, _>( self.lex(self.type_name())
+        //                                          , self.reserved_op("->")
+        //                                                .or(self.reserved_op(ARROW))
+        //                                          )))
+        //         .map(|(cs, glob)| Signature { constraints: cs
+        //                                     , typechain: glob });
+        // prefix.or(infix)
+        //       .parse_state(input)
+        self.parser(MnEnv::parse_prefix_sig)
+            .or(self.parser(MnEnv::parse_infix_sig))
+            .parse_state(input)
+    }
+
+    fn signature(&'b self) -> MnParser<'a, 'b, I, Signature> {
+        self.parser(MnEnv::parse_signature)
     }
 
     fn parse_binding(&self, input: State<I>)
