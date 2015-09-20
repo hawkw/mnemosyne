@@ -89,13 +89,10 @@ where T: fmt::Display {
     }
 }
 
-impl<T> hash::Hash for Positional<T>
-where T: hash::Hash {
-    fn hash<H: hash::Hasher>(&self, state: &mut H) {
-        self.value.hash(state)
-    }
-}
-
+/// A positional pointer is still equal to the underlying
+/// value even if they have different positions. This is
+/// important so that we can test that two identifiers are
+/// the same.
 impl<T> PartialEq for Positional<T>
 where T: PartialEq {
     fn eq(&self, other: &Positional<T>) -> bool {
@@ -103,6 +100,19 @@ where T: PartialEq {
     }
 }
 
+/// If two things are equal, then they better have the same
+/// hash as well. Otherwise there will be sadness.
+impl<T> hash::Hash for Positional<T>
+where T: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.value.hash(state)
+    }
+}
+
+
+/// This is literally just waving my hands for the compiler.
+///
+/// Hopefully it understands what I mean.
 impl<T> Eq for Positional<T>
 where T: Eq
     , T: PartialEq
