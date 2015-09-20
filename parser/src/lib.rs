@@ -104,7 +104,7 @@ where I: Stream<Item=char>
                                                        , fun: fun });
         let top_level
             = self.name()
-                  .and(self.type_annotation())
+                  .and(self.type_name())
                   .and(self.expr())
                   .map(|((name, ty), body)|
                     DefForm::TopLevel { name: name
@@ -179,19 +179,19 @@ where I: Stream<Item=char>
     }
 
     fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-        char('*').with(self.type_annotation())
+        char('*').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Raw(Rc::new(t))))
                  .parse_state(input)
     }
 
     fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-        char('@').with(self.type_annotation())
+        char('@').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Unique(Rc::new(t))))
                  .parse_state(input)
     }
 
     fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
-        char('&').with(self.type_annotation())
+        char('&').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Borrowed(Rc::new(t))))
                  .parse_state(input)
     }
@@ -204,11 +204,35 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
+    fn parse_fun_ty(&self, input: State<I>) -> ParseResult<Signature, I> {
+        let arrow // function type arrow operator
+            = self.reserved_op("->")
+                  .or(self.reserved_op(ARROW));
+
+        let typeclass_arrow // typeclass constraints arrow
+            = self.reserved_op("=>")
+                  .or(self.reserved_op(FAT_ARROW));
+
+        let constraint
+            = self.parens(typeclass_arrow
+                            .with(self.name())
+                            .and(many1(self.name())))
+                 .map(|(c, gs)| Constraint { typeclass: c
+                                           , generics: gs });
+
+        self.parens(arrow.with(optional(many1(constraint)))
+                         .and(many1(self.type_name()))
+                         .map(|(cs, glob)| Signature { constraints: cs
+                                                     , typechain: glob })
+                   )
+            .parse_state(input)
+    }
+
     fn parse_binding(&self, input: State<I>)
                     -> ParseResult<Unscoped<'a, Binding<'a, U>>, I> {
         let pos = input.position.clone();
         self.parser(MnEnv::parse_name)
-            .and(self.type_annotation())
+            .and(self.type_name())
             .and(self.expr())
             .map(|((name, typ), value)|
                 Annotated::new( Binding { name: name
@@ -329,7 +353,7 @@ where I: Stream<Item=char>
         self.parser(MnEnv::parse_binding)
     }
 
-    fn type_annotation(&'b self) -> MnParser<'a, 'b, I, types::Type> {
+    fn type_name(&'b self) -> MnParser<'a, 'b, I, types::Type> {
         self.parser(MnEnv::parse_type)
     }
 

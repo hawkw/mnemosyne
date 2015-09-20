@@ -102,6 +102,8 @@ where T: PartialEq {
 
 /// If two things are equal, then they better have the same
 /// hash as well. Otherwise there will be sadness.
+///
+/// Homefully this is Ideologically Correct.
 impl<T> hash::Hash for Positional<T>
 where T: hash::Hash {
     fn hash<H: hash::Hasher>(&self, state: &mut H) {
