@@ -59,13 +59,6 @@ impl Signature {
      }
  }
 
- macro_rules! append {
-     ($s:expr, $t:expr) => {
-         write!($s, "{}", $t)
-            .expect("Could not write to string!")
-        $s
-    }
- }
 
  fn concat_all<A,B>(xs: B) -> String
  where A: fmt::Display
@@ -77,7 +70,7 @@ impl Signature {
     })
 }
 
- impl super::ASTNode for Signature {
+ impl ast::Node for Signature {
      fn to_sexpr(&self, level: usize) -> String {
          format!( "{indent}{}({arrow} {})"
                 , self.constraints

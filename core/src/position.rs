@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
+use std::hash;
 use std::fmt;
-
 use std::convert::From;
 
 use combine::primitives::SourcePosition;
@@ -89,12 +89,24 @@ where T: fmt::Display {
     }
 }
 
+impl<T> hash::Hash for Positional<T>
+where T: hash::Hash {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.value.hash(state)
+    }
+}
+
 impl<T> PartialEq for Positional<T>
 where T: PartialEq {
     fn eq(&self, other: &Positional<T>) -> bool {
         self.value == other.value
     }
 }
+
+impl<T> Eq for Positional<T>
+where T: Eq
+    , T: PartialEq
+    {}
 
 impl<T> Deref for Positional<T> {
     type Target = T;

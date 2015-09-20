@@ -1,9 +1,11 @@
-use std::rc::Rc;
 use std::borrow::Borrow;
+use std::collections::HashMap;
 use std::hash::Hash;
 use std::{ fmt
          , iter
          };
+use std::fmt::Write;
+use std::rc::Rc;
 
 use ::position::Positional;
 use super::annotations::{ Annotated
@@ -69,7 +71,7 @@ impl<'a, S> Module<'a, S> where S: ScopednessTypestate {
 
 impl<'a> Scoped<'a, Module<'a, ScopedState>>{
 
-    pub fn has_name<Q: ?Sized>(&self, name: &Q) -> bool
+    pub fn contains_name<Q: ?Sized>(&self, name: &Q) -> bool
     where String: Borrow<Q>
         , String: PartialEq<Q>
         , Q: Hash + Eq
@@ -119,9 +121,9 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Class<'a, S: ScopednessTypestate> {
-    name: Ident
-  , ty_param: Ident
-  , defs: Vec<Prototype<'a, S>>
+    pub name: Ident
+  , pub ty_param: Ident
+  , pub defs: Vec<Prototype<'a, S>>
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -193,21 +195,46 @@ pub struct Prototype<'a, S: ScopednessTypestate> {
   , pub annot: Ident
 }
 
+pub type Variant<'a, S: ScopednessTypestate>
+    = Vec<Annotated<'a, Formal, S>>;
+
 #[derive(PartialEq, Clone, Debug)]
 pub struct Data<'a, S: ScopednessTypestate> {
     pub name: Ident
-  , pub variants: Vec<Variant<'a, S>>
+  , pub variants: HashMap<Ident, Variant<'a, S>>
 }
+
+// #[derive(PartialEq, Clone, Debug)]
+// pub enum Data<'a, S: ScopednessTypestate> {
+//     Sum { name: Ident
+//         , variants: Vec<Type> }
+//   , Product { name: Ident
+//             , fields: Vec<Binding<'a, S>> }
+// }
 
 impl<'a, S> Data<'a, S>
 where S: ScopednessTypestate {
-    pub fn is_algebraic(&self) -> bool { self.variants.len() > 1 }
-}
 
-#[derive(PartialEq, Clone, Debug)]
-pub struct Variant<'a, S: ScopednessTypestate> {
-    pub name: Ident
-  , pub fields: Vec<Annotated<'a, Formal, S>>
+    /// Returns true if this ADT is a sum type
+    pub fn is_sum_type(&self) -> bool {
+        self.variants.len() > 1
+    }
+
+    /// Returns true if this ADT is a product type
+    #[inline] pub fn is_product_type(&self) -> bool {
+        !self.is_sum_type()
+    }
+
+    /// Returns the fields of a product type.
+    ///
+    /// # Returns
+    ///  + A `Some<Vec<Annotated<'a, Formal, S>>>` representing
+    ///    this type's fields, if this is the definition of a
+    ///    product type.
+    ///  + Otherwise, `None`
+    pub fn get_product_fields(&self) -> Option<&Variant<'a, S>> {
+        self.variants.get(&self.name)
+    }
 }
 
 impl<'a, S> Node for Form<'a, S>
