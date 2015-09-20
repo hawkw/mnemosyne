@@ -204,28 +204,72 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    fn parse_fun_ty(&self, input: State<I>) -> ParseResult<Signature, I> {
-        let arrow // function type arrow operator
-            = self.reserved_op("->")
-                  .or(self.reserved_op(ARROW));
+    // fn parse_typeclass_arrow(&self, input: State<I>) -> ParseResult<&str, I> {
+    //     self.reserved_op("=>")
+    //         .or(self.reserved_op(FAT_ARROW))
+    //         .parse_state(input)
+    // }
 
-        let typeclass_arrow // typeclass constraints arrow
-            = self.reserved_op("=>")
-                  .or(self.reserved_op(FAT_ARROW));
+    // fn parse_arrow(&self, input: State<I>) -> ParseResult<&str, I> {
+    //     self.reserved_op("->")
+    //         .or(self.reserved_op(ARROW))
+    //         .parse_state(input)
+    // }
 
-        let constraint
-            = self.parens(typeclass_arrow
-                            .with(self.name())
-                            .and(many1(self.name())))
-                 .map(|(c, gs)| Constraint { typeclass: c
-                                           , generics: gs });
-
-        self.parens(arrow.with(optional(many1(constraint)))
-                         .and(many1(self.type_name()))
-                         .map(|(cs, glob)| Signature { constraints: cs
-                                                     , typechain: glob })
-                   )
+    fn parse_prefix_constraint(&self, input: State<I>)
+                              -> ParseResult<Constraint, I> {
+        self.parens(self.reserved_op("=>")
+                        .or(self.reserved_op(FAT_ARROW))
+                        .with(self.name())
+                        .and(many1(self.name())) )
+            .map(|(c, gs)| Constraint { typeclass: c
+                                      , generics: gs })
             .parse_state(input)
+    }
+
+    fn parse_infix_constraint(&self, input: State<I>)
+                              -> ParseResult<Constraint, I> {
+        self.braces(self.name()
+                        .skip(self.reserved_op("=>")
+                                  .or(self.reserved_op(FAT_ARROW)))
+                        .and(many1(self.name())) )
+            .map(|(c, gs)| Constraint { typeclass: c
+                                      , generics: gs })
+            .parse_state(input)
+    }
+
+    fn parse_constraint(&self, input: State<I>)
+                              -> ParseResult<Constraint, I> {
+        self.parser(MnEnv::parse_prefix_constraint)
+            .or(self.parser(MnEnv::parse_infix_constraint))
+            .parse_state(input)
+    }
+
+    fn constraint(&'b self) -> MnParser<'a, 'b, I, Constraint> {
+        self.parser(MnEnv::parse_constraint)
+    }
+
+    fn parse_fun_ty(&self, input: State<I>) -> ParseResult<Signature, I> {
+
+        let prefix =
+            self.parens(self.reserved_op("->")
+                            .or(self.reserved_op(ARROW))
+                            .with(optional(many1(self.constraint())))
+                            .and(many1(self.type_name())) )
+                .map(|(cs, glob)| Signature { constraints: cs
+                                            , typechain: glob });
+
+        let infix =
+            self.braces(optional(many1(self.constraint()))
+                            .and(sep_by1::< Vec<Type>
+                                          , _, _>( self.lex(self.type_name())
+                                                 , self.reserved_op("->")
+                                                       .or(self.reserved_op(ARROW))
+                                                 )))
+                .map(|(cs, glob)| Signature { constraints: cs
+                                            , typechain: glob });
+        prefix.or(infix)
+              .parse_state(input)
     }
 
     fn parse_binding(&self, input: State<I>)
