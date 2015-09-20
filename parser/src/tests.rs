@@ -1,6 +1,6 @@
 use super::parse_module;
 
-use core::semantic::ASTNode;
+use core::semantic::ast::Node;
 
 #[test]
 fn test_basic_parse() {
