@@ -353,7 +353,7 @@ where I: Stream<Item=char>
 
         let binding_form =
             self.reserved("let")
-                .with(many(self.parens(self.binding())))
+                .with(self.parens(many(self.parens(self.binding()))))
                 .and(many(self.expr()))
                 .map(|(bindings, body)| LetForm::Let { bindings: bindings
                                                      , body: body });
