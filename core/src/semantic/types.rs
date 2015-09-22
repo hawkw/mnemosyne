@@ -1,3 +1,12 @@
+//
+// Mnemosyne: a functional systems programming language.
+// (c) 2015 Hawk Weisman
+//
+// Mnemosyne is released under the MIT License. Please refer to
+// the LICENSE file at the top-level directory of this distribution
+// or at https://github.com/hawkw/mnemosyne/.
+//
+
 use std::rc::Rc;
 use std::fmt;
 use std::fmt::Write;
@@ -38,6 +47,10 @@ impl fmt::Display for Type {
 }
 
 /// A function signature
+///
+/// This implements both `Type` and `Node`, since it can be used as
+/// a type value (for a higher-order function), or as the AST node
+/// for the definition of a function.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Signature { /// Any typeclass constraints on the function
                        pub constraints: Option<Vec<Constraint>>
@@ -59,10 +72,10 @@ impl Signature {
      }
  }
 
-
- fn concat_all<A,B>(xs: B) -> String
- where A: fmt::Display
-     , B: Iterator<Item=A>
+/// Format a bunch of things to Strings and concatenate them together.
+fn concat_all<A,B>(xs: B) -> String
+where A: fmt::Display
+    , B: Iterator<Item=A>
 {
     xs.fold(String::new(), |mut s, x| {
         write!(&mut s, "{}", x).expect("Could not append to string!");

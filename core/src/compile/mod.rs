@@ -1,3 +1,12 @@
+//
+// Mnemosyne: a functional systems programming language.
+// (c) 2015 Hawk Weisman
+//
+// Mnemosyne is released under the MIT License. Please refer to
+// the LICENSE file at the top-level directory of this distribution
+// or at https://github.com/hawkw/mnemosyne/.
+//
+
 use std::ffi::CString;
 use std::mem;
 
@@ -22,6 +31,11 @@ use semantic::annotations::{ ScopedState
                            };
 use semantic::types::*;
 
+/// Result type for compiling an AST node to LLVM IR
+///
+/// An `IRResult` contains either a `ValueRef`, if compilation was successful,
+/// or a `Positional<String>` containing an error message and the position of
+/// the line of code which could not be compiled.
 pub type IRResult = Result<ValueRef, Positional<String>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
@@ -29,10 +43,13 @@ pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
 /// Trait for that which may join in The Great Work
 pub trait Compile {
+    /// Compile `self` to an LLVM `ValueRef`
     fn to_ir(&self, context: LLVMContext) -> IRResult;
 }
 
+/// Trait for type tags that can be translated to LLVM
 pub trait TranslateType {
+    /// Translate `self` to an LLVM `TypeRef`
     fn translate_type(&self, context: LLVMContext) -> TypeRef;
 }
 
@@ -70,6 +87,14 @@ macro_rules! optionalise {
 
 impl<'a> LLVMContext<'a> {
 
+    /// Constructs a new LLVM context.
+    ///
+    /// # Returns:
+    ///   - An `LLVMContext`
+    ///
+    /// # Panics:
+    ///   - If the LLVM C ABI returned a null value for the `Context`,
+    ///     `Builder`, or `Module`
     pub fn new(module_name: &str) -> Self {
         let name = CString::new(module_name).unwrap();
         unsafe {

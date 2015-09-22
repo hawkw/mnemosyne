@@ -1,3 +1,12 @@
+//
+// Mnemosyne: a functional systems programming language.
+// (c) 2015 Hawk Weisman
+//
+// Mnemosyne is released under the MIT License. Please refer to
+// the LICENSE file at the top-level directory of this distribution
+// or at https://github.com/hawkw/mnemosyne/.
+//
+
 extern crate combine;
 extern crate combine_language;
 extern crate mnemosyne as core;

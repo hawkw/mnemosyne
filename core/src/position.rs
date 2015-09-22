@@ -1,3 +1,12 @@
+//
+// Mnemosyne: a functional systems programming language.
+// (c) 2015 Hawk Weisman
+//
+// Mnemosyne is released under the MIT License. Please refer to
+// the LICENSE file at the top-level directory of this distribution
+// or at https://github.com/hawkw/mnemosyne/.
+//
+
 use std::ops::{Deref, DerefMut};
 use std::hash;
 use std::fmt;
@@ -66,6 +75,7 @@ impl fmt::Display for Position {
     }
 }
 
+/// A pointer to a value with an associated `Position`
 #[derive(Clone, Debug)]
 pub struct Positional<T> { pub pos: Position
                          , pub value: T
