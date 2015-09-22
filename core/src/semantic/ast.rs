@@ -35,7 +35,7 @@ pub type Bindings<'a, S: ScopednessTypestate>
 /// This provides a visitor method for semantic analysis (which may be split
 /// into multiple transforms later), and a method for formatting the AST node
 /// as an S-expression.
-pub trait Node: Sized {
+pub trait Node {
 
    /// Pretty-print the AST node as an S-expression at the desired
    /// indentation level.]
@@ -44,6 +44,12 @@ pub trait Node: Sized {
    /// match for the original source code.
    fn to_sexpr(&self, level: usize) -> String;
 
+}
+
+impl fmt::Display for Node + Sized {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.to_sexpr(0))
+    }
 }
 
 pub trait AnnotateTypes<'a>: Sized {

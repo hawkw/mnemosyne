@@ -437,7 +437,7 @@ where I: Stream<Item=char>
 }
 pub fn parse_module<'a>(code: &'a str)
                         -> Result< Vec<Expr<'a, UnscopedState>>
-                                 , ParseError<&str>>
+                                 , ParseError<&'a str>>
  {
     let alpha_ext = "+-*/<=>!:$%_^";
     let ops = "+-*/|=<>";
