@@ -37,6 +37,8 @@ Build Mnemosyne with the command `$ cargo build --release`  from the root direct
 
 The command `$ cargo test` will run all of the tests for Manganese, and all the Mnemosyne integration tests. To run tests for the Mnemosyne Core and Parser modules as well, run the commands `$ cargo test -p mnemosyne` and `$cargo test -p mnemosyne-parser`, respectively.
 
+Finally, `$ cargo doc` will generate the RustDoc API documentation for Mnemosyne and its dependencies. The RustDoc HTML will be output to the `target/doc` directory. The file `target/doc/mnemosyne/index.html` is a natural starting point for the documentation for the entire project.
+
 ### Contributing
 
 Since Mnemosyne is currently being implemented as part of my senior thesis research, I cannot accept code contributions from the community at this time. Community feedback and comments, however, are always quite welcome; and if you find any problems or bugs, please do not hesitate report them on the issue tracker. For more information on how to contribute to Mnemosyne, please see [CONTRIBUTING.md](https://github.com/hawkw/mnemosyne/blob/master/CONTRIBUTING.md).
