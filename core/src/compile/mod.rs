@@ -163,6 +163,7 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
           , Form::Lambda(ref fun) => unimplemented!()
           , Form::Logical(ref exp) => unimplemented!()
           , Form::Constant(ref c) => unimplemented!()
+          , Form::NameRef(ref form) => unimplemented!()
         }
     }
 }

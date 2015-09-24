@@ -116,7 +116,15 @@ pub enum Form<'a, S: ScopednessTypestate> {
   , Lambda(Function<'a, S>)
   , Logical(Logical<'a, S>)
   , Constant(Const)
+  , NameRef(NameRef)
 }
+
+#[derive(PartialEq, Clone, Debug)]
+pub enum NameRef { Owned(Ident)
+                 , Borrowed(Ident)
+                 , Deref(Ident)
+                 , Unique(Ident)
+                 }
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Formal { pub name: Ident
@@ -272,6 +280,7 @@ where S: ScopednessTypestate {
          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
          , Form::Logical(ref form) => form.to_sexpr(level)
          , Form::Constant(ref c)   => format!("{}", c)
+         , Form::NameRef(ref n)    => n.to_sexpr(level)
        }
    }
 
@@ -401,6 +410,18 @@ impl Node for Formal {
         format!("{}: {}", *(self.name), *(self.annot))
     }
 
+}
+
+impl Node for NameRef {
+    #[allow(unused_variables)]
+    fn to_sexpr(&self, level: usize) -> String {
+        match *self  { NameRef::Owned(ref name)      => format!("{}", name)
+                     , NameRef::Borrowed(ref name)   => format!("&{}", name)
+                     , NameRef::Deref(ref name)      => format!("*{}", name)
+                     , NameRef::Unique(ref name)     => format!("@{}", name)
+                     }
+
+    }
 }
 
 impl Node for Ident {
