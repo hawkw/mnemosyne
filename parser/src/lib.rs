@@ -213,6 +213,41 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
+    fn parse_name_deref(&self, input: State<I>) -> ParseResult<NameRef, I> {
+        char('*').with(self.name())
+                 .map(NameRef::Deref)
+                 .parse_state(input)
+    }
+
+    fn parse_name_unique(&self, input: State<I>) -> ParseResult<NameRef, I> {
+        char('@').with(self.name())
+                 .map(NameRef::Unique)
+                 .parse_state(input)
+    }
+
+    fn parse_name_borrow(&self, input: State<I>)-> ParseResult<NameRef, I> {
+        char('&').with(self.name())
+                 .map(NameRef::Borrowed)
+                 .parse_state(input)
+    }
+
+    fn parse_owned_name(&self, input: State<I>) -> ParseResult<NameRef, I> {
+        self.name()
+            .map(NameRef::Owned)
+            .parse_state(input)
+    }
+
+    fn parse_name_ref(&self, input: State<I>)
+                     -> ParseResult<Form<'a, U>, I> {
+        choice([ self.parser(MnEnv::parse_name_deref)
+               , self.parser(MnEnv::parse_name_unique)
+               , self.parser(MnEnv::parse_name_borrow)
+               , self.parser(MnEnv::parse_owned_name)
+               ])
+            .map(Form::NameRef)
+            .parse_state(input)
+    }
+
     // fn parse_typeclass_arrow(&self, input: State<I>) -> ParseResult<&str, I> {
     //     self.reserved_op("=>")
     //         .or(self.reserved_op(FAT_ARROW))
@@ -390,11 +425,12 @@ where I: Stream<Item=char>
     fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
         let pos = Position::from(input.position.clone());
         self.env
-            .parens(choice([ self.def()
-                           , self.if_form()
-                           , self.lambda()
-                           , self.let_form()
-                           , self.call()
+            .parens(choice([ try(self.call())
+                           , try(self.def())
+                           , try(self.if_form())
+                           , try(self.lambda())
+                           , try(self.let_form())
+                           , try(self.name_ref())
                            ]))
             .or(self.int_const()
                     .map(Form::Constant))
@@ -429,6 +465,11 @@ where I: Stream<Item=char>
     fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
         self.parser(MnEnv::parse_name)
     }
+
+    fn name_ref(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+        self.parser(MnEnv::parse_name_ref)
+    }
+
 
     fn binding(&'b self)
               -> MnParser< 'a, 'b, I, Unscoped<'a, Binding<'a, U>>> {
