@@ -424,16 +424,15 @@ where I: Stream<Item=char>
 
     fn parse_expr(&self, input: State<I>) -> ParseResult<Expr<'a, U>, I> {
         let pos = Position::from(input.position.clone());
-        self.env
-            .parens(choice([ try(self.call())
-                           , try(self.def())
-                           , try(self.if_form())
-                           , try(self.lambda())
-                           , try(self.let_form())
-                           , try(self.name_ref())
-                           ]))
-            .or(self.int_const()
-                    .map(Form::Constant))
+        self.env.parens(choice([ try(self.call())
+                               , try(self.def())
+                               , try(self.if_form())
+                               , try(self.lambda())
+                               , try(self.let_form())
+                               ]))
+            .or(try(self.int_const()
+                        .map(Form::Constant)))
+            .or(try(self.name_ref()))
             .map(|f| Annotated::new(f, pos) )
             .parse_state(input)
     }
