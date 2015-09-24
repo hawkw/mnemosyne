@@ -21,3 +21,8 @@ expr_test!(test_basic_mul, "(* 1 2)");
 expr_test!(test_nested_arith_1, "(+ 1 (- 2 3))");
 expr_test!(test_nested_arith_2, "(* (+ 1 2) 3 4)");
 expr_test!(test_nested_arith_3, "(+ (/ 1 2) (* 3 4))");
+expr_test!(test_call_1, "(my_fn 1 2)");
+expr_test!(test_call_2, "(my_fn (my_other_fn a_var a_different_var))");
+expr_test!(test_call_3,
+    "(my_fn (my_other_fn a_var a_different_var) VarWithUppercase Othervar)");
+expr_test!(test_call_4, "(my_fn (my_other_fn a_var a_different_var) (another_fn a_var))");
