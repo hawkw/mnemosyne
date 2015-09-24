@@ -19,13 +19,13 @@ When using S-expression syntax...
 
    For example, this is considered good stye:
    ```clojure
-   (defn fac (I64 -> i64)
+   (defn fac (I64 -> I64)
         ([0] 1)
         ([n] (fac (- n 1))))
    ```
    While this is not:
    ```clojure
-   (defn fac (I64 -> i64)
+   (defn fac (I64 -> I64)
         ([0] 1)
         ([n]
             (fac (- n 1))
