@@ -34,5 +34,5 @@ When using S-expression syntax...
    ```
 
 2. **Indent all subexpressions to the same level.**
-   This is of particular
+   This is of particular importance when converting to/from indentation-delimited syntax.
 3.
