@@ -367,24 +367,22 @@ where K: Eq + Hash
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn fork(&'a self) -> ForkTable<'a, K, V> {
-        ForkTable {
-            table: HashMap::new(),
-            whiteouts: HashSet::new(),
-            parent: Some(self),
-            level: self.level + 1
-        }
+        ForkTable { table: HashMap::new()
+                  , whiteouts: HashSet::new()
+                  , parent: Some(self)
+                  , level: self.level + 1
+                  }
     }
 
     /// Constructs a new `ForkTable<K,V>`
     #[cfg_attr(feature = "unstable",
         stable(feature = "forktable", since = "0.0.1") )]
     pub fn new() -> ForkTable<'a, K,V> {
-        ForkTable {
-            table: HashMap::new(),
-            whiteouts: HashSet::new(),
-            parent: None,
-            level: 0
-        }
+        ForkTable { table: HashMap::new()
+                  , whiteouts: HashSet::new()
+                  , parent: None
+                  , level: 0
+                  }
     }
 
     /// Wrapper for the backing map's `values()` function.
