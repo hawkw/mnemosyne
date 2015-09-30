@@ -38,7 +38,8 @@ expr_test!(test_call_ptr_6, "(my_fn @a)");
 expr_test!(test_call_ptr_7, "(my_fn a @b)");
 expr_test!(test_call_ptr_8, "(my_fn @a @b)");
 
-expr_test!(test_defsyntax_1,
-r#"(def fac (fn (-> I64 I64)
-    ((0) 1)
-    ((n) (fac (- n 1)))))"#);
+// expr_test!(test_defsyntax_1,
+// r#"
+// (defn fac (-> I64 I64)
+//     ((0) 1)
+//     ((n) (fac (- n 1))))"#);
