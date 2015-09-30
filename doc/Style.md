@@ -15,7 +15,7 @@ Indentation & Delimiters
 
 When using S-expression syntax...
 
-1. **Do not place opening or closing perentheses on their own line.**
+1. **Do not place opening or closing parentheses on their own line.**
 
    For example, this is considered good stye:
    ```clojure
