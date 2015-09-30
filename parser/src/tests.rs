@@ -24,9 +24,10 @@ expr_test!(test_nested_arith_3, "(+ (/ 1 2) (* 3 4))");
 
 expr_test!(test_call_1, "(my_fn 1 2)");
 expr_test!(test_call_2, "(my_fn (my_other_fn a_var a_different_var))");
-expr_test!(test_call_3,
-    "(my_fn (my_other_fn a_var a_different_var) VarWithUppercase Othervar)");
-expr_test!(test_call_4, "(my_fn (my_other_fn a_var a_different_var) (another_fn a_var))");
+expr_test!(test_call_3
+  , "(my_fn (my_other_fn a_var a_different_var) VarWithUppercase Othervar)");
+expr_test!(test_call_4
+  , "(my_fn (my_other_fn a_var a_different_var) (another_fn a_var))");
 
 expr_test!(test_call_ptr_1, "(my_fn a *b)");
 expr_test!(test_call_ptr_2, "(my_fn *a *b)");
@@ -36,3 +37,8 @@ expr_test!(test_call_ptr_5, "(my_fn &a &b)");
 expr_test!(test_call_ptr_6, "(my_fn @a)");
 expr_test!(test_call_ptr_7, "(my_fn a @b)");
 expr_test!(test_call_ptr_8, "(my_fn @a @b)");
+
+expr_test!(test_defsyntax_1,
+r#"(def fac (fn (-> I64 I64)
+    ((0) 1)
+    ((n) (fac (- n 1)))))"#);
