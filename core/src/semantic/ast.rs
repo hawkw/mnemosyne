@@ -39,6 +39,17 @@ pub type Bindings<'a, S: ScopednessTypestate>
                    , Binding<'a, S>
                    , S>>;
 
+macro_rules! concat_exprs {
+    ($it:expr, $level:expr) => {
+        $it.iter()
+           .fold(String::new(), |mut s, expr| {
+                 write!(s, " {} ", expr.to_sexpr($level))
+                     .expect("Could not write to string!");
+                 s
+            })
+        }
+}
+
 /// Trait for a node in the abstract syntax tree.
 ///
 /// This provides a visitor method for semantic analysis (which may be split
@@ -222,14 +233,7 @@ pub type Pattern = Vec<PatElement>;
 impl Node for Pattern {
    #[allow(unused_variables)]
    fn to_sexpr(&self, level: usize) -> String {
-       format!( "({})"
-              , self.iter()
-                    .fold(String::new(), |mut s, expr| {
-                       write!(s, " {} ", expr.to_sexpr(level))
-                           .expect("Could not write to string!");
-                       s
-                  })
-               )
+       format!( "({})", concat_exprs!(self, level) )
    }
 
 }
@@ -332,12 +336,7 @@ where S: ScopednessTypestate {
          , Form::Call { ref fun, ref body } =>
                format!( "({}{})"
                       , fun.to_sexpr(level)
-                      , body.iter()
-                            .fold(String::new(), |mut s, expr| {
-                                  write!(s, " {}", expr.to_sexpr(level))
-                                      .expect("Could not write to string!");
-                                  s
-                             }))
+                      , concat_exprs!(body, level) )
          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
          , Form::Logical(ref form) => form.to_sexpr(level)
          , Form::Lit(ref c)   => format!("{}", c)
@@ -384,13 +383,8 @@ where S: ScopednessTypestate {
                                         .expect("Could not write to string!");
                                     s
                                  })
-                    , body.iter()
-                          .fold(String::new(), |mut s, expr| {
-                              write!(s, "{}", expr.to_sexpr(level + 1))
-                                .expect("Could not write to string!");
-                              s
-                          })
-                       )
+                    , concat_exprs!(body, level + 1)
+                    )
           , LetForm::LetRec { ref bindings, ref body } =>
                 format!("{}(letrec [{}]\n{})"
                     , indent!(level)
@@ -400,11 +394,8 @@ where S: ScopednessTypestate {
                                         .expect("Could not write to string!");
                                     s
                                })
-                    , body.iter()
-                          .fold(String::new(), |mut s, expr| {
-                                write!(s, "{}", expr.to_sexpr(level + 1)); s
-                            })
-                          )
+                    , concat_exprs!(body, level + 1)
+                    )
           , LetForm::LetSplat { ref bindings, ref body } =>
                 format!("{}(let* [{}]\n{})"
                     , indent!(level)
@@ -414,13 +405,8 @@ where S: ScopednessTypestate {
                                         .expect("Could not write to string!");
                                     s
                                })
-                    , body.iter()
-                          .fold(String::new(), |mut s, expr| {
-                                write!(s, "{}", expr.to_sexpr(level + 1))
-                                    .expect("Could not write to string!");
-                                s
-                            })
-                          )
+                    , concat_exprs!(body, level + 1)
+                    )
           , _ => unimplemented!()
         }
     }
