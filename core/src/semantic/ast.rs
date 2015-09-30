@@ -209,7 +209,7 @@ pub struct Binding<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Function<'a, S: ScopednessTypestate> {
     pub sig: types::Signature
-  , pub equations: Vec<Equation<'a,S>>
+  , pub equations: Vec<Equation<'a, S>>
 }
 
 /// A pattern is a vector of pattern elements.
@@ -219,17 +219,50 @@ pub struct Function<'a, S: ScopednessTypestate> {
 /// until autocurrying is implemented (after the Glorious Revolution).
 pub type Pattern = Vec<PatElement>;
 
+impl Node for Pattern {
+   #[allow(unused_variables)]
+   fn to_sexpr(&self, level: usize) -> String {
+       format!( "({})"
+              , self.iter()
+                    .fold(String::new(), |mut s, expr| {
+                       write!(s, " {} ", expr.to_sexpr(level))
+                           .expect("Could not write to string!");
+                       s
+                  })
+               )
+   }
+
+}
+
 /// An element in a pattern-matching expression.
 ///
 /// A pattern element can be a name binding, a typed name binding,
 /// a literal, or the magic underscore (anything). Destructuring bind
 /// will come later, as will equality.
 #[derive(PartialEq, Clone, Debug)]
-pub enum PatElement { Name(Ident)
+pub enum PatElement { // eventually this could just be implemented using an Expr,
+                      // but it's currently this way because the types of patterns
+                      // that you can write are currently quite limited
+                      Name(Ident)
                     , TypedName { name: Ident, ty: types::Type }
                     , Literal(Const)
+                      // TODO: write literal types for other things (i.e. lists)
                     , Anything
                     }
+
+impl Node for PatElement {
+   #[allow(unused_variables)]
+   fn to_sexpr(&self, level: usize) -> String {
+       match *self {
+           PatElement::Name(ref n) => n.to_sexpr(level)
+         , PatElement::TypedName{ ref name, ref ty } =>
+            format!("{}: {}", name.to_sexpr(level), ty)
+        , PatElement::Literal(ref c) => format!("{}", c)
+        , PatElement::Anything => String::from("_")
+       }
+   }
+
+}
 
 /// A function equation definition
 #[derive(PartialEq, Clone, Debug)]
