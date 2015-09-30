@@ -13,9 +13,7 @@ use std::fmt::Write;
 use std::iter;
 
 use ast;
-
-const ARROW: &'static str       = "\u{8594}";
-const FAT_ARROW: &'static str   = "\u{8685}";
+use ::chars;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
@@ -90,11 +88,11 @@ where A: fmt::Display
                       .clone()
                       .map(|ref cs| format!( "({arrow} {})"
                                       , concat_all(cs.iter())
-                                      , arrow = FAT_ARROW )
+                                      , arrow = chars::FAT_ARROW )
                         )
                     .unwrap_or(String::from(""))
                 , concat_all(self.typechain.iter())
-                , arrow  = ARROW
+                , arrow  = chars::ARROW
                 , indent = indent!(level)
                 )
      }
