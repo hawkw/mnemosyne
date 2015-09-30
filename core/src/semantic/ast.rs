@@ -209,7 +209,7 @@ pub struct Binding<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Function<'a, S: ScopednessTypestate> {
     pub sig: types::Signature
-  , pub body: Body<'a, S>
+  , pub equations: Vec<Equation<'a,S>>
 }
 
 /// A pattern is a vector of pattern elements.
@@ -230,6 +230,13 @@ pub enum PatElement { Name(Ident)
                     , Literal(Const)
                     , Anything
                     }
+
+/// A function equation definition
+#[derive(PartialEq, Clone, Debug)]
+pub struct Equation<'a, S: ScopednessTypestate> {
+    pub pattern: Pattern
+ ,  pub body: Body<'a, S>
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Prototype<'a, S: ScopednessTypestate> {
