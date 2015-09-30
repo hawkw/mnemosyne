@@ -18,6 +18,7 @@ use std::rc::Rc;
 
 use itertools::Itertools;
 
+use ::chars;
 use ::position::Positional;
 use super::annotations::{ Annotated
                         , ScopednessTypestate
@@ -287,6 +288,22 @@ pub struct Equation<'a, S: ScopednessTypestate> {
  ,  pub body: Body<'a, S>
 }
 
+impl<'a, S> Node for Equation<'a, S>
+where S: ScopednessTypestate  {
+
+    fn to_sexpr(&self, level: usize) -> String {
+        format!( "({} {})"
+               , self.pattern
+                     .to_sexpr(level)
+               , concat_exprs!( self.body
+                              , level + 1
+                              , format!("\n{}", indent!(level + 1))
+                              )
+              )
+    }
+
+}
+
 #[derive(PartialEq, Clone, Debug)]
 pub struct Prototype<'a, S: ScopednessTypestate> {
     pub formals: Vec<Annotated<'a, Formal, S>>
@@ -433,7 +450,12 @@ where S: ScopednessTypestate
 {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
-        unimplemented!()
+        format!( "({} {}\n{}{})"
+               , chars::LAMBDA
+               , self.sig.to_sexpr(level)
+               , indent!(level + 1)
+               , concat_exprs!(self.equations, level + 1, "\n")
+            )
     }
 }
 
