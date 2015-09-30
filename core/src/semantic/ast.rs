@@ -72,6 +72,7 @@ pub trait Node {
 
 }
 
+/// To format a node for display, just use the S-expression representation.
 impl fmt::Display for Node + Sized {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.to_sexpr(0))
@@ -96,13 +97,14 @@ pub struct Module<'a, S: ScopednessTypestate> {
 
 impl<'a, S> Module<'a, S> where S: ScopednessTypestate {
 
-    /// Returns true if the namespace is exporting any nages
+    /// Returns true if the namespace is exporting any names
     #[inline] pub fn is_lib (&self) -> bool { !self.exporting.is_empty() }
 
 }
 
 impl<'a> Scoped<'a, Module<'a, ScopedState>>{
 
+    /// Returns true if the namespace contains a given name.
     pub fn contains_name<Q: ?Sized>(&self, name: &Q) -> bool
     where String: Borrow<Q>
         , String: PartialEq<Q>
@@ -189,12 +191,14 @@ pub enum Logical<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub enum Literal { IntConst(i64)
                  , UintConst(u64)
+                 , StringLit(String)
                  }
 
 impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self { Literal::IntConst(ref n)    => write!(f, "{}", n)
                     , Literal::UintConst(ref n)   => write!(f, "{}", n)
+                    , Literal::StringLit(ref s)   => write!(f, "{}", s)
                     }
     }
 }
