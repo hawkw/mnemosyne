@@ -212,6 +212,25 @@ pub struct Function<'a, S: ScopednessTypestate> {
   , pub body: Body<'a, S>
 }
 
+/// A pattern is a vector of pattern elements.
+///
+/// When entering a function scope that binds using patterns, we should
+/// check that the pattern's length matches the arity of the function,
+/// until autocurrying is implemented (after the Glorious Revolution).
+pub type Pattern = Vec<PatElement>;
+
+/// An element in a pattern-matching expression.
+///
+/// A pattern element can be a name binding, a typed name binding,
+/// a literal, or the magic underscore (anything). Destructuring bind
+/// will come later, as will equality.
+#[derive(PartialEq, Clone, Debug)]
+pub enum PatElement { Name(Ident)
+                    , TypedName { name: Ident, ty: types::Type }
+                    , Literal(Const)
+                    , Anything
+                    }
+
 #[derive(PartialEq, Clone, Debug)]
 pub struct Prototype<'a, S: ScopednessTypestate> {
     pub formals: Vec<Annotated<'a, Formal, S>>
