@@ -20,7 +20,7 @@ use combine::primitives::{ Stream
                          , Positioner
                          , SourcePosition
                          };
-
+use core::chars;
 use core::semantic::*;
 use core::semantic::annotations::{ Annotated
                                  , UnscopedState
@@ -35,11 +35,6 @@ use std::rc::Rc;
 type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 
 type U = UnscopedState;
-
-/// Unicode code point for the lambda character
-const LAMBDA: &'static str      = "\u{03bb}";
-const ARROW: &'static str       = "\u{8594}";
-const FAT_ARROW: &'static str   = "\u{8685}";
 
 mod tests;
 
@@ -488,12 +483,10 @@ pub fn parse_module<'a>(code: &'a str)
                         -> Result< Vec<Expr<'a, UnscopedState>>
                                  , ParseError<&'a str>>
  {
-    let alpha_ext = "+-*/<=>!:$%_^";
-    let ops = "+-*/|=<>";
     let env = LanguageEnv::new(LanguageDef {
         ident: Identifier {
-            start: letter().or(satisfy(move |c| alpha_ext.contains(c)))
-          , rest: alpha_num().or(satisfy(move |c| alpha_ext.contains(c)))
+            start: letter().or(satisfy(move |c| chars::ALPHA_EXT.contains(c)))
+          , rest: alpha_num().or(satisfy(move |c| chars::ALPHA_EXT.contains(c)))
           , reserved: [ // a number of these reserved words have no meaning yet
                         "and"               , "begin"
                       , "case"              , "cond"        , "class"
@@ -501,7 +494,7 @@ pub fn parse_module<'a>(code: &'a str)
                       , "define"            , "defn"        , "def"
                       , "delay"             , "fn"
                       , "do"                , "else"
-                      , "if"                , "lambda"      , LAMBDA
+                      , "if"                , "lambda"      , chars::LAMBDA
                       , "let"               , "let*"        , "letrec"
                       , "or"
                       , "quasiquote"        , "quote"       , "unquote"
@@ -520,9 +513,9 @@ pub fn parse_module<'a>(code: &'a str)
                        .collect()
         }
       , op: Identifier {
-            start: satisfy(move |c| ops.contains(c))
-          , rest:  satisfy(move |c| ops.contains(c))
-          , reserved: [ "=>", "->", "\\", "|", ARROW, FAT_ARROW]
+            start: satisfy(move |c| chars::OPS.contains(c))
+          , rest:  satisfy(move |c| chars::OPS.contains(c))
+          , reserved: [ "=>", "->", "\\", "|", chars::ARROW, chars::FAT_ARROW]
                 .iter().map(|x| (*x).into()).collect()
         }
       , comment_line: string(";").map(|_| ())

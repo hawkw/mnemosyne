@@ -33,6 +33,7 @@ pub mod position;
 pub mod semantic;
 pub mod compile;
 pub mod forktable;
+pub mod chars;
 
 pub use semantic::ast;
 
