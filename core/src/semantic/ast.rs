@@ -42,6 +42,8 @@ pub type Bindings<'a, S: ScopednessTypestate>
                    , Binding<'a, S>
                    , S>>;
 
+/// Concatenate the S-expression representation of an iterator
+/// over `Nodes` into a `String`.
 macro_rules! concat_exprs {
     ($it:expr, $level:expr) => {
         $it.iter()

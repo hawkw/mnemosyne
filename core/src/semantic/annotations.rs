@@ -39,8 +39,8 @@ pub trait ScopednessTypestate { fn is_scoped() -> bool; }
 pub struct ScopedState;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct UnscopedState;
-impl ScopednessTypestate for ScopedState { fn is_scoped() -> bool {true} }
-impl ScopednessTypestate for UnscopedState { fn is_scoped() -> bool {false} }
+impl ScopednessTypestate for ScopedState { fn is_scoped() -> bool { true } }
+impl ScopednessTypestate for UnscopedState { fn is_scoped() -> bool { false } }
 impl fmt::Display for ScopedState {
     fn fmt(&self, f: &mut fmt::Formatter)
         -> fmt::Result { write!(f, "Scoped") }
@@ -75,8 +75,8 @@ impl<'a, T> Scoped<'a, T> {
     /// associated with that name in the current scope. The argument
     /// can be any type `Q` such that `String: Borrow<Q>` (i.e.
     /// you can pass an `&str` to this function).
-    pub fn get_type<Q: ?Sized>( &'a self
-                               , name: &'a Q) -> Option<&'a SymbolAnnotation>
+    pub fn get_type<Q: ?Sized>(&'a self, name: &'a Q)
+                               -> Option<&'a SymbolAnnotation>
     where String: Borrow<Q>
              , Q: Hash + Eq
     {
