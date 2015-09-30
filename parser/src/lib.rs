@@ -382,14 +382,14 @@ where I: Stream<Item=char>
            .parse_state(input)
     }
 
-    fn int_const(&'b self) -> MnParser<'a, 'b, I, Const> {
+    fn int_const(&'b self) -> MnParser<'a, 'b, I, Literal> {
         self.parser(MnEnv::parse_int_const)
     }
 
     #[allow(dead_code)]
-    fn parse_int_const(&self, input: State<I>) -> ParseResult<Const, I> {
+    fn parse_int_const(&self, input: State<I>) -> ParseResult<Literal, I> {
         self.integer()
-            .map(Const::IntConst)
+            .map(Literal::IntConst)
             .parse_state(input)
     }
 
@@ -431,7 +431,7 @@ where I: Stream<Item=char>
                                , try(self.let_form())
                                ]))
             .or(try(self.int_const()
-                        .map(Form::Constant)))
+                        .map(Form::Literal))
             .or(try(self.name_ref()))
             .map(|f| Annotated::new(f, pos) )
             .parse_state(input)

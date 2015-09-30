@@ -115,7 +115,7 @@ pub enum Form<'a, S: ScopednessTypestate> {
          }
   , Lambda(Function<'a, S>)
   , Logical(Logical<'a, S>)
-  , Constant(Const)
+  , Lit(Literal)
   , NameRef(NameRef)
 }
 
@@ -170,14 +170,14 @@ pub enum Logical<'a, S: ScopednessTypestate> {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum Const { IntConst(i64)
-               , UintConst(u64)
-               }
+pub enum Literal { IntConst(i64)
+                 , UintConst(u64)
+                 }
 
-impl fmt::Display for Const {
+impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self { Const::IntConst(ref n)    => write!(f, "{}", n)
-                    , Const::UintConst(ref n)   => write!(f, "{}", n)
+        match *self { Literal::IntConst(ref n)    => write!(f, "{}", n)
+                    , Literal::UintConst(ref n)   => write!(f, "{}", n)
                     }
     }
 }
@@ -244,8 +244,8 @@ pub enum PatElement { // eventually this could just be implemented using an Expr
                       // but it's currently this way because the types of patterns
                       // that you can write are currently quite limited
                       Name(Ident)
-                    , TypedName { name: Ident, ty: types::Type }
-                    , Literal(Const)
+                    , Typed { name: Ident, ty: types::Type }
+                    , Lit(Literal)
                       // TODO: write literal types for other things (i.e. lists)
                     , Anything
                     }
@@ -255,9 +255,11 @@ impl Node for PatElement {
    fn to_sexpr(&self, level: usize) -> String {
        match *self {
            PatElement::Name(ref n) => n.to_sexpr(level)
-         , PatElement::TypedName{ ref name, ref ty } =>
-            format!("{}: {}", name.to_sexpr(level), ty)
-        , PatElement::Literal(ref c) => format!("{}", c)
+         , PatElement::Typed { ref name, ref ty } =>
+            format!( "{}: {}"
+                   , name.to_sexpr(level)
+                   , ty )
+        , PatElement::Lit(ref c) => format!("{}", c)
         , PatElement::Anything => String::from("_")
        }
    }
@@ -338,7 +340,7 @@ where S: ScopednessTypestate {
                              }))
          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
          , Form::Logical(ref form) => form.to_sexpr(level)
-         , Form::Constant(ref c)   => format!("{}", c)
+         , Form::Lit(ref c)   => format!("{}", c)
          , Form::NameRef(ref n)    => n.to_sexpr(level)
        }
    }
