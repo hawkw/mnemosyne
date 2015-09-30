@@ -27,6 +27,7 @@
 extern crate rustc;
 extern crate libc;
 extern crate combine;
+#[macro_use] extern crate itertools;
 
 pub mod position;
 pub mod semantic;

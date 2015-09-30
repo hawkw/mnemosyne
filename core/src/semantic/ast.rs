@@ -16,6 +16,8 @@ use std::{ fmt
 use std::fmt::Write;
 use std::rc::Rc;
 
+use itertools::Itertools;
+
 use ::position::Positional;
 use super::annotations::{ Annotated
                         , ScopednessTypestate
@@ -43,14 +45,14 @@ macro_rules! concat_exprs {
     ($it:expr, $level:expr) => {
         $it.iter()
            .map(|expr| expr.to_sexpr($level) )
-           .collect::<Vec<String>>() // todo: remove temp. vector
-           .join(" ")
+           .intersperse(String::from(" "))
+           .collect::<String>()
         };
     ($it:expr, $level:expr, $sep:expr) => {
         $it.iter()
            .map(|expr| expr.to_sexpr($level) )
-           .collect::<Vec<String>>() // todo: remove temp. vector
-           .join($sep)
+           .intersperse(String::from($sep))
+           .collect::<String>()
         }
 }
 
