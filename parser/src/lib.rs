@@ -431,7 +431,7 @@ where I: Stream<Item=char>
                                , try(self.let_form())
                                ]))
             .or(try(self.int_const()
-                        .map(Form::Literal))
+                        .map(Form::Lit)))
             .or(try(self.name_ref()))
             .map(|f| Annotated::new(f, pos) )
             .parse_state(input)
