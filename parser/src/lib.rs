@@ -115,7 +115,7 @@ where I: Stream<Item=char>
                                       , annot: ty
                                       , value: Rc::new(body) });
 
-        self.reserved("defn").or(self.reserved("define"))
+        self.reserved("def").or(self.reserved("define"))
             .with(function_form.or(top_level))
             .map(Form::Define)
             .parse_state(input)
@@ -138,7 +138,7 @@ where I: Stream<Item=char>
     #[allow(dead_code)]
     fn parse_lambda(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
         self.reserved("lambda")
-            .or(self.reserved(LAMBDA))
+            .or(self.reserved(chars::LAMBDA))
             .with(self.function())
             .map(Form::Lambda)
             .parse_state(input)
@@ -258,7 +258,7 @@ where I: Stream<Item=char>
     fn parse_prefix_constraint(&self, input: State<I>)
                               -> ParseResult<Constraint, I> {
         self.parens(self.reserved_op("=>")
-                        .or(self.reserved_op(FAT_ARROW))
+                        .or(self.reserved_op(chars::FAT_ARROW))
                         .with(self.name())
                         .and(many1(self.name())) )
             .map(|(c, gs)| Constraint { typeclass: c
@@ -270,7 +270,7 @@ where I: Stream<Item=char>
                               -> ParseResult<Constraint, I> {
         self.braces(self.name()
                         .skip(self.reserved_op("=>")
-                                  .or(self.reserved_op(FAT_ARROW)))
+                                  .or(self.reserved_op(chars::FAT_ARROW)))
                         .and(many1(self.name())) )
             .map(|(c, gs)| Constraint { typeclass: c
                                       , generics: gs })
@@ -290,7 +290,7 @@ where I: Stream<Item=char>
 
     fn parse_prefix_sig(&self, input: State<I>) -> ParseResult<Signature, I> {
         self.parens(self.reserved_op("->")
-                        .or(self.reserved_op(ARROW))
+                        .or(self.reserved_op(chars::ARROW))
                         .with(optional(many1(self.constraint())))
                         .and(many1(self.type_name())) )
             .map(|(cs, glob)| Signature { constraints: cs
@@ -303,7 +303,9 @@ where I: Stream<Item=char>
                         .and(sep_by1::< Vec<Type>
                                       , _, _>( self.lex(self.type_name())
                                              , self.reserved_op("->")
-                                                   .or(self.reserved_op(ARROW))
+                                                   .or(self.reserved_op(
+                                                       chars::ARROW)
+                                                   )
                                              )))
             .map(|(cs, glob)| Signature { constraints: cs
                                         , typechain: glob })
