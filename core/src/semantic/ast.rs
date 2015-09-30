@@ -42,11 +42,15 @@ pub type Bindings<'a, S: ScopednessTypestate>
 macro_rules! concat_exprs {
     ($it:expr, $level:expr) => {
         $it.iter()
-           .fold(String::new(), |mut s, expr| {
-                 write!(s, " {} ", expr.to_sexpr($level))
-                     .expect("Could not write to string!");
-                 s
-            })
+           .map(|expr| expr.to_sexpr($level) )
+           .collect::<Vec<String>>() // todo: remove temp. vector
+           .join(" ")
+        };
+    ($it:expr, $level:expr, $sep:expr) => {
+        $it.iter()
+           .map(|expr| expr.to_sexpr($level) )
+           .collect::<Vec<String>>() // todo: remove temp. vector
+           .join($sep)
         }
 }
 
@@ -334,7 +338,7 @@ where S: ScopednessTypestate {
          , Form::Let(ref form)     => form.to_sexpr(level)
          , Form::If { .. }         => unimplemented!()
          , Form::Call { ref fun, ref body } =>
-               format!( "({}{})"
+               format!( "({} {})"
                       , fun.to_sexpr(level)
                       , concat_exprs!(body, level) )
          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
@@ -377,34 +381,19 @@ where S: ScopednessTypestate {
             LetForm::Let { ref bindings, ref body } =>
                 format!("{}(let [{}]\n{})"
                     , indent!(level)
-                    , bindings.iter()
-                              .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level))
-                                        .expect("Could not write to string!");
-                                    s
-                                 })
+                    , concat_exprs!(bindings, level, "\n")
                     , concat_exprs!(body, level + 1)
                     )
           , LetForm::LetRec { ref bindings, ref body } =>
                 format!("{}(letrec [{}]\n{})"
                     , indent!(level)
-                    , bindings.iter()
-                              .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level))
-                                        .expect("Could not write to string!");
-                                    s
-                               })
+                    , concat_exprs!(bindings, level, "\n")
                     , concat_exprs!(body, level + 1)
                     )
           , LetForm::LetSplat { ref bindings, ref body } =>
                 format!("{}(let* [{}]\n{})"
                     , indent!(level)
-                    , bindings.iter()
-                              .fold(String::new(), |mut s, binding| {
-                                    write!(s, "{}\n", binding.to_sexpr(level))
-                                        .expect("Could not write to string!");
-                                    s
-                               })
+                    , concat_exprs!(bindings, level, "\n")
                     , concat_exprs!(body, level + 1)
                     )
           , _ => unimplemented!()
