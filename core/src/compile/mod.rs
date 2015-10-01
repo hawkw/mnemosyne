@@ -91,6 +91,14 @@ macro_rules! optionalise {
     })
 }
 
+macro_rules! try_vec {
+    ($expr:expr) => ({
+        if !$expr.is_empty() {
+            return Err($expr)
+        }
+    })
+}
+
 impl<'a> LLVMContext<'a> {
 
     /// Constructs a new LLVM context.
@@ -191,8 +199,10 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
 
 
 impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
+
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         let mut errs: Vec<Positional<String>> = vec![];
+        // Check to see if the arities match
         for e in &self.equations {
             match e.pattern_length().cmp(&self.arity()) {
                 Ordering::Less => errs.push(Positional {
@@ -214,16 +224,14 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
                                 , (*e).to_sexpr(0)
                                 )
               })
-              , _ =>  {}
+            , _ =>  {}
             }
-
         }
-        if errs.is_empty() {
-            unimplemented!()
-        } else {
-            Err(errs)
-        }
+        // TODO: this could be made way more idiomatic...
+        try_vec!(errs);
+        unimplemented!()
     }
+
 }
 
 
