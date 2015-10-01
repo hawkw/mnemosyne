@@ -446,12 +446,26 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
+    fn parse_pattern(&self, input: State<I>) -> ParseResult<Pattern, I> {
+        unimplemented!()
+    }
+
+    fn pattern(&'b self) -> MnParser<'a, 'b, I, Pattern> {
+        self.parser(MnEnv::parse_pattern)
+    }
+
     fn parse_equation(&self, input: State<I>)
                      -> ParseResult< Annotated< 'a
                                               , Equation< 'a, U>
                                               , U>
                                     , I> {
-        unimplemented!()
+        let pos = Position::from(input.position.clone());
+        self.parens(self.pattern()
+                        .and(many(self.expr())))
+            .map(|(pat, body)| Annotated::new( Equation { pattern: pat
+                                                        , body: body }
+                                             , pos ))
+            .parse_state(input)
     }
 
     fn equation(&'b self) -> MnParser< 'a, 'b, I
