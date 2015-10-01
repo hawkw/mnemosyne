@@ -194,19 +194,19 @@ where I: Stream<Item=char>
                .parse_state(input)
     }
 
-    fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+    pub fn raw_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
         char('*').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Raw(Rc::new(t))))
                  .parse_state(input)
     }
 
-    fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+    pub fn unique_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
         char('@').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Unique(Rc::new(t))))
                  .parse_state(input)
     }
 
-    fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
+    pub fn borrow_ptr_ty(&self, input: State<I>) -> ParseResult<Type, I> {
         char('&').with(self.type_name())
                  .map(|t| Type::Ref(Reference::Borrowed(Rc::new(t))))
                  .parse_state(input)
@@ -296,7 +296,7 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    fn constraint(&'b self) -> MnParser<'a, 'b, I, Constraint> {
+    pub fn constraint(&'b self) -> MnParser<'a, 'b, I, Constraint> {
         self.parser(MnEnv::parse_constraint)
     }
 
@@ -350,7 +350,7 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    fn signature(&'b self) -> MnParser<'a, 'b, I, Signature> {
+    pub fn signature(&'b self) -> MnParser<'a, 'b, I, Signature> {
         self.parser(MnEnv::parse_signature)
     }
 
@@ -391,7 +391,7 @@ where I: Stream<Item=char>
            .parse_state(input)
     }
 
-    fn int_const(&'b self) -> MnParser<'a, 'b, I, Literal> {
+    pub fn int_const(&'b self) -> MnParser<'a, 'b, I, Literal> {
         self.parser(MnEnv::parse_int_const)
     }
 
@@ -455,7 +455,7 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    fn pattern(&'b self) -> MnParser<'a, 'b, I, Pattern> {
+    pub fn pattern(&'b self) -> MnParser<'a, 'b, I, Pattern> {
         self.parser(MnEnv::parse_pattern)
     }
 
@@ -473,7 +473,7 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    fn equation(&'b self) -> MnParser< 'a, 'b, I
+    pub fn equation(&'b self) -> MnParser< 'a, 'b, I
                                      , Annotated< 'a
                                                 , Equation<'a, U>
                                                 , U>
@@ -481,49 +481,49 @@ where I: Stream<Item=char>
         self.parser(MnEnv::parse_equation)
     }
 
-    fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
+    pub fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
         self.parser(MnEnv::parse_expr)
     }
 
-    fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn def(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_def)
     }
 
-    fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn if_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_if)
     }
 
-    fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn let_form(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_let)
     }
 
-    fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn lambda(&'b self)-> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_lambda)
     }
 
-    fn call(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn call(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_call)
     }
 
-    fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
+    pub fn name(&'b self) -> MnParser<'a, 'b, I, Ident> {
         self.parser(MnEnv::parse_name)
     }
 
-    fn name_ref(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
+    pub fn name_ref(&'b self) -> MnParser<'a, 'b, I, Form<'a, U>> {
         self.parser(MnEnv::parse_name_ref)
     }
 
 
-    fn binding(&'b self)
+    pub fn binding(&'b self)
               -> MnParser< 'a, 'b, I, Unscoped<'a, Binding<'a, U>>> {
         self.parser(MnEnv::parse_binding)
     }
 
-    fn type_name(&'b self) -> MnParser<'a, 'b, I, types::Type> {
+    pub fn type_name(&'b self) -> MnParser<'a, 'b, I, types::Type> {
         self.parser(MnEnv::parse_type)
     }
 
-    fn function(&'b self) -> MnParser<'a, 'b, I, Function<'a, U>> {
+    pub fn function(&'b self) -> MnParser<'a, 'b, I, Function<'a, U>> {
         self.parser(MnEnv::parse_function)
     }
 
