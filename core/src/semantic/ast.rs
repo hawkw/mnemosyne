@@ -233,7 +233,17 @@ pub struct Binding<'a, S: ScopednessTypestate> {
 #[derive(PartialEq, Clone, Debug)]
 pub struct Function<'a, S: ScopednessTypestate> {
     pub sig: types::Signature
-  , pub equations: Vec<Equation<'a, S>>
+  , pub equations: Vec<Annotated<'a, Equation<'a, S>, S>>
+}
+
+impl<'a, S> Annotated<'a, Function<'a, S>, S>
+where S: ScopednessTypestate {
+
+    /// Returns the arity of this function's signature
+    pub fn arity(&self) -> usize {
+        self.node.sig
+            .arity()
+    }
 }
 
 /// A pattern is a vector of pattern elements.
@@ -304,6 +314,13 @@ where S: ScopednessTypestate  {
               )
     }
 
+}
+
+impl<'a, S> Annotated<'a, Equation<'a, S>, S>
+where S: ScopednessTypestate {
+
+    /// Returns the number of bindings in this equation's pattern
+    pub fn pattern_length(&self) -> usize { self.pattern.len() }
 }
 
 #[derive(PartialEq, Clone, Debug)]

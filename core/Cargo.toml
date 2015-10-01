@@ -8,3 +8,6 @@ combine = "^1.0.0"
 log = "0.3"
 libc = "*"
 itertools = "^0.4"
+
+[dev-dependencies]
+env_logger = "0.3"

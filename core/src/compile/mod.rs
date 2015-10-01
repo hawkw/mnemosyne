@@ -8,6 +8,7 @@
 //
 
 use std::ffi::CString;
+use std::cmp::Ordering;
 use std::mem;
 
 use libc::c_uint;
@@ -22,7 +23,8 @@ use rustc::lib::llvm::{ ContextRef
 
 use forktable::ForkTable;
 use position::Positional;
-use ast::{ Form
+use ast::{ Node
+         , Form
          , DefForm
          , Ident
          , Function };
@@ -187,9 +189,40 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
     }
 }
 
+
 impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
     fn to_ir(&self, context: LLVMContext) -> IRResult {
-        unimplemented!()
+        let mut errs: Vec<Positional<String>> = vec![];
+        for e in &self.equations {
+            match e.pattern_length().cmp(&self.arity()) {
+                Ordering::Less => errs.push(Positional {
+                    pos: e.position.clone()
+                  , value: format!( "[error] equation had fewer bindings \
+                                     than function arity\n \
+                                     [error] auto-currying is not currently \
+                                     implemented.\n \
+                                     signature: {}\nfunction: {}\n"
+                                  , self.sig
+                                  , (*e).to_sexpr(0)
+                                  )
+                  })
+              , Ordering::Greater => errs.push(Positional {
+                  pos: e.position.clone()
+                , value: format!( "[error] equation bound too many arguments\n \
+                                   signature: {}\nfunction: {}\n"
+                                , self.sig
+                                , (*e).to_sexpr(0)
+                                )
+              })
+              , _ =>  {}
+            }
+
+        }
+        if errs.is_empty() {
+            unimplemented!()
+        } else {
+            Err(errs)
+        }
     }
 }
 
