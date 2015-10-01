@@ -473,7 +473,10 @@ where S: ScopednessTypestate
                , chars::LAMBDA
                , self.sig.to_sexpr(level)
                , indent!(level + 1)
-               , concat_exprs!(self.equations, level + 1, "\n")
+               , concat_exprs!( self.equations
+                              , level + 1
+                              , format!("\n{}", indent!(level + 1))
+                              )
             )
     }
 }

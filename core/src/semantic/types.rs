@@ -12,6 +12,8 @@ use std::fmt;
 use std::fmt::Write;
 use std::iter;
 
+use itertools::Itertools;
+
 use ast;
 use ::errors::ExpectICE;
 use ::chars;
@@ -76,9 +78,12 @@ fn concat_all<A,B>(xs: B) -> String
 where A: fmt::Display
     , B: Iterator<Item=A>
 {
-    xs.fold(String::new(), |mut s, x| {
-        write!(&mut s, "{}", x).expect_ice("Could not append to string!");
-        s
+    xs.map(|x| format!("{}", x))
+      .intersperse(String::from(" "))
+      .fold(String::new(), |mut s, x| {
+          write!(&mut s, "{}", x)
+            .expect_ice("Could not append to string!");
+          s
     })
 }
 
