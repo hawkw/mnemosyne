@@ -24,7 +24,8 @@ use forktable::ForkTable;
 use position::Positional;
 use ast::{ Form
          , DefForm
-         , Ident };
+         , Ident
+         , Function };
 
 use semantic::annotations::{ ScopedState
                            , Scoped
@@ -36,7 +37,7 @@ use semantic::types::*;
 /// An `IRResult` contains either a `ValueRef`, if compilation was successful,
 /// or a `Positional<String>` containing an error message and the position of
 /// the line of code which could not be compiled.
-pub type IRResult = Result<ValueRef, Positional<String>>;
+pub type IRResult = Result<ValueRef, Vec<Positional<String>>>;
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
 #[inline] fn word_size() -> usize { mem::size_of::<isize>() }
@@ -65,8 +66,8 @@ pub struct LLVMContext<'a> { pub llctx: ContextRef
                            , pub names: SymbolTable<'a>
                            }
 
-// because we are in the Raw Pointer Sadness Zone (read: unsafe),
-// it is necessary that we assert that everything exists.
+/// because we are in the Raw Pointer Sadness Zone (read: unsafe),
+/// it is necessary that we assert that everything exists.
 macro_rules! not_null {
     ($target:expr) => ({
         let e = $target;
@@ -76,6 +77,9 @@ macro_rules! not_null {
     })
 }
 
+/// converts a raw pointer that may be null to an Option
+/// the compiler will yell about this, claiming that it involves
+/// an unused unsafe block, but the unsafe block is usually necessary.
 macro_rules! optionalise {
     ($target:expr) => ({
             let e = unsafe { $target };
@@ -182,6 +186,14 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
         }
     }
 }
+
+impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
+    fn to_ir(&self, context: LLVMContext) -> IRResult {
+        unimplemented!()
+    }
+}
+
+
 
 impl TranslateType for Type {
     fn translate_type(&self, context: LLVMContext) -> TypeRef {
