@@ -13,6 +13,7 @@ use std::fmt::Write;
 use std::iter;
 
 use ast;
+use ::errors::ExpectICE;
 use ::chars;
 
 #[derive(Debug, Clone, PartialEq)]

@@ -51,6 +51,7 @@ pub mod semantic;
 pub mod compile;
 pub mod forktable;
 pub mod chars;
+pub mod errors;
 
 pub use semantic::ast;
 
@@ -69,66 +70,4 @@ pub fn llvm_version() -> String {
 /// Returns the Mnemosyne version as a String
 pub fn mnemosyne_version() -> String {
     format!("Mnemosyne v{}.{}", VERSION_MAJOR, VERSION_MINOR)
-}
-
-/// Wraps Option/Result with an `expect_ice()` method.
-///
-/// The `expect_ice()` method functions similarly to the standard library's
-/// `expect()`, but with the custom Mnemosyne internal compiler error message.
-pub trait ExpectICE<T> {
-    fn expect_ice(self, msg: &str) -> T;
-}
-
-impl<T> ExpectICE<T> for Option<T> {
-    /// Unwraps an option, yielding the content of a `Some`
-    ///
-    /// # Panics
-    ///
-    /// Panics using the Mnemosyne internal compiler error formatter
-    /// if the value is a `None`, with a custom panic message
-    /// provided by `msg`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use mnemosyne::ExpectICE;
-    /// let x = Some("value");
-    /// assert_eq!(x.expect_ice("the world is ending"), "value");
-    /// ```
-    ///
-    /// ```{.should_panic}
-    /// # use mnemosyne::ExpectICE;
-    /// let x: Option<&str> = None;
-    /// x.expect_ice("the world is ending");
-    /// ```
-    #[inline]
-    fn expect_ice(self, msg: &str) -> T {
-        match self {
-            Some(thing) => thing
-          , None        => ice!(msg)
-        }
-    }
-}
-impl<T, E> ExpectICE<T> for Result<T, E>
-where E: Debug {
-
-    /// Unwraps a result, yielding the content of an `Ok`.
-    ///
-    /// Panics using the Mnemosyne internal compiler error formatter
-    /// if the value is an `Err`, with a panic message including the
-    /// passed message, and the content of the `Err`.
-    ///
-    /// # Examples
-    /// ```{.should_panic}
-    /// # use mnemosyne::ExpectICE;
-    /// let x: Result<u32, &str> = Err("emergency failure");
-    /// x.expect_ice("Testing expect");
-    /// ```
-    #[inline]
-    fn expect_ice(self, msg: &str) -> T {
-        match self {
-            Ok(t) => t,
-            Err(e) => ice!("{}: {:?}", msg, e),
-        }
-    }
 }

@@ -7,6 +7,8 @@
 // or at https://github.com/hawkw/mnemosyne/.
 //
 
+use ::errors::ExpectICE;
+
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::{Keys,Values};
 use std::hash::Hash;
@@ -428,7 +430,7 @@ where K: Borrow<Q>
         stable(feature = "forktable", since = "0.1.2") )]
     fn index(&self, index: &Q) -> &Self::Output {
         self.get(index)
-            .expect("undefined index")
+            .expect_ice("undefined index")
     }
 
 }
@@ -456,7 +458,7 @@ where K: Borrow<Q>
         stable(feature = "forktable", since = "0.1.2") )]
     fn index_mut(&mut self, index: &Q) -> &mut V {
         self.get_mut(index)
-            .expect("undefined index")
+            .expect_ice("undefined index")
     }
 
 }

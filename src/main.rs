@@ -19,6 +19,7 @@ use std::path::PathBuf;
 
 use mnemosyne::ast;
 use mnemosyne::ast::Node;
+use mnemosyne::errors::UnwrapICE;
 
 const VERSION_MAJOR: u32 = 0;
 const VERSION_MINOR: u32 = 1;
