@@ -76,7 +76,7 @@ where A: fmt::Display
     , B: Iterator<Item=A>
 {
     xs.fold(String::new(), |mut s, x| {
-        write!(&mut s, "{}", x).expect("Could not append to string!");
+        write!(&mut s, "{}", x).expect_ice("Could not append to string!");
         s
     })
 }

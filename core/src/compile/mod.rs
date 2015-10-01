@@ -40,6 +40,10 @@ use semantic::types::*;
 /// or a `Positional<String>` containing an error message and the position of
 /// the line of code which could not be compiled.
 pub type IRResult = Result<ValueRef, Vec<Positional<String>>>;
+
+/// Result type for compiling a type to an LLVM `TypeRef`.
+pub type TypeResult = Result<TypeRef, Positional<String>>;
+
 pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 
 #[inline] fn word_size() -> usize { mem::size_of::<isize>() }
@@ -63,7 +67,16 @@ pub trait Compile {
 /// Trait for type tags that can be translated to LLVM
 pub trait TranslateType {
     /// Translate `self` to an LLVM `TypeRef`
-    fn translate_type(&self, context: LLVMContext) -> TypeRef;
+    ///
+    /// # Returns:
+    ///   - `Ok` containing a `TypeRef` if this was compiled correctly.
+    ///   - An `Err` with a positional error message in the event of
+    ///     a type error.
+    ///
+    /// # Panics:
+    ///   - In the event of an internal compiler error (i.e. if a well-formed
+    ///     type could not be gotten from LLVM correctly).
+    fn translate_type(&self, context: LLVMContext) -> TypeResult;
 }
 
 /// LLVM compilation context.
@@ -84,7 +97,9 @@ macro_rules! not_null {
     ($target:expr) => ({
         let e = $target;
         if e.is_null() {
-            panic!("assertion failed: {} returned null!", stringify!($target));
+            ice!( "assertion failed: {} returned null!"
+                , stringify!($target)
+                );
         } else { e }
     })
 }
@@ -170,10 +185,10 @@ impl<'a> LLVMContext<'a> {
             .map(|o| o.and_then(|p|
                         optionalise!(llvm::LLVMGetNamedFunction(self.llmod, p)))
                 )
-            .expect(&format!(
-                      "Could not create C string for function name: {:?}"
-                    , name
-                  ))
+            .expect_ice(&format!(
+                         "Could not create C string for function name: {:?}"
+                        , name
+                        ))
     }
 }
 
@@ -264,7 +279,7 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
 
 impl TranslateType for Type {
-    fn translate_type(&self, context: LLVMContext) -> TypeRef {
+    fn translate_type(&self, context: LLVMContext) -> TypeResult {
         match *self {
             Type::Ref(ref reference)  => reference.translate_type(context)
           , Type::Prim(ref primitive) => primitive.translate_type(context)
@@ -274,24 +289,25 @@ impl TranslateType for Type {
 }
 
 impl TranslateType for Reference {
-    fn translate_type(&self, context: LLVMContext) -> TypeRef {
+    fn translate_type(&self, context: LLVMContext) -> TypeResult {
         unimplemented!() // TODO: figure this out
     }
 }
 
 impl TranslateType for Primitive {
-    fn translate_type(&self, context: LLVMContext) -> TypeRef {
-        match *self { Primitive::IntSize    => context.int_type(word_size())
+    fn translate_type(&self, context: LLVMContext) -> TypeResult {
+        Ok(match *self { Primitive::IntSize    => context.int_type(word_size())
                     , Primitive::UintSize   => context.int_type(word_size())
-                    , Primitive::Int(bits)
-                        => context.int_type(bits as usize)
-                    , Primitive::Uint(bits)
-                        => context.int_type(bits as usize)
+                    , Primitive::Int(bits)  => context.int_type(bits as usize)
+                    , Primitive::Uint(bits) => context.int_type(bits as usize)
                     , Primitive::Float      => context.float_type()
                     , Primitive::Double     => context.double_type()
                     , Primitive::Byte       => context.byte_type()
                     , _ => unimplemented!() // TODO: figure this out
-                    }.expect( &format!( "Could not get {:?} type from LLVM"
-                                      , *self))
+                    }
+            .expect_ice( &format!( "Could not get {:?} type from LLVM"
+                                 , *self)
+                       )
+            )
     }
 }

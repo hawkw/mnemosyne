@@ -28,9 +28,9 @@ use position::{ Position
 // system that Rust briefly had.
 macro_rules! scope_typestate_err {
     ($err_site:expr) => {
-        panic!("VERY TRAGIC ERROR: Typestate assertion failed during {}.\n \
-            A node in the scoped typestate had no scope. Something has gone \
-            terribly, terribly wrong. Contact the Mnemosyne implementors.",
+        ice!("VERY TRAGIC ERROR! Typestate assertion failed: \
+            A node in the scoped typestate had no scope. \n \
+            During evaluation of {}",
             $err_site)
         }
 }
