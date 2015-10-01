@@ -447,7 +447,12 @@ where I: Stream<Item=char>
     }
 
     fn parse_pattern(&self, input: State<I>) -> ParseResult<Pattern, I> {
-        unimplemented!()
+        let pat_elem =
+            self.name().map(PatElement::Name)
+                .or(self.int_const().map(PatElement::Lit));
+
+        self.parens(many(pat_elem))
+            .parse_state(input)
     }
 
     fn pattern(&'b self) -> MnParser<'a, 'b, I, Pattern> {
