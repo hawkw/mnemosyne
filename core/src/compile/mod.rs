@@ -47,6 +47,16 @@ pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
 /// Trait for that which may join in The Great Work
 pub trait Compile {
     /// Compile `self` to an LLVM `ValueRef`
+    ///
+    /// # Returns:
+    ///   - `Ok` containing a `ValueRef` if this was compiled correctly.
+    ///   - An `Err` with a vector of error messages containing any
+    ///     errors that occured during compilation.
+    ///
+    /// # Panics:
+    ///   - If something has gone horribly wrong. This does NOT panic if the
+    ///     code could not be compiled because it was incorrect, but it will
+    ///     panic in the event of an internal compiler error.
     fn to_ir(&self, context: LLVMContext) -> IRResult;
 }
 
@@ -144,7 +154,17 @@ impl<'a> LLVMContext<'a> {
         optionalise!(llvm::LLVMInt8TypeInContext(self.llctx))
     }
 
-    pub fn get_fn_decl(&self, name: &Ident) -> Option<ValueRef> {
+    /// Get any existing declarations for a given function name.
+    ///
+    /// # Returns:
+    ///   - `Some` if there is an existing previous declaration
+    ///     for this function.
+    ///   - `None` if the function has not been declared previously.
+    ///
+    /// # Panics:
+    ///   - If the C string representation for the function name could
+    ///     not be created.
+    pub fn existing_decl(&self, name: &Ident) -> Option<ValueRef> {
         CString::new((&name.value).clone())
             .map(|s| optionalise!(s.as_ptr()))
             .map(|o| o.and_then(|p|
@@ -188,7 +208,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!()
          ,  DefForm::Function { ref name, ref fun } => {
-                match context.get_fn_decl(name) {
+                match context.existing_decl(name) {
                     Some(previous) => unimplemented!()
                   , None => unimplemented!()
                 }
@@ -202,9 +222,14 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
     fn to_ir(&self, context: LLVMContext) -> IRResult {
         let mut errs: Vec<Positional<String>> = vec![];
-        // Check to see if the arities match
+        // Check to see if the pattern binds an equivalent number of arguments
+        // as the function signature (minus one, which is the return type).
         for e in &self.equations {
-            match e.pattern_length().cmp(&self.arity()) {
+            match e.pattern_length()
+                   .cmp(&self.arity()) {
+                // the equation's pattern is shorter than the function's arity
+                // eventually, we'll autocurry this, but for now, we error.
+                // TODO: maybe there should be a warning as well?
                 Ordering::Less => errs.push(Positional {
                     pos: e.position.clone()
                   , value: format!( "[error] equation had fewer bindings \
@@ -216,6 +241,8 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
                                   , (*e).to_sexpr(0)
                                   )
                   })
+                // the equation's pattern is longer than the function's arity
+                // this is super wrong and always an error.
               , Ordering::Greater => errs.push(Positional {
                   pos: e.position.clone()
                 , value: format!( "[error] equation bound too many arguments\n \
@@ -264,8 +291,7 @@ impl TranslateType for Primitive {
                     , Primitive::Double     => context.double_type()
                     , Primitive::Byte       => context.byte_type()
                     , _ => unimplemented!() // TODO: figure this out
-                    }.expect(
-                        &format!("Could not get {:?} type from LLVM", *self)
-                        )
+                    }.expect( &format!( "Could not get {:?} type from LLVM"
+                                      , *self))
     }
 }
