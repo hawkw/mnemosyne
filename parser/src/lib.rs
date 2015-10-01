@@ -146,7 +146,19 @@ where I: Stream<Item=char>
 
     #[allow(dead_code)]
     fn parse_function(&self, input: State<I>) -> ParseResult<Function<'a, U>, I> {
-        unimplemented!()
+        let fn_kwd = choice([ self.reserved("fn")
+                            , self.reserved("lambda")
+                            , self.reserved(chars::LAMBDA)
+                            ]);
+
+        self.parens(fn_kwd.with(
+            self.signature()
+                .and(many1(self.equation()))
+                .map(|(sig, eqs)| Function { sig: sig
+                                         , equations: eqs
+                                         })
+                ))
+            .parse_state(input)
     }
 
     #[allow(dead_code)]
@@ -432,6 +444,22 @@ where I: Stream<Item=char>
             .or(try(self.name_ref()))
             .map(|f| Annotated::new(f, pos) )
             .parse_state(input)
+    }
+
+    fn parse_equation(&self, input: State<I>)
+                     -> ParseResult< Annotated< 'a
+                                              , Equation< 'a, U>
+                                              , U>
+                                    , I> {
+        unimplemented!()
+    }
+
+    fn equation(&'b self) -> MnParser< 'a, 'b, I
+                                     , Annotated< 'a
+                                                , Equation<'a, U>
+                                                , U>
+                                     > {
+        self.parser(MnEnv::parse_equation)
     }
 
     fn expr(&'b self) -> MnParser<'a, 'b, I, Expr<'a, U>> {
