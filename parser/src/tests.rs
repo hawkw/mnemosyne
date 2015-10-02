@@ -42,3 +42,16 @@ expr_test!(test_defsyntax_1,
 "(define fac (\u{3bb} (\u{8594} int int)
 \t((0) 1)
 \t((n) (fac (- n 1))))\n)");
+
+#[test]
+fn test_defsyntax_sugar() {
+    let string =
+r#"(def fac (fn {int -> int}
+    ((0) 1)
+    ((n) (fac (- n 1)))))"#;
+    assert_eq!( parse_module(string).unwrap()[0]
+                                   .to_sexpr(0)
+              , "(define fac (\u{3bb} (\u{8594} int int)
+\t((0) 1)
+\t((n) (fac (- n 1))))\n)" )
+}
