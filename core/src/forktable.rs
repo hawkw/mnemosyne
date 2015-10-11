@@ -32,8 +32,6 @@ use std::ops;
 /// reference implementation written by Hawk Weisman for the Decaf
 /// compiler, which is available [here](https://github.com/hawkw/decaf/blob/master/src/main/scala/com/meteorcode/common/ForkTable.scala).
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "unstable",
-    stable(feature = "forktable", since = "0.0.1") )]
 pub struct ForkTable<'a, K, V>
 where K: Eq + Hash
     , K: 'a
@@ -45,8 +43,6 @@ where K: Eq + Hash
   , level: usize
 }
 
-#[cfg_attr(feature = "unstable",
-    stable(feature = "forktable", since = "0.0.1") )]
 impl<'a, K, V> ForkTable<'a, K, V>
 where K: Eq + Hash
 {
@@ -88,8 +84,6 @@ where K: Eq + Hash
     /// let mut level_2: ForkTable<isize,&str> = level_1.fork();
     /// assert_eq!(level_2.get(&1), Some(&"One"));
     /// ```
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
     where K: Borrow<Q>
         , Q: Hash + Eq
@@ -145,8 +139,6 @@ where K: Eq + Hash
     /// let mut level_2: ForkTable<isize,&str> = level_1.fork();
     /// assert_eq!(level_2.get_mut(&1), None);
     /// ```
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn get_mut<Q: ?Sized>(&mut self, key: &Q) -> Option<&mut V>
     where K: Borrow<Q>
         , Q: Hash + Eq
@@ -198,9 +190,6 @@ where K: Eq + Hash
     /// assert_eq!(level_2.remove(&1), None);
     /// assert_eq!(level_2.chain_contains_key(&1), false);
     /// ```
-    ///
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn remove(&mut self, key: &K) -> Option<V>
     where K: Clone
     {
@@ -258,8 +247,6 @@ where K: Eq + Hash
     /// assert_eq!(table.insert(1, "One"), Some("one"));
     /// assert_eq!(table.get(&1), Some(&"One"));
     /// ```
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn insert(&mut self, k: K, v: V) -> Option<V> {
         if self.whiteouts.contains(&k) {
             self.whiteouts.remove(&k);
@@ -300,8 +287,6 @@ where K: Eq + Hash
     /// let mut level_2: ForkTable<isize,&str> = level_1.fork();
     /// assert_eq!(level_2.contains_key(&1), false);
     /// ```
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn contains_key<Q: ?Sized>(&self, key: &Q) -> bool
     where K: Borrow<Q>
         , Q: Hash + Eq
@@ -344,8 +329,6 @@ where K: Eq + Hash
     /// let mut level_2: ForkTable<isize,&str> = level_1.fork();
     /// assert_eq!(level_2.chain_contains_key(&1), true);
     /// ```
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn chain_contains_key<Q:? Sized>(&self, key: &Q) -> bool
     where K: Borrow<Q>
        , Q: Hash + Eq
@@ -366,8 +349,6 @@ where K: Eq + Hash
     /// Note that the new `ForkTable<K,V>` has a lifetime
     /// bound ensuring that it will live at least as long as the
     /// parent `ForkTable`.
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn fork(&'a self) -> ForkTable<'a, K, V> {
         ForkTable { table: HashMap::new()
                   , whiteouts: HashSet::new()
@@ -377,8 +358,6 @@ where K: Eq + Hash
     }
 
     /// Constructs a new `ForkTable<K,V>`
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.0.1") )]
     pub fn new() -> ForkTable<'a, K,V> {
         ForkTable { table: HashMap::new()
                   , whiteouts: HashSet::new()
@@ -391,16 +370,12 @@ where K: Eq + Hash
     ///
     /// Provides an iterator visiting all values in arbitrary
     /// order. Iterator element type is &'b V.
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since  = "0.1.2") )]
     pub fn values(&self) -> Values<K, V> { self.table.values() }
 
     /// Wrapper for the backing map's `keys()` function.
     ///
     /// Provides an iterator visiting all keys in arbitrary
     /// order. Iterator element type is &'b K.
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since  = "0.1.2") )]
     pub fn keys(&self) -> Keys<K, V> { self.table.keys() }
 }
 
@@ -421,13 +396,9 @@ where K: Borrow<Q>
     , K: Eq + Hash
     , Q: Eq + Hash
 {
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.1.2") )]
     type Output = V;
 
     #[inline]
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.1.2") )]
     fn index(&self, index: &Q) -> &Self::Output {
         self.get(index)
             .expect_ice("undefined index")
@@ -446,16 +417,12 @@ where K: Borrow<Q>
 /// table[&1] = "one";
 /// assert_eq!(table[&1], "one")
 /// ```
-#[cfg_attr(feature = "unstable",
-    stable(feature = "forktable", since = "0.1.2") )]
 impl<'a, 'b, K, Q: ?Sized, V> ops::IndexMut<&'b Q> for ForkTable<'a, K, V>
 where K: Borrow<Q>
     , K: Eq + Hash
     , Q: Eq + Hash
 {
     #[inline]
-    #[cfg_attr(feature = "unstable",
-        stable(feature = "forktable", since = "0.1.2") )]
     fn index_mut(&mut self, index: &Q) -> &mut V {
         self.get_mut(index)
             .expect_ice("undefined index")
