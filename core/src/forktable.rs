@@ -204,6 +204,35 @@ where K: Eq + Hash
         }
     }
 
+    /// Removes a key from this layer's map and whiteouts, so that
+    /// definitions of that key from lower levels are exposed.
+    ///
+    /// Unlike `ForkTable::remove()`, if the removed value exists in a
+    /// lower level of the table, it will NOT be whited out. This means
+    /// that the definition of that entry from lower levels of the table
+    /// will be exposed at this level.
+    ///
+    /// The key may be any borrowed form of the map's key type, but
+    /// `Hash` and `Eq` on the borrowed form *must* match those for
+    /// the key type.
+    ///
+    /// # Arguments
+    ///
+    ///  + `key`  - the key to expose
+    ///
+    /// # Return Value
+    ///
+    ///  + `Some(V)` if an entry for the given key exists in the
+    ///     table, or `None` if there is no entry for that key.
+    ///
+    pub fn expose<Q: ?Sized>(&mut self, key: &Q) -> Option<V>
+    where K: Borrow<Q>
+        , Q: Hash + Eq
+    {
+        self.whiteouts.remove(key);
+        self.table.remove(key)
+    }
+
     /// Inserts a key-value pair from the map.
     ///
     /// If the key already had a value present in the map, that
