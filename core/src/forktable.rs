@@ -194,9 +194,9 @@ where K: Eq + Hash
     where K: Clone
     {
         if self.table.contains_key(&key) {
+            self.whiteouts.insert(key.clone());
             self.table.remove(&key)
         } else if self.chain_contains_key(&key) {
-            // TODO: could just white out specific hashes?
             self.whiteouts.insert(key.clone());
             None
         } else {
