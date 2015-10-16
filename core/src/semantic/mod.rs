@@ -21,7 +21,7 @@ use self::types::Type;
 ///
 /// As of `84f1de8`, symbol annotations can be type annotations for values
 /// or annotations for type definitions. This is provisional; type defs
-/// may be moved to a separate  table later.
+/// may be moved to a separate table later.
 ///
 /// This table should be forked upon entering a new scope.
 pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation<'a>>;
@@ -64,4 +64,30 @@ pub enum SymbolAnnotation<'a> {
             /// remains constant within the current scope.
             proven_value: Option<Rc<Expr<'a, ScopedState>>>
           }
+}
+
+impl<'a> SymbolAnnotation<'a> {
+    // TODO: possibly this should recurse into references? IDK
+    pub fn is_fn_type(&self) -> bool {
+        match *self {
+            SymbolAnnotation::TypeDef(ref ty) =>
+                match *ty { Type::Function(_) => true
+                          , _                => false
+                          }
+          , SymbolAnnotation::Value { ref ty, .. } =>
+                match *ty { Type::Function(_) => true
+                          , _                => false
+                          }
+        }
+    }
+
+    pub fn is_prim_type(&self) -> bool {
+        match *self {
+            SymbolAnnotation::TypeDef(ref ty) =>
+                match *ty { Type::Prim(_) => true
+                          , _             => false
+                          }
+          , _ => false
+        }
+    }
 }
