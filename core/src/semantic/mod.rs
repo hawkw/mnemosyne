@@ -19,6 +19,10 @@ use self::types::Type;
 
 /// A symbol table is a `ForkTable` mapping `String`s to `Type` annotations.
 ///
+/// As of `84f1de8`, symbol annotations can be type annotations for values
+/// or annotations for type definitions. This is provisional; type defs
+/// may be moved to a separate  table later.
+///
 /// This table should be forked upon entering a new scope.
 pub type SymbolTable<'a> = ForkTable<'a, String, SymbolAnnotation<'a>>;
 
