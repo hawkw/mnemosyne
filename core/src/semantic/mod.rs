@@ -49,13 +49,15 @@ impl<'a> AnnotateTypes<'a> for Unscoped<'a, DefForm<'a, UnscopedState>> {
 
 
 #[derive(Clone,Debug,PartialEq)]
-pub struct SymbolAnnotation<'a> {
-    /// The type of the symbol
-    pub ty: Type,
-    /// An optional proven value for the symbol.
-    ///
-    /// This should be defined iff the symbol signifies a constant value
-    /// or a constant expression, or if we were able to prove that the value
-    /// remains constant within the current scope.
-    pub proven_value: Option<Rc<Expr<'a, ScopedState>>>
+pub enum SymbolAnnotation<'a> {
+    TypeDef(Type)
+  , Value { /// The type of the symbol
+            ty: Type,
+            /// An optional proven value for the symbol.
+            ///
+            /// This should be defined iff the symbol signifies a constant value
+            /// or a constant expression, or if we were able to prove that the value
+            /// remains constant within the current scope.
+            proven_value: Option<Rc<Expr<'a, ScopedState>>>
+          }
 }
