@@ -45,7 +45,7 @@ pub type IRResult = Result<ValueRef, Vec<Positional<String>>>;
 /// Result type for compiling a type to an LLVM `TypeRef`.
 pub type TypeResult = Result<TypeRef, Positional<String>>;
 
-pub type SymbolTable<'a> = ForkTable<'a, &'a str, ValueRef>;
+pub type NamedValues<'a> = ForkTable<'a, &'a str, ValueRef>;
 
 #[inline] fn word_size() -> usize { mem::size_of::<isize>() }
 
@@ -89,7 +89,7 @@ pub trait TranslateType {
 pub struct LLVMContext<'a> { pub llctx: ContextRef
                            , pub llmod: ModuleRef
                            , pub llbuilder: BuilderRef
-                           , pub names: SymbolTable<'a>
+                           , pub names: NamedValues<'a>
                            }
 
 /// because we are in the Raw Pointer Sadness Zone (read: unsafe),
@@ -147,7 +147,7 @@ impl<'a> LLVMContext<'a> {
                 llctx: ctx
               , llmod: not_null!(llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), ctx))
               , llbuilder: not_null!(llvm::LLVMCreateBuilderInContext(ctx))
-              , names: SymbolTable::new()
+              , names: NamedValues::new()
             }
         }
     }
@@ -301,7 +301,7 @@ impl TranslateType for Reference {
 
 impl TranslateType for Primitive {
     fn translate_type(&self, context: LLVMContext) -> TypeResult {
-        Ok(match *self { Primitive::IntSize    => context.int_type(word_size())
+        Ok(match *self { Primitive::IntSize => context.int_type(word_size())
                     , Primitive::UintSize   => context.int_type(word_size())
                     , Primitive::Int(bits)  => context.int_type(bits as usize)
                     , Primitive::Uint(bits) => context.int_type(bits as usize)
