@@ -12,6 +12,7 @@ addons:
       - llvm-toolchain-precise-3.7
       - ubuntu-toolchain-r-test
     packages:
+      - linux-libc-dev
       # Necessary for travis-cargo coverage reporting
       - libcurl4-openssl-dev
       - libelf-dev
