@@ -7,7 +7,7 @@ addons:
   apt:
     sources:
       # LLVM
-      - llvm-3.8-dev
+      - llvm-toolchain-precise-3.8
     packages:
       # Necessary for travis-cargo coverage reporting
       - libcurl4-openssl-dev
@@ -15,6 +15,9 @@ addons:
       - libdw-dev
       # Required for building LLVM
       - cmake
+      # LLVM
+      - llvm-3.8
+      - llvm-3.8-dev
 
 
 before_script:
