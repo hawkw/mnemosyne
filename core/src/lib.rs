@@ -33,7 +33,7 @@ extern crate combine;
 ///
 /// This should be used instead of the Rust standard library's `panic!()`
 /// macro in the event of an unrecoverable internal compiler error.
-#[macro_use]
+#[macro_export]
 macro_rules! ice {
     ($msg:expr) => (
         panic!( "[internal error] {}\n \
