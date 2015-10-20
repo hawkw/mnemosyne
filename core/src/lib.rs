@@ -29,6 +29,23 @@ extern crate libc;
 extern crate combine;
 #[macro_use] extern crate itertools;
 
+use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
+
+use std::fmt::Debug;
+
+const VERSION_MAJOR: u32 = 0;
+const VERSION_MINOR: u32 = 1;
+
+/// Returns the LLVM version as a String
+pub fn llvm_version() -> String {
+    unsafe { format!("LLVM v{}.{}", LLVMVersionMajor(), LLVMVersionMinor()) }
+}
+
+/// Returns the Mnemosyne version as a String
+pub fn mnemosyne_version() -> String {
+    format!("Mnemosyne v{}.{}", VERSION_MAJOR, VERSION_MINOR)
+}
+
 /// Macro for formatting an internal compiler error panic.
 ///
 /// This should be used instead of the Rust standard library's `panic!()`
@@ -63,20 +80,3 @@ pub mod chars;
 pub mod errors;
 
 pub use semantic::ast;
-
-use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
-
-use std::fmt::Debug;
-
-const VERSION_MAJOR: u32 = 0;
-const VERSION_MINOR: u32 = 1;
-
-/// Returns the LLVM version as a String
-pub fn llvm_version() -> String {
-    unsafe { format!("LLVM v{}.{}", LLVMVersionMajor(), LLVMVersionMinor()) }
-}
-
-/// Returns the Mnemosyne version as a String
-pub fn mnemosyne_version() -> String {
-    format!("Mnemosyne v{}.{}", VERSION_MAJOR, VERSION_MINOR)
-}
