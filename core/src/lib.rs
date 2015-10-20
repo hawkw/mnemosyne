@@ -29,32 +29,6 @@ extern crate libc;
 extern crate combine;
 #[macro_use] extern crate itertools;
 
-#[macro_use]
-macro_rules! ice {
-    ($msg:expr) => (
-        panic!( "[internal error] {}\n \
-                 [internal error] Something has gone horribly wrong.\n \
-                 [internal error] Please contact the Mnemosyne implementors."
-              , $msg)
-          );
-    ($fmt:expr, $($arg:tt)+) => (
-        panic!( "[internal error] {}\n \
-                 [internal error] Something has gone horribly wrong.\n \
-                 [internal error] Please contact the Mnemosyne implementors."
-              , format_args!($fmt, $($arg)+)
-              )
-          )
-}
-
-pub mod position;
-pub mod semantic;
-pub mod compile;
-pub mod forktable;
-pub mod chars;
-pub mod errors;
-
-pub use semantic::ast;
-
 use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
 
 use std::fmt::Debug;
@@ -71,3 +45,38 @@ pub fn llvm_version() -> String {
 pub fn mnemosyne_version() -> String {
     format!("Mnemosyne v{}.{}", VERSION_MAJOR, VERSION_MINOR)
 }
+
+/// Macro for formatting an internal compiler error panic.
+///
+/// This should be used instead of the Rust standard library's `panic!()`
+/// macro in the event of an unrecoverable internal compiler error.
+#[macro_export]
+macro_rules! ice {
+    ($msg:expr) => (
+        panic!( "[internal error] {}\n \
+                 [internal error] Something has gone horribly wrong.\n \
+                 [internal error] Please contact the Mnemosyne implementors.\n\
+                 {}, {}"
+              , $msg
+              , mnemosyne_version(), llvm_version()
+              )
+          );
+    ($fmt:expr, $($arg:tt)+) => (
+        panic!( "[internal error] {}\n \
+                 [internal error] Something has gone horribly wrong.\n \
+                 [internal error] Please contact the Mnemosyne implementors.\n\
+                 {}, {}"
+              , format_args!($fmt, $($arg)+)
+              , mnemosyne_version(), llvm_version()
+              )
+          )
+}
+
+pub mod position;
+pub mod semantic;
+pub mod compile;
+pub mod forktable;
+pub mod chars;
+pub mod errors;
+
+pub use semantic::ast;
