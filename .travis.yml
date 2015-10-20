@@ -5,6 +5,9 @@ rust: nightly
 
 addons:
   apt:
+    sources:
+      # LLVM
+      - llvm-3.8-dev
     packages:
       # Necessary for travis-cargo coverage reporting
       - libcurl4-openssl-dev
@@ -12,8 +15,7 @@ addons:
       - libdw-dev
       # Required for building LLVM
       - cmake
-      # LLVM
-      - llvm-3.8-dev
+
 
 before_script:
   # install travis-cargo script
