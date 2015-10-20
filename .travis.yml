@@ -13,7 +13,7 @@ addons:
       # Required for building LLVM
       - cmake-2.8
       # LLVM
-      - llvm-dev-3.8
+      - llvm-3.8-dev
 
 before_script:
   # install travis-cargo script
