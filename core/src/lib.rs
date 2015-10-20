@@ -39,7 +39,7 @@ macro_rules! ice {
         panic!( "[internal error] {}\n \
                  [internal error] Something has gone horribly wrong.\n \
                  [internal error] Please contact the Mnemosyne implementors.\n\
-                 {},{}"
+                 {}, {}"
               , $msg
               , mnemosyne_version(), llvm_version()
               )
@@ -48,7 +48,7 @@ macro_rules! ice {
         panic!( "[internal error] {}\n \
                  [internal error] Something has gone horribly wrong.\n \
                  [internal error] Please contact the Mnemosyne implementors.\n\
-                 {},{}"
+                 {}, {}"
               , format_args!($fmt, $($arg)+)
               , mnemosyne_version(), llvm_version()
               )
