@@ -58,7 +58,7 @@ macro_rules! ice {
                  [internal error] Please contact the Mnemosyne implementors.\n\
                  {}, {}"
               , $msg
-              , mnemosyne_version(), llvm_version()
+              , $crate::mnemosyne_version(), $crate::llvm_version()
               )
           );
     ($fmt:expr, $($arg:tt)+) => (
@@ -67,7 +67,7 @@ macro_rules! ice {
                  [internal error] Please contact the Mnemosyne implementors.\n\
                  {}, {}"
               , format_args!($fmt, $($arg)+)
-              , mnemosyne_version(), llvm_version()
+              , $crate::mnemosyne_version(), $crate::llvm_version()
               )
           )
 }
