@@ -12,6 +12,8 @@ addons:
       - libdw-dev
       # Required for building LLVM
       - cmake-2.8.9
+      # LLVM
+      - llvm-3.6
 
 before_script:
   # install travis-cargo script
