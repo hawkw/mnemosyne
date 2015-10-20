@@ -38,10 +38,8 @@ use std::fmt::Debug;
 const VERSION_MAJOR: u32 = 0;
 const VERSION_MINOR: u32 = 1;
 
-/// Returns the LLVM version as a String
-pub fn llvm_version() -> String {
-    unsafe { format!("LLVM v{}.{}", LLVMVersionMajor(), LLVMVersionMinor()) }
-}
+
+include!(concat!(env!("OUT_DIR"), "/gen.rs"));
 
 /// Returns the Mnemosyne version as a String
 pub fn mnemosyne_version() -> String {

@@ -2,6 +2,7 @@
 name = "mnemosyne"
 version = "0.1.0"
 authors = ["Hawk Weisman <hi@hawkweisman.me>"]
+build = "build.rs"
 
 [dependencies]
 combine = "^1.0.0"
