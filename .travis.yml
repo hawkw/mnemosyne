@@ -11,7 +11,7 @@ addons:
       - libelf-dev
       - libdw-dev
       # Required for building LLVM
-      - cmake-2.8.9
+      - cmake-2.8
       # LLVM
       - llvm-dev-3.8
 
