@@ -7,8 +7,10 @@ addons:
   apt:
     sources:
       # LLVM
+      - llvm-toolchain-precise
       - llvm-toolchain-precise-3.6
       - llvm-toolchain-precise-3.7
+      - ubuntu-toolchain-r-test
     packages:
       # Necessary for travis-cargo coverage reporting
       - libcurl4-openssl-dev
@@ -16,12 +18,13 @@ addons:
       - libdw-dev
       # Required for building LLVM
       - cmake
+      - libstdc++6
       # LLVM
       - llvm-3.6
       - llvm-3.6-dev
       - llvm-3.7
       - llvm-3.7-dev
-      
+
 env:
   - LLVM_CONFIG="llvm-config-3.7"
   - LLVM_CONFIG="llvm-config-3.6"
