@@ -29,19 +29,28 @@ extern crate libc;
 extern crate combine;
 #[macro_use] extern crate itertools;
 
+/// Macro for formatting an internal compiler error panic.
+///
+/// This should be used instead of the Rust standard library's `panic!()`
+/// macro in the event of an unrecoverable internal compiler error.
 #[macro_use]
 macro_rules! ice {
     ($msg:expr) => (
         panic!( "[internal error] {}\n \
                  [internal error] Something has gone horribly wrong.\n \
-                 [internal error] Please contact the Mnemosyne implementors."
-              , $msg)
+                 [internal error] Please contact the Mnemosyne implementors.\n\
+                 {},{}"
+              , $msg
+              , mnemosyne_version(), llvm_version()
+              )
           );
     ($fmt:expr, $($arg:tt)+) => (
         panic!( "[internal error] {}\n \
                  [internal error] Something has gone horribly wrong.\n \
-                 [internal error] Please contact the Mnemosyne implementors."
+                 [internal error] Please contact the Mnemosyne implementors.\n\
+                 {},{}"
               , format_args!($fmt, $($arg)+)
+              , mnemosyne_version(), llvm_version()
               )
           )
 }
