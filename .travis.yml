@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: rust
 # build only against nightly Rust
 rust: nightly
@@ -13,7 +13,7 @@ addons:
       # Required for building LLVM
       - cmake-2.8.9
       # LLVM
-      - llvm-3.6
+      - llvm-dev-3.8
 
 before_script:
   # install travis-cargo script
