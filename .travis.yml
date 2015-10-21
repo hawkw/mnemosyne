@@ -42,6 +42,8 @@ addons:
       #- cmake
       - libstdc++6
       - g++-4.8
+      # required for linking against LLVM
+      - libedit-dev
       # LLVM
       - llvm-3.6
       - llvm-3.6-dev
