@@ -29,10 +29,19 @@ Instructions
 
 ### Building Mnemosyne
 
-Mnemosyne is currently implemented using the [Rust](http://www.rust-lang.org) programming language. To build Mnemosyne, use [Cargo](http://doc.crates.io/guide.html), the Rust build automation tool.
+#### What You'll Need
 
-Note that Mnemosyne currently requires features available only on the nightly Rust release channel. Thus, it will not compile against stable or beta builds of Rust at this time. When installing Rust, ensure you have selected the latest Rust nightly. This is necessary as Mnemosyne relies on `rustc`'s internal LLVM bindings to interact with the LLVM backend, and access to `rustc` internals is available only on nightly Rust at this time.
++ **Rust**:
+  Mnemosyne is currently implemented using the [Rust](http://www.rust-lang.org) programming language. To build Mnemosyne, use [Cargo](http://doc.crates.io/guide.html), the Rust build automation tool.
 
+  Note that Mnemosyne currently requires features available only on the nightly Rust release channel. Thus, it will not compile against stable or beta builds of Rust at this time. When installing Rust, ensure you have selected the latest Rust nightly. This is necessary as Mnemosyne relies on `rustc`'s internal LLVM bindings to interact with the LLVM backend, and access to `rustc` internals is available only on nightly Rust at this time.
++ **LLVM**:
+  Mnemosyne relies on the [LLVM](http://llvm.org) compiler infrastructure project for machine-code generation and other backend functionality. In order to build Mnemosyne, you will need LLVM v3.6 or greater installed on your system, and the `llvm-config` executable placed on your PATH.
+
+  On Mac OS X, LLVM is installed by default, but the `/usr/local/opt/llvm/bin/` directory which contains `llvm-config` will need to be added to your PATH. On other systems, your mileage may vary.
++ **Other dependencies**:
+
+#### Build Instructions
 Build Mnemosyne with the command `$ cargo build --release`  from the root directory of this repository. This will build a debug executable of Manganese, the Mnemosyne compiler. This executable will be output to `target/release/mn`. Alternatively, the command `$ cargo build` without the `--release` option will generate a less highly optimised debug executable. This is useful for Mnemosyne development and testing purposes.
 
 The command `$ cargo test` will run all of the tests for Manganese, and all the Mnemosyne integration tests. To run tests for the Mnemosyne Core and Parser modules as well, run the commands `$ cargo test -p mnemosyne` and `$cargo test -p mnemosyne-parser`, respectively.
