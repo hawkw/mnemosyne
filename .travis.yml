@@ -26,8 +26,8 @@ addons:
       - llvm-3.7-dev
 
 env:
-  - LLVM_CONFIG="llvm-config-3.7"
-  - LLVM_CONFIG="llvm-config-3.6"
+  - LLVM_VERSION="3.7"
+  - LLVM_VERSION="3.6"
 
 before_script:
   # install travis-cargo script
