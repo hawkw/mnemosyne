@@ -45,8 +45,10 @@ addons:
       # required for linking against LLVM
       - libedit-dev
       # LLVM
+      - libllvm3.6
       - llvm-3.6
       - llvm-3.6-dev
+      - libllvm3.7
       - llvm-3.7
       - llvm-3.7-dev
 
