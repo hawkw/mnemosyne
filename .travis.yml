@@ -46,9 +46,11 @@ addons:
       - libedit-dev
       # LLVM
       - libllvm3.6
+      - libllvm3.6-dbg
       - llvm-3.6
       - llvm-3.6-dev
       - libllvm3.7
+      - libllvm3.7-dbg
       - llvm-3.7
       - llvm-3.7-dev
 
