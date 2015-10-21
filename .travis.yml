@@ -3,11 +3,23 @@ language: rust
 rust:
   - nightly
   - beta
-  - 1.1.0
+  - 1.3.0
 
 os:
   - linux
   - osx
+
+env:
+  matrix:
+    - LLVM_VERSION="3.7"
+    - LLVM_VERSION="3.6"
+
+allow_failures:
+  os:
+    - osx
+  rust:
+    - beta
+    - 1.3.0
 
 addons:
   apt:
@@ -31,9 +43,6 @@ addons:
       - llvm-3.7
       - llvm-3.7-dev
 
-env:
-  - LLVM_VERSION="3.7"
-  - LLVM_VERSION="3.6"
 
 install:
   # install travis-cargo script
