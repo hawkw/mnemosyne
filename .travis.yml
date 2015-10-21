@@ -1,7 +1,13 @@
 sudo: false
 language: rust
-# build only against nightly Rust
-rust: nightly
+rust:
+  - nightly
+  - beta
+  - 1.1.0
+
+os:
+  - linux
+  - osx
 
 addons:
   apt:
@@ -37,6 +43,8 @@ install:
   # link correct LLVM config executable
   - ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config
   - llvm-config --version
+  - which llvm-config-3.6
+  - which llvm-config-3.7
 
 script:
   - travis-cargo build
