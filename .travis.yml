@@ -43,8 +43,9 @@ addons:
       - libelf-dev
       - libdw-dev
       # Required for building LLVM
-      - cmake
+      #- cmake
       - libstdc++6
+      - g++-4.8
       # LLVM
       - llvm-3.6
       - llvm-3.6-dev
@@ -52,11 +53,12 @@ addons:
       - llvm-3.7-dev
 
 before_install:
-  # install a newer cmake since at this time Travis only has version 2.8.7
+  # install a newer cmake since at this time Travis only has versiDon 2.8.7
   - yes | sudo add-apt-repository ppa:kalakris/cmake
   - sudo apt-get update -qq
 
 install:
+  # install the correct CMake version. This step is why we require sudo on CI.
   - sudo apt-get install libXxf86vm-dev cmake
   # install travis-cargo script
   - pip install 'travis-cargo<0.2' --user
@@ -64,6 +66,8 @@ install:
   - ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config
   # put local bin directory on the PATH
   - export PATH=$HOME/.local/bin:$PATH
+  # set the C++ compiler to the new g++ version
+  - export CXX="g++-4.8"
   # a whole bunch of version checks to ensure that everything is sane
   - llvm-config --version
   - which llvm-config-3.6
