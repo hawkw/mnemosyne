@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 language: rust
 rust:
   - nightly
@@ -6,7 +6,7 @@ rust:
   - 1.3.0
 os:
   - linux
-  - osx
+  # - osx
 
 env:
   global:
@@ -21,7 +21,7 @@ env:
 matrix:
   allow_failures:
     os:
-      - osx
+      # - osx
     rust:
       - beta
       - 1.3.0
@@ -51,14 +51,20 @@ addons:
       - llvm-3.7
       - llvm-3.7-dev
 
+before_install:
+  # install a newer cmake since at this time Travis only has version 2.8.7
+  - yes | sudo add-apt-repository ppa:kalakris/cmake
+  - sudo apt-get update -qq
 
 install:
+  - sudo apt-get install libXxf86vm-dev cmake
   # install travis-cargo script
-  - |
-      pip install 'travis-cargo<0.2' --user &&
-      export PATH=$HOME/.local/bin:$PATH
+  - pip install 'travis-cargo<0.2' --user
   # link correct LLVM config executable
   - ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config
+  # put local bin directory on the PATH
+  - export PATH=$HOME/.local/bin:$PATH
+  # a whole bunch of version checks to ensure that everything is sane
   - llvm-config --version
   - which llvm-config-3.6
   - which llvm-config-3.7
