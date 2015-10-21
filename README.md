@@ -36,10 +36,10 @@ Instructions
 
   Note that Mnemosyne currently requires features available only on the nightly Rust release channel. Thus, it will not compile against stable or beta builds of Rust at this time. When installing Rust, ensure you have selected the latest Rust nightly. This is necessary as Mnemosyne relies on `rustc`'s internal LLVM bindings to interact with the LLVM backend, and access to `rustc` internals is available only on nightly Rust at this time.
 + **LLVM**:
-  Mnemosyne relies on the [LLVM](http://llvm.org) compiler infrastructure project for machine-code generation and other backend functionality. In order to build Mnemosyne, you will need LLVM v3.6 or greater installed on your system, and the `llvm-config` executable placed on your PATH.
+  Mnemosyne relies on the [LLVM](http://llvm.org) compiler infrastructure project for machine-code generation and other backend functionality. We use the excellent [`iron-llvm`](https://github.com/jauhien/iron-llvm) Rust bindings maintained by @jauhein to interact with LLVM. Unlike `librustc-llvm`, however, `iron-llvm` does not bundle LLVM itself. Therefore, in order to build Mnemosyne, you will need LLVM v3.6 or greater installed on your system, and the `llvm-config` executable placed on your PATH.
 
   On Mac OS X, LLVM is installed by default, but the `/usr/local/opt/llvm/bin/` directory which contains `llvm-config` will need to be added to your PATH. On other systems, your mileage may vary.
-+ **Other dependencies**:
++ **Other dependencies**: In order to build the [`llvm-sys`](https://github.com/tari/llvm-sys.rs) crate required by `iron-llvm`, you will need a version of CMake >= 2.8.8. Additionally, you will also require a version of the C++ compiler capable of understanding the `-std=c++11` flag; I recommend a version of `g++` >= 4.8 or `clang` >= 3.4.
 
 #### Build Instructions
 Build Mnemosyne with the command `$ cargo build --release`  from the root directory of this repository. This will build a debug executable of Manganese, the Mnemosyne compiler. This executable will be output to `target/release/mn`. Alternatively, the command `$ cargo build` without the `--release` option will generate a less highly optimised debug executable. This is useful for Mnemosyne development and testing purposes.
