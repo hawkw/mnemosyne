@@ -25,16 +25,13 @@ addons:
       - llvm-3.7
       - llvm-3.7-dev
 
-env:
-  - LLVM_CONFIG="llvm-config-3.7"
-  - LLVM_CONFIG="llvm-config-3.6"
 
 before_script:
   # install travis-cargo script
   - |
       pip install 'travis-cargo<0.2' --user &&
       export PATH=$HOME/.local/bin:$PATH
-
+      
 script:
   - travis-cargo build
   # test main and subcrates
