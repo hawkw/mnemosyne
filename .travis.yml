@@ -4,25 +4,24 @@ rust:
   - nightly
   - beta
   - 1.3.0
+os:
+  - linux
+  - osx
+
+env:
+  global:
+    # Don't export a nightly feature flag to Cargo
+    # (since we're currently building against nightly only)
+    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
+    - secure: irv+bqxTUDhYjoEsFhAujf76MuzGUnbOTLCbyeUSfM28OQPqVNkp136MAIB9gz+OexD+UOeDP/CaobSUl5i/+22Utq/F93YQ8oBmRNFVHAhdE87NY0LxQwDlKPQhUQ+/R1Cv3adCR0++Tqmdd/PczCYHWsmF5ZNqA35g2590aTw9TTIjWTvhj1uknx3TBjag6t47hmO5uFjtaYvI7uOMN6e+Cs7f1Bi1vMd0MT7MQHkjw9h3E6mM4hScY3otWicaGCSzQ2yNuSIMDf1gj+YmWbvE3s7z1EsSQ20/e+Q7/P02yAoqq1Z6zURPpfZvINgbgQeVXv0sFocExnrG9raA+sbtFvyhBJzB2uLKNa1JJ4+dEPfd7yWndT/4zZTUYDNc40nu5GVgqgF/YSs4JhGDOD9FMXx9tjgFYvilx22txwPP7TP7cbQq8fulCDWvYy71VjsVWl0bZAm94uHbobhuq+X0jwio4C76t04ybkIgGfhsc0xD+ZMiRyxI3knNZ/pBwGFnqjsOkLc3ra3mhlSZtycCz/GUhwFmitrMqUos5BRnfRPfDjCsHZS6Vag85wO31Kp/aWaSHZkyFDqQMm3OfC4etGjfS7LyQOdNZUBs242WkHB42yNuUiPDyx2aefRM7jyZAD7yewPuXwLTnx6p/LjKCMLtZvdATR8aMtOyraU=
+  matrix:
+    - LLVM_VERSION=3.7
+    - LLVM_VERSION=3.6
 
 matrix:
-  env:
-    global:
-      # Don't export a nightly feature flag to Cargo
-      # (since we're currently building against nightly only)
-      - TRAVIS_CARGO_NIGHTLY_FEATURE=""
-      - secure: irv+bqxTUDhYjoEsFhAujf76MuzGUnbOTLCbyeUSfM28OQPqVNkp136MAIB9gz+OexD+UOeDP/CaobSUl5i/+22Utq/F93YQ8oBmRNFVHAhdE87NY0LxQwDlKPQhUQ+/R1Cv3adCR0++Tqmdd/PczCYHWsmF5ZNqA35g2590aTw9TTIjWTvhj1uknx3TBjag6t47hmO5uFjtaYvI7uOMN6e+Cs7f1Bi1vMd0MT7MQHkjw9h3E6mM4hScY3otWicaGCSzQ2yNuSIMDf1gj+YmWbvE3s7z1EsSQ20/e+Q7/P02yAoqq1Z6zURPpfZvINgbgQeVXv0sFocExnrG9raA+sbtFvyhBJzB2uLKNa1JJ4+dEPfd7yWndT/4zZTUYDNc40nu5GVgqgF/YSs4JhGDOD9FMXx9tjgFYvilx22txwPP7TP7cbQq8fulCDWvYy71VjsVWl0bZAm94uHbobhuq+X0jwio4C76t04ybkIgGfhsc0xD+ZMiRyxI3knNZ/pBwGFnqjsOkLc3ra3mhlSZtycCz/GUhwFmitrMqUos5BRnfRPfDjCsHZS6Vag85wO31Kp/aWaSHZkyFDqQMm3OfC4etGjfS7LyQOdNZUBs242WkHB42yNuUiPDyx2aefRM7jyZAD7yewPuXwLTnx6p/LjKCMLtZvdATR8aMtOyraU=
-    matrix:
-      - LLVM_VERSION=3.7
-      - LLVM_VERSION=3.6
-
-  os:
-    - linux
-  #  - osx
-
   allow_failures:
-    # os:
-    #   - osx
+    os:
+      - osx
     rust:
       - beta
       - 1.3.0
