@@ -10,9 +10,8 @@ os:
 #  - osx
 
 env:
-  matrix:
-    - LLVM_VERSION="3.7"
-    - LLVM_VERSION="3.6"
+  - LLVM_VERSION=3.7
+  - LLVM_VERSION=3.6
 
 allow_failures:
   # os:
