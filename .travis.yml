@@ -86,11 +86,13 @@ install:
   # if on OS X:
   #   - install LLVM from Homebrew
   #   - put it on the PATH
+  #   - put travis-cargo on the PATH
   - |
       if [ $TRAVIS_OS_NAME = osx ]; then
         brew update &&
         brew install llvm &&
-        export PATH=/usr/local/opt/llvm/bin/:$HOME/.local/bin:$PATH &&
+        export PATH=/usr/local/opt/llvm/bin/:$PATH &&
+        export PATH=$HOME/Library/Python/2.7/bin:$PATH &&
         echo $PATH
       fi
   # checks to ensure that our LLVM is sane
