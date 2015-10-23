@@ -62,9 +62,10 @@ before_install:
   # install a newer cmake since at this time Travis only has version 2.8.7
   # all of this is Linux-only
   - |
-      [ $TRAVIS_OS_NAME = linux ] &&
-      yes | sudo add-apt-repository ppa:kalakris/cmake &&
-      sudo apt-get update -qq
+      if [ $TRAVIS_OS_NAME = linux ]; then
+        yes | sudo add-apt-repository ppa:kalakris/cmake &&
+        sudo apt-get update -qq
+      fi
 
 install:
   # install travis-cargo script
@@ -75,15 +76,17 @@ install:
   #   - put the LLVM binaries on the PATH
   #   - set the C++ compiler to the version of g++ we installed earlier
   - |
-      [ $TRAVIS_OS_NAME = linux ] &&
-      sudo apt-get install libXxf86vm-dev cmake &&
-      ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config &&
-      export PATH=$HOME/.local/bin:$PATH &&
-      export CXX="g++-4.8"
+      if [ $TRAVIS_OS_NAME = linux ]; then
+        sudo apt-get install libXxf86vm-dev cmake &&
+        ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config &&
+        export PATH=$HOME/.local/bin:$PATH &&
+        export CXX="g++-4.8"
+      fi
   # if on OS X, we just need to put Apple's bundled LLVM on the PATH
   - |
-      [ $TRAVIS_OS_NAME = osx ] &&
-      export PATH=/usr/local/opt/llvm/bin/:$PATH
+      if [ $TRAVIS_OS_NAME = osx ]; then
+        export PATH=/usr/local/opt/llvm/bin/:$PATH
+      fi
   # checks to ensure that our LLVM is sane
   # (this is for debugging if the build fails_
   - llvm-config --version
@@ -102,8 +105,9 @@ script:
 after_success:
   # report test coverage to coveralls.io (Linux only)
   - |
-      [ $TRAVIS_OS_NAME = linux ] &&
-      travis-cargo coveralls --no-sudo
+      if [ $TRAVIS_OS_NAME = linux ]; then
+        travis-cargo coveralls --no-sudo
+      fi
   # report coverage to codecov.io
   - bash <(curl https://codecov.io/bash)
 
