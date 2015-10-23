@@ -60,16 +60,19 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  # install the correct CMake version. This step is why we require sudo on CI.
-  - sudo apt-get install libXxf86vm-dev cmake
   # install travis-cargo script
   - pip install 'travis-cargo<0.2' --user
-  # link correct LLVM config executable
-  - ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config
-  # put local bin directory on the PATH
-  - export PATH=$HOME/.local/bin:$PATH
-  # set the C++ compiler to the new g++ version
-  - export CXX="g++-4.8"
+  # big blob of tasks to do on Loonix only:
+  #   - install the correct CMake version (this step is why we require sudo).
+  #   - link correct LLVM config executable
+  #   - put the LLVM binaries on the PATH
+  #   - set the C++ compiler to the version of g++ we installed earlier
+  - |
+      [ $TRAVIS_OS_NAME = linux ] &&
+      sudo apt-get install libXxf86vm-dev cmake &&
+      ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config &&
+      export PATH=$HOME/.local/bin:$PATH &&
+      export CXX="g++-4.8"
   # a whole bunch of version checks to ensure that everything is sane
   - llvm-config --version
   - which llvm-config-3.6
@@ -86,8 +89,10 @@ script:
   - travis-cargo bench
 
 after_success:
-  # report test coverage to coveralls.io
-  - travis-cargo coveralls --no-sudo
+  # report test coverage to coveralls.io (Linux only)
+  - |
+      [ $TRAVIS_OS_NAME = linux ] &&
+      travis-cargo coveralls --no-sudo
   # report coverage to codecov.io
   - bash <(curl https://codecov.io/bash)
 
@@ -106,7 +111,6 @@ deploy:
     repo: hawkw/mnemosyne
     # release only on Git tags
     tags: true
-
 
 
 notifications:
