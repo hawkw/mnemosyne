@@ -68,7 +68,7 @@ where K: Eq + Hash
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -76,7 +76,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get(&1), Some(&"One"));
     /// assert_eq!(table.get(&2), None);
     /// ```
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -123,7 +123,7 @@ where K: Eq + Hash
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get_mut(&1), None);
@@ -131,7 +131,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get_mut(&1), Some(&mut "One"));
     /// assert_eq!(table.get_mut(&2), None);
     /// ```
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -171,7 +171,7 @@ where K: Eq + Hash
     ///     table, or `None` if there is no entry for that key.
     ///
     /// # Examples
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// table.insert(1, "One");
@@ -179,7 +179,7 @@ where K: Eq + Hash
     /// assert_eq!(table.remove(&1), Some("One"));
     /// assert_eq!(table.contains_key(&1), false);
     /// ```
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -249,7 +249,7 @@ where K: Eq + Hash
     ///
     /// Simply inserting an entry:
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -259,7 +259,7 @@ where K: Eq + Hash
     ///
     /// Overwriting the value associated with a key:
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -292,14 +292,14 @@ where K: Eq + Hash
     ///    table, `false` if it does not.
     ///
     /// # Examples
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.contains_key(&1), true);
     /// ```
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.contains_key(&1), false);
@@ -334,14 +334,14 @@ where K: Eq + Hash
     ///    `false` if it does not.
     ///
     /// # Examples
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.chain_contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.chain_contains_key(&1), true);
     /// ```
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.chain_contains_key(&1), false);
@@ -405,14 +405,12 @@ where K: Eq + Hash
 ///
 /// This is just a wrapper for `get(&key)`
 ///
-/// ```
+/// ```ignore
 /// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");
 /// assert_eq!(table[&1], "One");
 /// ```
-#[cfg_attr(feature = "unstable",
-    stable(feature = "forktable", since = "0.1.2") )]
 impl<'a, 'b, K, Q: ?Sized, V> ops::Index<&'b Q> for ForkTable<'a, K, V>
 where K: Borrow<Q>
     , K: Eq + Hash
@@ -432,7 +430,7 @@ where K: Borrow<Q>
 ///
 /// This is just a wrapper for `get_mut(&key)`
 ///
-/// ```
+/// ```ignore
 /// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");
@@ -450,4 +448,152 @@ where K: Borrow<Q>
             .expect_ice("undefined index")
     }
 
+}
+
+mod test {
+
+    use super::ForkTable;
+
+    #[test]
+    fn test_get_defined() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.get(&1), None);
+        table.insert(1, "One");
+        assert_eq!(table.get(&1), Some(&"One"));
+    }
+
+    #[test]
+    fn test_get_undefined() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        assert_eq!(table.get(&2), None);
+    }
+    #[test]
+    fn test_get_multilevel() {
+        let mut level_1: ForkTable<isize,&str> = ForkTable::new();
+        level_1.insert(1, "One");
+
+        let mut level_2: ForkTable<isize,&str> = level_1.fork();
+        assert_eq!(level_2.get(&1), Some(&"One"));
+    }
+
+    #[test]
+    fn test_get_mut_defined() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.get_mut(&1), None);
+        table.insert(1, "One");
+        assert_eq!(table.get_mut(&1), Some(&mut "One"));
+    }
+
+    #[test]
+    fn test_get_mut_undefined() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        assert_eq!(table.get_mut(&2), None);
+    }
+    #[test]
+    fn test_get_mut_multilevel() {
+        let mut level_1: ForkTable<isize,&str> = ForkTable::new();
+        level_1.insert(1, "One");
+
+        let mut level_2: ForkTable<isize,&str> = level_1.fork();
+        assert_eq!(level_2.get_mut(&1), None);
+    }
+    #[test]
+    fn test_remove_returned() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        assert_eq!(table.remove(&1), Some("One"));
+    }
+    #[test]
+    fn test_remove_not_defined_after() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        table.remove(&1);
+        assert_eq!(table.get(&1), None);
+    }
+
+    #[test]
+    fn test_remove_multilevel() {
+        let mut level_1: ForkTable<isize,&str> = ForkTable::new();
+        level_1.insert(1, "One");
+        assert_eq!(level_1.contains_key(&1), true);
+
+        let mut level_2: ForkTable<isize,&str> = level_1.fork();
+        assert_eq!(level_2.chain_contains_key(&1), true);
+        assert_eq!(level_2.remove(&1), None);
+        assert_eq!(level_2.chain_contains_key(&1), false);
+    }
+
+    #[test]
+    fn test_insert_defined_after() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.get(&1), None);
+        table.insert(1, "One");
+        assert_eq!(table.get(&1), Some(&"One"));
+    }
+
+    #[test]
+    fn test_insert_overwrite() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.get(&1), None);
+        assert_eq!(table.insert(1, "one"), None);
+        assert_eq!(table.get(&1), Some(&"one"));
+
+        assert_eq!(table.insert(1, "One"), Some("one"));
+        assert_eq!(table.get(&1), Some(&"One"));
+    }
+
+    #[test]
+    fn test_contains_key() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.contains_key(&1), false);
+        table.insert(1, "One");
+        assert_eq!(table.contains_key(&1), true);
+    }
+
+    #[test]
+    fn test_contains_key_this_level_only () {
+        let mut level_1: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(level_1.contains_key(&1), false);
+        level_1.insert(1, "One");
+        assert_eq!(level_1.contains_key(&1), true);
+
+        let mut level_2: ForkTable<isize,&str> = level_1.fork();
+        assert_eq!(level_2.contains_key(&1), false);
+    }
+
+    #[test]
+    fn test_chain_contains_key_this_level() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(table.chain_contains_key(&1), false);
+        table.insert(1, "One");
+        assert_eq!(table.chain_contains_key(&1), true);
+    }
+
+    #[test]
+    fn test_contains_key_multilevel() {
+        let mut level_1: ForkTable<isize,&str> = ForkTable::new();
+        assert_eq!(level_1.chain_contains_key(&1), false);
+        level_1.insert(1, "One");
+        assert_eq!(level_1.chain_contains_key(&1), true);
+
+        let mut level_2: ForkTable<isize,&str> = level_1.fork();
+        assert_eq!(level_2.chain_contains_key(&1), true);
+    }
+
+    #[test]
+    fn test_indexing() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        assert_eq!(table[&1], "One");
+    }
+
+    #[test]
+    fn test_index_mut() {
+        let mut table: ForkTable<isize,&str> = ForkTable::new();
+        table.insert(1, "One");
+        table[&1] = "one";
+        assert_eq!(table[&1], "one")
+    }
 }
