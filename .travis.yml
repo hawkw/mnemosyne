@@ -94,9 +94,9 @@ install:
         echo $PATH
       fi
   # checks to ensure that our LLVM is sane
-  # (this is for debugging if the build fails_
-  - llvm-config --version
+  # (this is for debugging if the build fails)
   - which llvm-config
+  - llvm-config --version
 
 script:
   - travis-cargo build
