@@ -43,7 +43,7 @@ impl From<SourcePosition> for Position {
     /// Create a new `Position` from a `combine` `SourcePosition`.
     ///
     /// # Example
-    /// ```
+    /// ```ignore
     /// # extern crate combine;
     /// # extern crate mnemosyne;
     /// # use combine::primitives::SourcePosition;
@@ -60,7 +60,7 @@ impl From<(i32,i32)> for Position {
     /// Create a new `Position` from a tuple of i32s.
     ///
     /// # Example
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::position::Position;
     /// let tuple: (i32,i32) = (1,1);
     /// assert_eq!(Position::from(tuple), Position::new(1,1));
@@ -140,5 +140,23 @@ impl<T> Deref for Positional<T> {
 impl<T> DerefMut for Positional<T> {
     fn deref_mut(&mut self) -> &mut T {
         &mut self.value
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use combine::primitives::SourcePosition;
+
+    #[test]
+    fn test_from_sourceposition() {
+        let sp = SourcePosition { column: 1, line: 1 };
+        assert_eq!(Position::from(sp), Position::new(1,1));
+    }
+
+    #[test]
+    fn test_from_tuple() {
+        let tuple: (i32,i32) = (1,1);
+        assert_eq!(Position::from(tuple), Position::new(1,1));
     }
 }

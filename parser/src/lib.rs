@@ -9,7 +9,7 @@
 
 extern crate combine;
 extern crate combine_language;
-#[macro_use] extern crate mnemosyne as core;
+extern crate mnemosyne as core;
 
 use combine::*;
 use combine_language::{ LanguageEnv

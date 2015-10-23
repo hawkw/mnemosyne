@@ -450,8 +450,8 @@ where K: Borrow<Q>
 
 }
 
-mod test {
-
+#[cfg(test)]
+mod tests {
     use super::ForkTable;
 
     #[test]

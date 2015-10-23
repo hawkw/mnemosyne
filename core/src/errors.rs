@@ -30,13 +30,13 @@ impl<T> ExpectICE<T> for Option<T> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::errors::ExpectICE;
     /// let x = Some("value");
     /// assert_eq!(x.expect_ice("the world is ending"), "value");
     /// ```
     ///
-    /// ```{.should_panic}
+    /// ```ignore
     /// # use mnemosyne::errors::ExpectICE;
     /// let x: Option<&str> = None;
     /// x.expect_ice("the world is ending");
@@ -59,7 +59,7 @@ where E: Debug {
     /// passed message, and the content of the `Err`.
     ///
     /// # Examples
-    /// ```{.should_panic}
+    /// ```ignore
     /// # use mnemosyne::errors::ExpectICE;
     /// let x: Result<u32, &str> = Err("emergency failure");
     /// x.expect_ice("Testing expect");
@@ -98,13 +98,13 @@ impl<T> UnwrapICE<T> for Option<T> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x = Some("air");
     /// assert_eq!(x.unwrap_ice(), "air");
     /// ```
     ///
-    /// ```{.should_panic}
+    /// ```ignore
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Option<&str> = None;
     /// assert_eq!(x.unwrap_ice(), "air"); // fails
@@ -132,16 +132,16 @@ where E: Display  {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Result<u32, &str> = Ok(2);
     /// assert_eq!(x.unwrap_ice(), 2);
     /// ```
     ///
-    /// ```{.should_panic}
+    /// ```ignore
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Result<u32, &str> = Err("emergency failure");
-    /// x.unwrap_ice(); // panics with `emergency failure`
+    /// x.unwrap_ice(); // panics
     /// ```
     #[inline]
     fn unwrap_ice(self) -> T {
@@ -185,3 +185,54 @@ where E: Display  {
 //         }
 //     }
 // }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_option_expect_ok() {
+        let x = Some("value");
+        assert_eq!(x.expect_ice("the world is ending"), "value");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_option_expect_panic() {
+        let x: Option<&str> = None;
+        x.expect_ice("the world is ending");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_result_expect_panic() {
+        let x: Result<u32, &str> = Err("emergency failure");
+        x.expect_ice("Testing expect");
+    }
+
+    #[test]
+    fn test_option_unwrap_ok() {
+        let x = Some("air");
+        assert_eq!(x.unwrap_ice(), "air");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_option_unwrap_panic() {
+        let x: Option<&str> = None;
+        assert_eq!(x.unwrap_ice(), "air"); // fails
+    }
+
+    #[test]
+    fn test_result_unwrap_ok() {
+        let x: Result<u32, &str> = Ok(2);
+        assert_eq!(x.unwrap_ice(), 2);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_result_unwrap_panic() {
+        let x: Result<u32, &str> = Err("emergency failure");
+        x.unwrap_ice(); // panics
+    }
+}
