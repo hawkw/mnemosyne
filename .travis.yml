@@ -90,7 +90,8 @@ install:
       if [ $TRAVIS_OS_NAME = osx ]; then
         brew update &&
         brew install llvm &&
-        export PATH=$/usr/local/opt/llvm/bin/:$PATH
+        export PATH=/usr/local/opt/llvm/bin/:$PATH &&
+        echo $PATH
       fi
   # checks to ensure that our LLVM is sane
   # (this is for debugging if the build fails_
