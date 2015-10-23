@@ -2,8 +2,8 @@ sudo: required
 language: rust
 rust:
   - nightly
-  - beta
-  - 1.3.0
+#  - beta
+#  - 1.3.0
 os:
   - linux
   - osx
@@ -20,8 +20,8 @@ env:
 
 matrix:
   allow_failures:
-    - rust: beta
-    - rust: 1.3.0
+#    - rust: beta
+#    - rust: 1.3.0
     - env: LLVM_VERSION=3.6
     - os: osx
   fast_finish: true
