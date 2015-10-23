@@ -56,9 +56,12 @@ addons:
       - llvm-3.7-dev
 
 before_install:
-  # install a newer cmake since at this time Travis only has versiDon 2.8.7
-  - yes | sudo add-apt-repository ppa:kalakris/cmake
-  - sudo apt-get update -qq
+  # install a newer cmake since at this time Travis only has version 2.8.7
+  # all of this is Linux-only
+  - |
+      [ $TRAVIS_OS_NAME = linux ] &&
+      yes | sudo add-apt-repository ppa:kalakris/cmake &&
+      sudo apt-get update -qq
 
 install:
   # install travis-cargo script
@@ -74,10 +77,14 @@ install:
       ln -s /usr/bin/llvm-config-$LLVM_VERSION $HOME/.local/bin/llvm-config &&
       export PATH=$HOME/.local/bin:$PATH &&
       export CXX="g++-4.8"
-  # a whole bunch of version checks to ensure that everything is sane
+  # if on OS X, we just need to put Apple's bundled LLVM on the PATH
+  - |
+      [ $TRAVIS_OS_NAME = osx ] &&
+      export PATH=/usr/local/opt/llvm/bin/:$PATH
+  # checks to ensure that our LLVM is sane
+  # (this is for debugging if the build fails_
   - llvm-config --version
-  - which llvm-config-3.6
-  - which llvm-config-3.7
+  - which llvm-config
 
 script:
   - travis-cargo build
