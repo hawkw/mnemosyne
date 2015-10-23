@@ -22,9 +22,6 @@ matrix:
   allow_failures:
 #    - rust: beta
 #    - rust: 1.3.0
-    - env: LLVM_VERSION=3.6
-      os: linux
-    - os: osx
   fast_finish: true
   exclude:
     - os: osx
