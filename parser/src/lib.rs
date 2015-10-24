@@ -45,7 +45,9 @@ mod tests;
 struct MnParser<'a: 'b, 'b, I, T>
 where I: Stream<Item=char>
     , I::Range: 'b
-    , I: 'b {
+    , I: 'b
+    , I: 'a
+    , T: 'a {
         env: &'b MnEnv<'a, I>
       , parser: ParseFn<'a, I, T>
 }
@@ -54,6 +56,7 @@ impl<'a, 'b, I, T> Clone for MnParser<'a, 'b, I, T>
 where I: Stream<Item=char>
     , I::Range: 'b
     , I: 'b
+    , T: 'a
     , 'a: 'b {
 
     fn clone(&self) -> Self {
@@ -65,6 +68,7 @@ impl<'a, 'b, I, T> Parser for MnParser<'a, 'b, I, T>
 where I: Stream<Item=char>
     , I::Range: 'b
     , I: 'b
+    , T: 'a
     , 'a: 'b {
 
     type Input = I;
@@ -78,12 +82,14 @@ where I: Stream<Item=char>
 
 struct MnEnv<'a, I>
 where I: Stream<Item = char>
-    , I::Item: Positioner<Position = SourcePosition> {
+    , I::Item: Positioner<Position = SourcePosition>
+    , I: 'a {
     env: LanguageEnv<'a, I>
 }
 
 impl <'a, I> std::ops::Deref for MnEnv<'a, I>
-where I: Stream<Item=char> {
+where I: Stream<Item=char>
+    , I: 'a {
     type Target = LanguageEnv<'a, I>;
     fn deref(&self) -> &LanguageEnv<'a, I> { &self.env }
 }
