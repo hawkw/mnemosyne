@@ -92,13 +92,16 @@ pub trait AnnotateTypes<'a>: Sized {
 
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Module<'a, S: ScopednessTypestate> {
+pub struct Module<'a, S: ScopednessTypestate>
+where S: 'a {
     pub name: Ident
   , pub exporting: Vec<Ident>
   , pub body: Body<'a, S>
 }
 
-impl<'a, S> Module<'a, S> where S: ScopednessTypestate {
+impl<'a, S> Module<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
 
     /// Returns true if the namespace is exporting any names
     #[inline] pub fn is_lib (&self) -> bool { !self.exporting.is_empty() }
@@ -123,7 +126,10 @@ impl<'a> Scoped<'a, Module<'a, ScopedState>>{
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum Form<'a, S: ScopednessTypestate> {
+pub enum Form<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
+
     // TODO: maybe definitions aren't expressions?
     // (they don't return a value...)
     Define(DefForm<'a, S>)
@@ -154,7 +160,9 @@ pub struct Formal { pub name: Ident
                   }
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum DefForm<'a, S: ScopednessTypestate> {
+pub enum DefForm<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     TopLevel { name: Ident
              , annot: types::Type
              , value: Rc<Expr<'a, S>>
@@ -165,14 +173,18 @@ pub enum DefForm<'a, S: ScopednessTypestate> {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Class<'a, S: ScopednessTypestate> {
+pub struct Class<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     pub name: Ident
   , pub ty_param: Ident
   , pub defs: Vec<Prototype<'a, S>>
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Instance<'a, S: ScopednessTypestate> {
+pub struct Instance<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     pub class: Ident
   , pub ty: types::Type
   , pub functions: Vec<Function<'a, S>>
@@ -182,7 +194,9 @@ pub struct Instance<'a, S: ScopednessTypestate> {
 ///
 /// The general expectation is that these will generally be parsed as infix.
 #[derive(PartialEq, Clone, Debug)]
-pub enum Logical<'a, S: ScopednessTypestate> {
+pub enum Logical<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     And { a: Rc<Expr<'a, S>>
         , b: Rc<Expr<'a, S>>
         }
@@ -207,7 +221,10 @@ impl fmt::Display for Literal {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub enum LetForm<'a, S: ScopednessTypestate> {
+pub enum LetForm<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
+
     Let { bindings: Bindings<'a, S>
         , body: Body<'a, S>
         }
@@ -224,20 +241,24 @@ pub enum LetForm<'a, S: ScopednessTypestate> {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Binding<'a, S: ScopednessTypestate> {
-    pub name: Ident
-  , pub typ: types::Type
-  , pub value: Rc<Expr<'a, S>>
-}
+pub struct Binding<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { pub name: Ident
+            , pub typ: types::Type
+            , pub value: Rc<Expr<'a, S>>
+            }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Function<'a, S: ScopednessTypestate> {
+pub struct Function<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     pub sig: types::Signature
   , pub equations: Vec<Annotated<'a, Equation<'a, S>, S>>
 }
 
 impl<'a, S> Annotated<'a, Function<'a, S>, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
 
     /// Returns the arity of this function's signature
     pub fn arity(&self) -> usize {
@@ -295,10 +316,11 @@ impl Node for PatElement {
 
 /// A function equation definition
 #[derive(PartialEq, Clone, Debug)]
-pub struct Equation<'a, S: ScopednessTypestate> {
-    pub pattern: Pattern
- ,  pub body: Body<'a, S>
-}
+pub struct Equation<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { pub pattern: Pattern
+            , pub body: Body<'a, S>
+            }
 
 impl<'a, S> Node for Equation<'a, S>
 where S: ScopednessTypestate  {
@@ -317,7 +339,8 @@ where S: ScopednessTypestate  {
 }
 
 impl<'a, S> Annotated<'a, Equation<'a, S>, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
 
     /// Returns the number of bindings in this equation's pattern
     pub fn pattern_length(&self) -> usize { self.pattern.len() }
@@ -333,7 +356,9 @@ pub type Variant<'a, S: ScopednessTypestate>
     = Vec<Annotated<'a, Formal, S>>;
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Data<'a, S: ScopednessTypestate> {
+pub struct Data<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     pub name: Ident
   , pub variants: HashMap<Ident, Variant<'a, S>>
 }
@@ -347,7 +372,8 @@ pub struct Data<'a, S: ScopednessTypestate> {
 // }
 
 impl<'a, S> Data<'a, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
 
     /// Returns true if this ADT is a sum type
     pub fn is_sum_type(&self) -> bool {
@@ -372,7 +398,8 @@ where S: ScopednessTypestate {
 }
 
 impl<'a, S> Node for Form<'a, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
    #[allow(unused_variables)]
    fn to_sexpr(&self, level: usize) -> String {
        match *self {
@@ -393,7 +420,8 @@ where S: ScopednessTypestate {
 }
 
 impl<'a, S> Node for DefForm<'a, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
 
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
@@ -416,7 +444,8 @@ where S: ScopednessTypestate {
 }
 
 impl<'a, S> Node for LetForm<'a, S>
-where S: ScopednessTypestate {
+where S: ScopednessTypestate
+    , S: 'a {
 
     fn to_sexpr(&self, level: usize) -> String {
         match *self {
@@ -446,6 +475,7 @@ where S: ScopednessTypestate {
 
 impl<'a, S> Node for Logical<'a, S>
 where S: ScopednessTypestate
+    , S: 'a
 {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
@@ -466,6 +496,7 @@ where S: ScopednessTypestate
 
 impl<'a, S> Node for Function<'a, S>
 where S: ScopednessTypestate
+    , S: 'a
 {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
@@ -483,6 +514,7 @@ where S: ScopednessTypestate
 
 impl<'a, S> Node for Binding<'a, S>
 where S: ScopednessTypestate
+    , S: 'a
 {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
