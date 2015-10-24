@@ -12,14 +12,17 @@ use std::cmp::Ordering;
 use std::mem;
 
 use libc::c_uint;
+use llvm_sys::prelude::LLVMValueRef;
 
-use rustc::lib::llvm;
-use rustc::lib::llvm::{ ContextRef
-                      , ModuleRef
-                      , ValueRef
-                      , BuilderRef
-                      , TypeRef
-                      };
+use iron_llvm::core;
+use iron_llvm::core::types::{ Type
+                            , TypeCtor
+                            , RealTypeCtor
+                            , RealTypeRef
+                            , IntTypeCtor
+                            , IntTypeRef
+                            };
+use iron_llvm::{LLVMRef, LLVMRefCtor};
 
 use errors::ExpectICE;
 use forktable::ForkTable;
@@ -33,19 +36,22 @@ use ast::{ Node
 use semantic::annotations::{ ScopedState
                            , Scoped
                            };
-use semantic::types::*;
+use semantic::types;
+use semantic::types::{ Primitive
+                    , Reference
+                    };
 
 /// Result type for compiling an AST node to LLVM IR
 ///
 /// An `IRResult` contains either a `ValueRef`, if compilation was successful,
 /// or a `Positional<String>` containing an error message and the position of
 /// the line of code which could not be compiled.
-pub type IRResult = Result<ValueRef, Vec<Positional<String>>>;
+pub type IRResult = Result<LLVMValueRef, Vec<Positional<String>>>;
 
 /// Result type for compiling a type to an LLVM `TypeRef`.
-pub type TypeResult = Result<TypeRef, Positional<String>>;
+pub type TypeResult<T: Type + Sized> = Result<T, Positional<String>>;
 
-pub type NamedValues<'a> = ForkTable<'a, &'a str, ValueRef>;
+pub type NamedValues<'a> = ForkTable<'a, &'a str, LLVMValueRef>;
 
 #[inline] fn word_size() -> usize { mem::size_of::<isize>() }
 
@@ -66,19 +72,19 @@ pub trait Compile {
 }
 
 /// Trait for type tags that can be translated to LLVM
-pub trait TranslateType {
-    /// Translate `self` to an LLVM `TypeRef`
-    ///
-    /// # Returns:
-    ///   - `Ok` containing a `TypeRef` if this was compiled correctly.
-    ///   - An `Err` with a positional error message in the event of
-    ///     a type error.
-    ///
-    /// # Panics:
-    ///   - In the event of an internal compiler error (i.e. if a well-formed
-    ///     type could not be gotten from LLVM correctly).
-    fn translate_type(&self, context: LLVMContext) -> TypeResult;
-}
+// pub trait TranslateType {
+//     /// Translate `self` to an LLVM `TypeRef`
+//     ///
+//     /// # Returns:
+//     ///   - `Ok` containing a `TypeRef` if this was compiled correctly.
+//     ///   - An `Err` with a positional error message in the event of
+//     ///     a type error.
+//     ///
+//     /// # Panics:
+//     ///   - In the event of an internal compiler error (i.e. if a well-formed
+//     ///     type could not be gotten from LLVM correctly).
+//     fn translate_type(&self, context: LLVMContext) -> TypeResult;
+// }
 
 /// LLVM compilation context.
 ///
@@ -86,10 +92,10 @@ pub trait TranslateType {
 /// the [iron-kaleidoscope](https://github.com/jauhien/iron-kaleidoscope)
 /// tutorial, and from [`librustc_trans`](https://github.com/rust-lang/rust/blob/master/src/librustc_trans/trans/mod.rs)
 /// from the Rust compiler.
-pub struct LLVMContext<'a> { pub llctx: ContextRef
-                           , pub llmod: ModuleRef
-                           , pub llbuilder: BuilderRef
-                           , pub names: NamedValues<'a>
+pub struct LLVMContext<'a> { llctx: core::Context
+                           , llmod: core::Module
+                           , llbuilder: core::Builder
+                           , named_vals: NamedValues<'a>
                            }
 
 /// because we are in the Raw Pointer Sadness Zone (read: unsafe),
@@ -136,42 +142,31 @@ impl<'a> LLVMContext<'a> {
     ///   - If the LLVM C ABI returned a null value for the `Context`,
     ///     `Builder`, or `Module`
     pub fn new(module_name: &str) -> Self {
-        let name = CString::new(module_name)
-                    .expect_ice( &format!(
-                                "Could not create C string for module name: {:?}"
-                                , module_name
-                                ));
-        unsafe {
-            let ctx = not_null!(llvm::LLVMContextCreate());
-            LLVMContext {
-                llctx: ctx
-              , llmod: not_null!(llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), ctx))
-              , llbuilder: not_null!(llvm::LLVMCreateBuilderInContext(ctx))
-              , names: NamedValues::new()
-            }
-        }
+        LLVMContext { llctx: core::Context::get_global()
+                    , llmod: core::Module::new(module_name)
+                    , llbuilder: core::Builder::new()
+                    , named_vals: NamedValues::new()
+                    }
     }
 
     /// Dump the module's contents to stderr for debugging
     ///
     /// Apparently this is the only reasonable way to get a textual
-    /// representation of a `ModuleRef` in `librustc_llvm`...
-    pub fn dump(&self) {
-        unsafe { llvm::LLVMDumpModule(self.llmod); }
+    /// representation of a `Module` in LLVM
+    pub fn dump(&self) { self.llmod.dump() }
+
+    pub fn int_type(&self, size: usize) -> IntTypeRef {
+        IntTypeRef::get_int_in_context(&self.llctx, size as c_uint)
     }
 
-    pub fn int_type(&self, size: usize) -> Option<TypeRef> {
-        optionalise!(llvm::LLVMIntTypeInContext(self.llctx, size as c_uint))
+    pub fn float_type(&self) -> RealTypeRef {
+        RealTypeRef::get_float_in_context(&self.llctx)
     }
-
-    pub fn float_type(&self) -> Option<TypeRef> {
-        optionalise!(llvm::LLVMFloatTypeInContext(self.llctx))
+    pub fn double_type(&self) -> RealTypeRef {
+        RealTypeRef::get_double_in_context(&self.llctx)
     }
-    pub fn double_type(&self) -> Option<TypeRef> {
-        optionalise!(llvm::LLVMDoubleTypeInContext(self.llctx))
-    }
-    pub fn byte_type(&self) -> Option<TypeRef> {
-        optionalise!(llvm::LLVMInt8TypeInContext(self.llctx))
+    pub fn byte_type(&self) -> IntTypeRef {
+        IntTypeRef::get_int8_in_context(&self.llctx)
     }
 
     /// Get any existing declarations for a given function name.
@@ -184,26 +179,8 @@ impl<'a> LLVMContext<'a> {
     /// # Panics:
     ///   - If the C string representation for the function name could
     ///     not be created.
-    pub fn existing_decl(&self, name: &Ident) -> Option<ValueRef> {
-        CString::new((&name.value).clone())
-            .map(|s| optionalise!(s.as_ptr()))
-            .map(|o| o.and_then(|p|
-                        optionalise!(llvm::LLVMGetNamedFunction(self.llmod, p)))
-                )
-            .expect_ice(&format!(
-                         "Could not create C string for function name: {:?}"
-                        , name
-                        ))
-    }
-}
-
-impl<'a> Drop for LLVMContext<'a> {
-    fn drop(&mut self) {
-        unsafe {
-            llvm::LLVMDisposeModule(self.llmod);
-            llvm::LLVMDisposeBuilder(self.llbuilder);
-            llvm::LLVMContextDispose(self.llctx);
-        }
+    pub fn get_fn(&self, name: &Ident) -> Option<core::FunctionRef> {
+        self.llmod.get_function_by_name(name.value.as_ref())
     }
 }
 
@@ -228,7 +205,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!()
          ,  DefForm::Function { ref name, ref fun } => {
-                match context.existing_decl(name) {
+                match context.get_fn(name) {
                     Some(previous) => unimplemented!()
                   , None => unimplemented!()
                 }
@@ -283,36 +260,34 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
 
 
-impl TranslateType for Type {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
-        match *self {
-            Type::Ref(ref reference)  => reference.translate_type(context)
-          , Type::Prim(ref primitive) => primitive.translate_type(context)
-          , _ => unimplemented!() // TODO: figure this out
-        }
-    }
-}
+// impl TranslateType for types::Type {
+//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+//         match *self {
+//             types::Type::Ref(ref r) => r.translate_type(context)
+//           , types::Type::Prim(ref p) => p.translate_type(context)
+//           , _ => unimplemented!() // TODO: figure this out
+//         }
+//     }
+// }
 
-impl TranslateType for Reference {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
-        unimplemented!() // TODO: figure this out
-    }
-}
+// impl TranslateType for Reference {
+//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+//         unimplemented!() // TODO: figure this out
+//     }
+// }
 
-impl TranslateType for Primitive {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
-        Ok(match *self { Primitive::IntSize => context.int_type(word_size())
-                    , Primitive::UintSize   => context.int_type(word_size())
-                    , Primitive::Int(bits)  => context.int_type(bits as usize)
-                    , Primitive::Uint(bits) => context.int_type(bits as usize)
-                    , Primitive::Float      => context.float_type()
-                    , Primitive::Double     => context.double_type()
-                    , Primitive::Byte       => context.byte_type()
-                    , _ => unimplemented!() // TODO: figure this out
-                    }
-            .expect_ice( &format!( "Could not get {:?} type from LLVM"
-                                 , *self)
-                       )
-            )
-    }
-}
+// impl TranslateType for Primitive {
+//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+//     //     Ok(match *self {
+//     //         Primitive::IntSize => context.int_type(word_size())
+//     //       , Primitive::UintSize => context.int_type(word_size())
+//     //       , Primitive::Int(bits) => context.int_type(bits as usize)
+//     //       , Primitive::Uint(bits) => context.int_type(bits as usize)
+//     //       , Primitive::Float => context.float_type()
+//     //       , Primitive::Double => context.double_type()
+//     //       , Primitive::Byte => context.byte_type()
+//     //       , _ => unimplemented!() // TODO: figure this out
+//     //   })
+//         unimplemented!()
+//     }
+// }
