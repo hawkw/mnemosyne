@@ -98,12 +98,10 @@ install:
   - llvm-config --version
 
 script:
-  - travis-cargo build
   # test main and subcrates
-  - |
-      travis-cargo test &&
-      cargo test -p mnemosyne &&
-      cargo test -p mnemosyne-parser
+  - travis-cargo test
+  - travis-cargo test -- -p mnemosyne
+  - travis-cargo test -- -p mnemosyne-parser
   # run benchmarks (pending)
   - travis-cargo bench
 
