@@ -35,15 +35,11 @@ use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
 
 use std::fmt::Debug;
 
-const VERSION_MAJOR: u32 = 0;
-const VERSION_MINOR: u32 = 1;
-
-
 include!(concat!(env!("OUT_DIR"), "/gen.rs"));
 
 /// Returns the Mnemosyne version as a String
 pub fn mnemosyne_version() -> String {
-    format!("Mnemosyne v{}.{}", VERSION_MAJOR, VERSION_MINOR)
+    format!("Mnemosyne {}", env!("CARGO_PKG_VERSION"))
 }
 
 /// Macro for formatting an internal compiler error panic.
