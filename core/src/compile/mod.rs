@@ -131,163 +131,166 @@ macro_rules! try_vec {
     })
 }
 
-impl<'a> LLVMContext<'a> {
+// ------------ SEGFAULT EXISTS SOMEWHERE BELOW THIS LINE --------------------
 
-    /// Constructs a new LLVM context.
-    ///
-    /// # Returns:
-    ///   - An `LLVMContext`
-    ///
-    /// # Panics:
-    ///   - If the LLVM C ABI returned a null value for the `Context`,
-    ///     `Builder`, or `Module`
-    pub fn new(module_name: &str) -> Self {
-        LLVMContext { llctx: core::Context::get_global()
-                    , llmod: core::Module::new(module_name)
-                    , llbuilder: core::Builder::new()
-                    , named_vals: NamedValues::new()
-                    }
-    }
+//
+// impl<'a> LLVMContext<'a> {
+//
+//     /// Constructs a new LLVM context.
+//     ///
+//     /// # Returns:
+//     ///   - An `LLVMContext`
+//     ///
+//     /// # Panics:
+//     ///   - If the LLVM C ABI returned a null value for the `Context`,
+//     ///     `Builder`, or `Module`
+//     pub fn new(module_name: &str) -> Self {
+//         LLVMContext { llctx: core::Context::get_global()
+//                     , llmod: core::Module::new(module_name)
+//                     , llbuilder: core::Builder::new()
+//                     , named_vals: NamedValues::new()
+//                     }
+//     }
+//
+//     /// Dump the module's contents to stderr for debugging
+//     ///
+//     /// Apparently this is the only reasonable way to get a textual
+//     /// representation of a `Module` in LLVM
+//     pub fn dump(&self) { self.llmod.dump() }
+//
+//     pub fn int_type(&self, size: usize) -> IntTypeRef {
+//         IntTypeRef::get_int_in_context(&self.llctx, size as c_uint)
+//     }
+//
+//     pub fn float_type(&self) -> RealTypeRef {
+//         RealTypeRef::get_float_in_context(&self.llctx)
+//     }
+//     pub fn double_type(&self) -> RealTypeRef {
+//         RealTypeRef::get_double_in_context(&self.llctx)
+//     }
+//     pub fn byte_type(&self) -> IntTypeRef {
+//         IntTypeRef::get_int8_in_context(&self.llctx)
+//     }
+//
+//     /// Get any existing declarations for a given function name.
+//     ///
+//     /// # Returns:
+//     ///   - `Some` if there is an existing previous declaration
+//     ///     for this function.
+//     ///   - `None` if the function has not been declared previously.
+//     ///
+//     /// # Panics:
+//     ///   - If the C string representation for the function name could
+//     ///     not be created.
+//     pub fn get_fn(&self, name: &Ident) -> Option<core::FunctionRef> {
+//         self.llmod.get_function_by_name(name.value.as_ref())
+//     }
+// }
 
-    /// Dump the module's contents to stderr for debugging
-    ///
-    /// Apparently this is the only reasonable way to get a textual
-    /// representation of a `Module` in LLVM
-    pub fn dump(&self) { self.llmod.dump() }
-
-    pub fn int_type(&self, size: usize) -> IntTypeRef {
-        IntTypeRef::get_int_in_context(&self.llctx, size as c_uint)
-    }
-
-    pub fn float_type(&self) -> RealTypeRef {
-        RealTypeRef::get_float_in_context(&self.llctx)
-    }
-    pub fn double_type(&self) -> RealTypeRef {
-        RealTypeRef::get_double_in_context(&self.llctx)
-    }
-    pub fn byte_type(&self) -> IntTypeRef {
-        IntTypeRef::get_int8_in_context(&self.llctx)
-    }
-
-    /// Get any existing declarations for a given function name.
-    ///
-    /// # Returns:
-    ///   - `Some` if there is an existing previous declaration
-    ///     for this function.
-    ///   - `None` if the function has not been declared previously.
-    ///
-    /// # Panics:
-    ///   - If the C string representation for the function name could
-    ///     not be created.
-    pub fn get_fn(&self, name: &Ident) -> Option<core::FunctionRef> {
-        self.llmod.get_function_by_name(name.value.as_ref())
-    }
-}
-
-impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
-        match **self {
-            Form::Define(ref form) => unimplemented!()
-          , Form::Let(ref form) => unimplemented!()
-          , Form::If { .. } => unimplemented!()
-          , Form::Call { .. } => unimplemented!()
-          , Form::Lambda(ref fun) => unimplemented!()
-          , Form::Logical(ref exp) => unimplemented!()
-          , Form::Lit(ref c) => unimplemented!()
-          , Form::NameRef(ref form) => unimplemented!()
-        }
-    }
-}
-
-impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
-        match **self {
-            DefForm::TopLevel { ref name, ref value, .. } =>
-                unimplemented!()
-         ,  DefForm::Function { ref name, ref fun } => {
-                match context.get_fn(name) {
-                    Some(previous) => unimplemented!()
-                  , None => unimplemented!()
-                }
-            }
-        }
-    }
-}
-
-
-impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
-
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
-        let mut errs: Vec<Positional<String>> = vec![];
-        // Check to see if the pattern binds an equivalent number of arguments
-        // as the function signature (minus one, which is the return type).
-        for e in &self.equations {
-            match e.pattern_length()
-                   .cmp(&self.arity()) {
-                // the equation's pattern is shorter than the function's arity
-                // eventually, we'll autocurry this, but for now, we error.
-                // TODO: maybe there should be a warning as well?
-                Ordering::Less => errs.push(Positional {
-                    pos: e.position.clone()
-                  , value: format!( "[error] equation had fewer bindings \
-                                     than function arity\n \
-                                     [error] auto-currying is not currently \
-                                     implemented.\n \
-                                     signature: {}\nfunction: {}\n"
-                                  , self.sig
-                                  , (*e).to_sexpr(0)
-                                  )
-                  })
-                // the equation's pattern is longer than the function's arity
-                // this is super wrong and always an error.
-              , Ordering::Greater => errs.push(Positional {
-                  pos: e.position.clone()
-                , value: format!( "[error] equation bound too many arguments\n \
-                                   signature: {}\nfunction: {}\n"
-                                , self.sig
-                                , (*e).to_sexpr(0)
-                                )
-              })
-            , _ =>  {}
-            }
-        }
-        // TODO: this could be made way more idiomatic...
-        try_vec!(errs);
-        unimplemented!()
-    }
-
-}
-
-
-
-// impl TranslateType for types::Type {
-//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
-//         match *self {
-//             types::Type::Ref(ref r) => r.translate_type(context)
-//           , types::Type::Prim(ref p) => p.translate_type(context)
-//           , _ => unimplemented!() // TODO: figure this out
+// impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
+//     fn to_ir(&self, context: LLVMContext) -> IRResult {
+//         match **self {
+//             Form::Define(ref form) => unimplemented!()
+//           , Form::Let(ref form) => unimplemented!()
+//           , Form::If { .. } => unimplemented!()
+//           , Form::Call { .. } => unimplemented!()
+//           , Form::Lambda(ref fun) => unimplemented!()
+//           , Form::Logical(ref exp) => unimplemented!()
+//           , Form::Lit(ref c) => unimplemented!()
+//           , Form::NameRef(ref form) => unimplemented!()
 //         }
 //     }
 // }
-
-// impl TranslateType for Reference {
-//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
-//         unimplemented!() // TODO: figure this out
+//
+// impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
+//     fn to_ir(&self, context: LLVMContext) -> IRResult {
+//         match **self {
+//             DefForm::TopLevel { ref name, ref value, .. } =>
+//                 unimplemented!()
+//          ,  DefForm::Function { ref name, ref fun } => {
+//                 match context.get_fn(name) {
+//                     Some(previous) => unimplemented!()
+//                   , None => unimplemented!()
+//                 }
+//             }
+//         }
 //     }
 // }
-
-// impl TranslateType for Primitive {
-//     fn translate_type(&self, context: LLVMContext) -> TypeResult {
-//     //     Ok(match *self {
-//     //         Primitive::IntSize => context.int_type(word_size())
-//     //       , Primitive::UintSize => context.int_type(word_size())
-//     //       , Primitive::Int(bits) => context.int_type(bits as usize)
-//     //       , Primitive::Uint(bits) => context.int_type(bits as usize)
-//     //       , Primitive::Float => context.float_type()
-//     //       , Primitive::Double => context.double_type()
-//     //       , Primitive::Byte => context.byte_type()
-//     //       , _ => unimplemented!() // TODO: figure this out
-//     //   })
+//
+//
+// impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
+//
+//     fn to_ir(&self, context: LLVMContext) -> IRResult {
+//         let mut errs: Vec<Positional<String>> = vec![];
+//         // Check to see if the pattern binds an equivalent number of arguments
+//         // as the function signature (minus one, which is the return type).
+//         for e in &self.equations {
+//             match e.pattern_length()
+//                    .cmp(&self.arity()) {
+//                 // the equation's pattern is shorter than the function's arity
+//                 // eventually, we'll autocurry this, but for now, we error.
+//                 // TODO: maybe there should be a warning as well?
+//                 Ordering::Less => errs.push(Positional {
+//                     pos: e.position.clone()
+//                   , value: format!( "[error] equation had fewer bindings \
+//                                      than function arity\n \
+//                                      [error] auto-currying is not currently \
+//                                      implemented.\n \
+//                                      signature: {}\nfunction: {}\n"
+//                                   , self.sig
+//                                   , (*e).to_sexpr(0)
+//                                   )
+//                   })
+//                 // the equation's pattern is longer than the function's arity
+//                 // this is super wrong and always an error.
+//               , Ordering::Greater => errs.push(Positional {
+//                   pos: e.position.clone()
+//                 , value: format!( "[error] equation bound too many arguments\n \
+//                                    signature: {}\nfunction: {}\n"
+//                                 , self.sig
+//                                 , (*e).to_sexpr(0)
+//                                 )
+//               })
+//             , _ =>  {}
+//             }
+//         }
+//         // TODO: this could be made way more idiomatic...
+//         try_vec!(errs);
 //         unimplemented!()
 //     }
+//
 // }
+//
+//
+//
+// // impl TranslateType for types::Type {
+// //     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+// //         match *self {
+// //             types::Type::Ref(ref r) => r.translate_type(context)
+// //           , types::Type::Prim(ref p) => p.translate_type(context)
+// //           , _ => unimplemented!() // TODO: figure this out
+// //         }
+// //     }
+// // }
+//
+// // impl TranslateType for Reference {
+// //     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+// //         unimplemented!() // TODO: figure this out
+// //     }
+// // }
+//
+// // impl TranslateType for Primitive {
+// //     fn translate_type(&self, context: LLVMContext) -> TypeResult {
+// //     //     Ok(match *self {
+// //     //         Primitive::IntSize => context.int_type(word_size())
+// //     //       , Primitive::UintSize => context.int_type(word_size())
+// //     //       , Primitive::Int(bits) => context.int_type(bits as usize)
+// //     //       , Primitive::Uint(bits) => context.int_type(bits as usize)
+// //     //       , Primitive::Float => context.float_type()
+// //     //       , Primitive::Double => context.double_type()
+// //     //       , Primitive::Byte => context.byte_type()
+// //     //       , _ => unimplemented!() // TODO: figure this out
+// //     //   })
+// //         unimplemented!()
+// //     }
+// // }
