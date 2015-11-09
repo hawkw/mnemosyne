@@ -1,17 +1,12 @@
 //
-// Mnemosyne: a functional systems programming language.
-// (c) 2015 Hawk Weisman
+//  0 1 0  Mnemosyne: a functional systems programming language.
+//  0 0 1  (c) 2015 Hawk Weisman
+//  1 1 1  hi@hawkweisman.me
 //
-// Mnemosyne is released under the MIT License. Please refer to
-// the LICENSE file at the top-level directory of this distribution
-// or at https://github.com/hawkw/mnemosyne/.
+//  Mnemosyne is released under the MIT License. Please refer to
+//  the LICENSE file at the top-level directory of this distribution
+//  or at https://github.com/hawkw/mnemosyne/.
 //
-#![crate_name = "mnemosyne"]
-#![crate_type = "lib"]
-#![feature(rustc_private)]
-#![feature(static_recursion)]
-#![feature(box_syntax, box_patterns)]
-
 //! # Mnemosyne core
 //!
 //! This crate contains the core Mnemosyne programming language components.
@@ -23,6 +18,11 @@
 //!
 //! The Mnemosyne parser is contained in a separate crate in order to improve
 //! compile times.
+#![crate_name = "mnemosyne"]
+#![crate_type = "lib"]
+#![feature(rustc_private)]
+#![feature(static_recursion)]
+#![feature(box_syntax, box_patterns)]
 
 extern crate rustc;
 extern crate libc;
