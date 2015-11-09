@@ -27,8 +27,8 @@
 extern crate rustc;
 extern crate libc;
 extern crate combine;
-extern crate iron_llvm;
-extern crate llvm_sys;
+// extern crate iron_llvm;
+// extern crate llvm_sys;
 #[macro_use] extern crate itertools;
 
 use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
