@@ -140,16 +140,16 @@ impl<'a> LLVMContext<'a> {
     ///   - If the LLVM C ABI returned a null value for the `Context`,
     ///     `Builder`, or `Module`
     pub fn new(module_name: &str) -> Self {
-        let name = CString::new(module_name)
-                    .expect_ice( &format!(
-                                "Could not create C string for module name: {:?}"
-                                , module_name
-                                ));
+        let name =
+            CString::new(module_name)
+                .expect_ice(
+                    &format!( "Could not create C string for module name: {:?}"
+                            , module_name));
         unsafe {
             let ctx = not_null!(llvm::LLVMContextCreate());
             LLVMContext {
                 llctx: ctx
-              , llmod: not_null!(llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), ctx))
+              , llmod:  not_null!(llvm::LLVMModuleCreateWithNameInContext(name.into_raw(), ctx))
               , llbuilder: not_null!(llvm::LLVMCreateBuilderInContext(ctx))
               , names: NamedValues::new()
             }

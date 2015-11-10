@@ -562,7 +562,7 @@ pub fn parse_module<'a>(code: &'a str)
                       , "i32"               , "u32"         , "f32"
                       , "i64"               , "u64"         , "f64"
                       , "int"               , "uint"        , "float"
-                      , "bool"                              , "double"
+                      , "bool"              , "string"      , "double"
                       , "ref"               , "move"        , "borrow"
                       , "trait"             , "typeclass"
                       , "instance"          , "impl"
@@ -572,10 +572,10 @@ pub fn parse_module<'a>(code: &'a str)
       , op: Identifier {
             start: satisfy(move |c| chars::OPS.contains(c))
           , rest:  satisfy(move |c| chars::OPS.contains(c))
-          , reserved: [ "=>", "->", "\\", "|", chars::ARROW, chars::FAT_ARROW]
+          , reserved: [ "=>", "->", "\\", "|", "_", chars::ARROW, chars::FAT_ARROW]
                 .iter().map(|x| (*x).into()).collect()
         }
-      , comment_line: string(";").map(|_| ())
+      , comment_line: string("#").map(|_| ())
       , comment_start: string("#|").map(|_| ())
       , comment_end: string("|#").map(|_| ())
     });

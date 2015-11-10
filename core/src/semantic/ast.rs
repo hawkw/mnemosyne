@@ -378,7 +378,7 @@ where S: ScopednessTypestate
     , S: 'a {
 
     /// Returns true if this ADT is a sum type
-    pub fn is_sum_type(&self) -> bool {
+    #[inline] pub fn is_sum_type(&self) -> bool {
         self.variants.len() > 1
     }
 
@@ -394,7 +394,7 @@ where S: ScopednessTypestate
     ///    this type's fields, if this is the definition of a
     ///    product type.
     ///  + Otherwise, `None`
-    pub fn get_product_fields(&self) -> Option<&Variant<'a, S>> {
+    #[inline] pub fn get_product_fields(&self) -> Option<&Variant<'a, S>> {
         self.variants.get(&self.name)
     }
 }
@@ -535,10 +535,10 @@ impl Node for Formal {
 impl Node for NameRef {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
-        match *self  { NameRef::Owned(ref name)      => format!("{}", **name)
-                     , NameRef::Borrowed(ref name)   => format!("&{}", **name)
-                     , NameRef::Deref(ref name)      => format!("*{}", **name)
-                     , NameRef::Unique(ref name)     => format!("@{}", **name)
+        match *self  { NameRef::Owned(ref name)    => format!("{}", **name)
+                     , NameRef::Borrowed(ref name) => format!("&{}", **name)
+                     , NameRef::Deref(ref name)    => format!("*{}", **name)
+                     , NameRef::Unique(ref name)   => format!("@{}", **name)
                      }
 
     }

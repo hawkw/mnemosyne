@@ -55,8 +55,7 @@ impl fmt::Display for UnscopedState {
 /// (possibly) scope information.
 #[derive(Clone, Debug)]
 pub struct Annotated<'a, T, S>
-where S: ScopednessTypestate {
-                               pub node: T
+where S: ScopednessTypestate { pub node: T
                              , pub position: Position
                              , scope: Option<SymbolTable<'a>>
                              , my_typestate: PhantomData<S>
