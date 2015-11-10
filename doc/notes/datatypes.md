@@ -23,7 +23,7 @@ This means that in curly brace syntax you could write something like this:
                   })
 ```
 
-Of course, the `|` operator can be used in product type fields, and sum type variants can be type expressions.
+Of course, the `|` operator can be used in product type fields, and sum type variants don't have to be tagwords; they can be type expressions.
 
 ```clojure
 (def data (List a) { (Cons a)
