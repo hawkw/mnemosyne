@@ -354,16 +354,26 @@ pub struct Prototype<'a, S: ScopednessTypestate> {
   , pub annot: Ident
 }
 
-pub type Variant<'a, S: ScopednessTypestate>
-    = Vec<Annotated<'a, Formal, S>>;
+#[derive(PartialEq, Clone, Debug)]
+pub enum Variant<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { /// A variant that is only a tagword
+              Tagword(Ident)
+            , /// A variant with a constant value
+              Constant(Literal)
+            , /// A variant that is a record type
+              Record(Vec<Annotated<'a, Formal, S>>)
+            , /// A variant that is a single value
+              Value(types::Type)
+            }
+
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Data<'a, S>
 where S: ScopednessTypestate
-    , S: 'a {
-    pub name: Ident
-  , pub variants: HashMap<Ident, Variant<'a, S>>
-}
+    , S: 'a { pub name: Ident
+            , pub variants: HashMap<Ident, Variant<'a, S>>
+            }
 
 // #[derive(PartialEq, Clone, Debug)]
 // pub enum Data<'a, S: ScopednessTypestate> {
@@ -383,8 +393,11 @@ where S: ScopednessTypestate
     }
 
     /// Returns true if this ADT is a product type
-    #[inline] pub fn is_product_type(&self) -> bool {
-        !self.is_sum_type()
+    #[inline]
+    pub fn is_struct(&self) -> bool {
+        !self.is_sum_type() &&
+        self.get_struct_fields()
+            .is_some()
     }
 
     /// Returns the fields of a product type.
@@ -394,8 +407,14 @@ where S: ScopednessTypestate
     ///    this type's fields, if this is the definition of a
     ///    product type.
     ///  + Otherwise, `None`
-    #[inline] pub fn get_product_fields(&self) -> Option<&Variant<'a, S>> {
-        self.variants.get(&self.name)
+    #[inline]
+    pub fn get_struct_fields(&self) -> Option<&Vec<Annotated<'a, Formal, S>>> {
+        self.variants
+            .get(&self.name)
+            .and_then(|var| match var { &Variant::Record(ref fs) => Some(fs)
+                                      , _                        => None
+                                      })
+
     }
 }
 
