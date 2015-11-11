@@ -1,9 +1,9 @@
 # Sigils
 
 In types:
-  + `?` indicates an Option (as in `i64?` => `(Option i64)`)
+  + `?` indicates an Option (as in `?i64` => `(Option i64)`)
   + `&` borrowed pointer (as in `&i64`)
-  + `@` boxed pointer (as in `@i64`)
+  + `@` boxed pointer (as in `@i64` => `(Box i64)`, as Box is a type?)
   + `*` raw (unsafe) pointer? (as in `*i64`)
 
 In expressions:
