@@ -70,18 +70,18 @@ Alternatively, the colon could be a regular S-expression style operator that is 
 
 ```clojure
 (def Date data
-    ((: day Weekday)
-     (: month Month)
-     (: year i64)))
+    (: day Weekday)
+    (: month Month)
+    (: year i64))
 ```
 
 This starts to look like Clojure's record syntax, and looks nice in infix mode:
 
 ```clojure
 (def Date data
-    ({day: Weekday}
-     {month: Month}
-     {year: i64}))
+    {day: Weekday}
+    {month: Month}
+    {year: i64})
 ```
 
 This still feels more alien to programmers used to the very C-like fake struct above, though...
