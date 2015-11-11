@@ -39,3 +39,10 @@ In expressions:
         (? undefined_option)          ; => exception/panic
     )
 ```
+    - single-arity `?` can also be used as a prefix?  as in:
+```clojure
+    (let (defined_option (Some 5))
+       (+ 10 ?defined_option) ; => 15
+    )
+```
+  
