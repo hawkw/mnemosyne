@@ -21,14 +21,14 @@ In expressions:
     - it's pronounced "value of"
     - you can include this in your patterns to dereference a pointer argument?
     - for example:
- ```clojure
+    ```clojure
     (def add_to_ptr (fn {&i64 -> i64 -> i64}
         (add_to_ptr $a b) (+ a b) )) ; the pattern `$a b` captures the first argument by dereferencing it and the second argument as a move
- ```
+    ```
   + possibly either `?` or `!` can be used to do the same thing to Options? (unwrap)
     - maybe the `?` operator when passed with arity 1 unwraps or panic/exceptions and with arity 2 unwraps or the second argument
     - as in the following:
-```clojure
+    ```clojure
     (let (defined_option (Some 123))
         (? defined_option)     ; => 123
         (? defined_option 456) ; => 123
@@ -38,11 +38,12 @@ In expressions:
         (? undefined_option (+ 1 2))  ; => 3 (the expression is lazy eval-ed?)
         (? undefined_option)          ; => exception/panic
     )
-```
+    ```
+    
     - single-arity `?` can also be used as a prefix?  as in:
-```clojure
-    (let (defined_option (Some 5))
-       (+ 10 ?defined_option) ; => 15
-    )
-```
+    ```clojure
+        (let (defined_option (Some 5))
+           (+ 10 ?defined_option) ; => 15
+        )
+    ```
   
