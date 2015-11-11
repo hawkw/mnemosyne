@@ -52,3 +52,16 @@ With the curly brace syntax it looks a little more like a `struct` (which is kin
     year: i64
     })
 ```
+
+The comma operator seems really awkward at first, but it looks nice with the curly-brace infix syntax. And I am not really sure what other operator makes sense for product types.
+
+Maybe the same type annotation syntax should be used for both product types and functions? It seems weird that I use the colon syntax here and the arrow syntax in functions. But on the other hand, the colon makes _sense_ here and the arrow, I think, looks weird, as in the following:
+```clojure
+(def data Date
+    (,  (-> day Weekday)
+        (-> month Month)
+        (-> year i64)
+    ))
+```
+
+I think it's best to reserve the arrow syntax to specifically refer to functions. Not sure how one would make typeclass constraints make sense in a product type though. `where` looks nice in ML/Haskell but seems weird in a Lispular grammar...
