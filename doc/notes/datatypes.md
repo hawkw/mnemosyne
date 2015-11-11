@@ -4,7 +4,7 @@ I think they'll look like this:
 
 ```clojure
 (def Weekday data
-    (| Monday ; "|" means product type
+    (| Monday ; "|" means sum type
        Tuesday
        Wednesday
        Thursday
@@ -37,7 +37,7 @@ I think they'd use the comma operator?
 
 ```clojure
 (def Date data
-    (, day: Weekday
+    (, day: Weekday ; "," means product type?
        month: Month ; where "Month" and "Weekday" are extant sum types
        year: i64
     ))
@@ -84,4 +84,4 @@ This starts to look like Clojure's record syntax, and looks nice in infix mode:
     {year: i64})
 ```
 
-This still feels more alien to programmers used to the very C-like fake struct above, though...
+This still feels more alien to programmers used to the very C-like fake struct above, though. And there's more (unnecessary?) delimiters.
