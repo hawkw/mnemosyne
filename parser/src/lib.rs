@@ -543,7 +543,7 @@ pub fn parse_module<'a>(code: &'a str)
     let env = LanguageEnv::new(LanguageDef {
         ident: Identifier {
             start: letter().or(satisfy(move |c| chars::ALPHA_EXT.contains(c)))
-          , rest: alpha_num().or(satisfy(move |c| chars::ALPHA_EXT.contains(c)))
+          , rest: alpha_num().or(satisfy(move |c| chars::ALPHA_EXT_SUBSEQUENT.contains(c)))
           , reserved: [ // a number of these reserved words have no meaning yet
                         "and"               , "begin"
                       , "case"              , "cond"        , "class"

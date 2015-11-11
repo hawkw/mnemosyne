@@ -51,7 +51,7 @@ r#"(def fac (fn {int -> int}
     ((n) (fac (- n 1)))))"#;
     assert_eq!( parse_module(string).unwrap()[0]
                                    .to_sexpr(0)
-              , "(define fac (\u{3bb} (\u{8594} int int)
+              , "(define fac (\u{3bb} (\u{2192} int int)
 \t((0) 1)
 \t((n) (fac (- n 1))))\n)" )
 }

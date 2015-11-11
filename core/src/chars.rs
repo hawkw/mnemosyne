@@ -17,5 +17,5 @@ pub const ARROW: &'static str       = "\u{2192}";
 pub const FAT_ARROW: &'static str   = "\u{21D2}";
 
 pub const ALPHA_EXT: &'static str   = "+-*/<=>!:%^";
-pub const ALPHA_EXT_SUBSEQUENT: &'static str = "+-*/<=>!:%^'";
+pub const ALPHA_EXT_SUBSEQUENT: &'static str = "_+-*/<=>!:%^'";
 pub const OPS: &'static str         = "+-*/|=<>";
