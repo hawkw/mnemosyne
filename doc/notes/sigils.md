@@ -11,8 +11,8 @@ In expressions:
     - As in `(& 3256)` which constructs a borrow to 3256
     - Probably also the syntax `&3256` is acceptable since it's a unary operator
     - Possibly this should be done with the word `borrow` instead, IDK (as in `(borrow 3256)`)
-  + `@` box operator
-    - As in `(@ 3256)` or `@3256` which constructs a borrow to 3256
+  + `@` construct-a-heap-pointer operator
+    - As in `(@ 3256)` or `@3256` which boxes 3256 on the heap
     - Possibly this should be done with the word `box` instead, IDK
   + `*` raw pointer creation operator
     - as in `(* 3546)` or `*3546`
