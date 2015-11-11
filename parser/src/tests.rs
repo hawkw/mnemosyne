@@ -39,7 +39,7 @@ expr_test!(test_call_ptr_7, "(my_fn a @b)");
 expr_test!(test_call_ptr_8, "(my_fn @a @b)");
 
 expr_test!(test_defsyntax_1,
-"(define fac (\u{3bb} (\u{8594} int int)
+"(define fac (\u{3bb} (\u{2192} int int)
 \t((0) 1)
 \t((n) (fac (- n 1))))\n)");
 
