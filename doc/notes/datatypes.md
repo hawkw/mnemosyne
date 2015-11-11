@@ -33,7 +33,7 @@ Of course, the `|` operator can be used in product type fields, and sum type var
 
 ## Product types
 
-I think they'd use the comma operator?
+~~I think they'd use the comma operator~~
 
 ```clojure
 (def Date data
@@ -43,7 +43,7 @@ I think they'd use the comma operator?
     ))
 ```
 
-With the curly brace syntax it looks a little more like a `struct` (which is kinda the point):
+~~With the curly brace syntax it looks a little more like a `struct` (which is kinda the point):~~
 
 ```clojure
 (def Date data {
@@ -53,9 +53,9 @@ With the curly brace syntax it looks a little more like a `struct` (which is kin
     })
 ```
 
-The comma operator seems really awkward at first, but it looks nice with the curly-brace infix syntax. And I am not really sure what other operator makes sense for product types.
+~~The comma operator seems really awkward at first, but it looks nice with the curly-brace infix syntax. And I am not really sure what other operator makes sense for product types.~~
 
-Maybe the same type annotation syntax should be used for both product types and functions? It seems weird that I use the colon syntax here and the arrow syntax in functions. But on the other hand, the colon makes _sense_ here and the arrow, I think, looks weird, as in the following:
+~~Maybe the same type annotation syntax should be used for both product types and functions? It seems weird that I use the colon syntax here and the arrow syntax in functions. But on the other hand, the colon makes _sense_ here and the arrow, I think, looks weird, as in the following:~~
 ```clojure
 (def data Date
     (,  (-> day Weekday)
@@ -64,9 +64,9 @@ Maybe the same type annotation syntax should be used for both product types and 
     ))
 ```
 
-I think it's best to reserve the arrow syntax to specifically refer to functions. Not sure how one would make typeclass constraints make sense in a product type though. `where` looks nice in ML/Haskell but seems weird in a Lispular grammar...
+~~I think it's best to reserve the arrow syntax to specifically refer to functions. Not sure how one would make typeclass constraints make sense in a product type though. `where` looks nice in ML/Haskell but seems weird in a Lispular grammar...~~
 
-Alternatively, the colon could be a regular S-expression style operator that is used for creating a field in a product type. So we could have the following:
+~~Alternatively, the colon could be a regular S-expression style operator that is used for creating a field in a product type. So we could have the following:~~
 
 ```clojure
 (def Date data
@@ -75,7 +75,7 @@ Alternatively, the colon could be a regular S-expression style operator that is 
     (: year i64))
 ```
 
-This starts to look like Clojure's record syntax, and looks nice in infix mode:
+~~This starts to look like Clojure's record syntax, and looks nice in infix mode:~~
 
 ```clojure
 (def Date data
@@ -84,4 +84,32 @@ This starts to look like Clojure's record syntax, and looks nice in infix mode:
     {year: i64})
 ```
 
-This still feels more alien to programmers used to the very C-like fake struct above, though. And there's more (unnecessary?) delimiters.
+~~This still feels more alien to programmers used to the very C-like fake struct above, though. And there's more (unnecessary?) delimiters.~~
+
+After talking to Max, I've determined that it's probably most reasonable for the product type definition to just be a quoted list of type/name pairs.
+
+So you can say:
+
+```clojure
+(def Date data
+    '((day Weekday)
+      (month Month)
+      (year i64)))
+```
+
+Still possibly considering the use of the `:` operator to introduce these pairs, as in
+
+```clojure
+(def Date data
+    '((: day Weekday)
+      (: month Month)
+      (: year i64)))
+```
+
+Which somehow feels a little less ambiguous to me.
+
+Colon might then also be the operator for accessing a field from a product type by name (in value level expressions). So if I wanted to add 1 to the year field, I could say
+
+```clojure
+(+ 1 (: day my_date))
+```
