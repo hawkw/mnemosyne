@@ -131,9 +131,17 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
+    pub fn data(&'b self) -> MnParser<'a, 'b, I,Data<'a, U>> {
+        self.parser(MnEnv::parse_data)
+    }
+
     #[allow(dead_code)]
     fn parse_data(&self, input: State<I>) -> ParseResult<Data<'a, U>, I> {
+        let sum = self.parser(MnEnv::parse_sum);
+        let record = self.parser(MnEnv::parse_record);
+
         self.reserved("data")
+            .with(sum.or(record))
             .parse_state(input);
 
         unimplemented!()
@@ -145,6 +153,12 @@ where I: Stream<Item=char>
         self.reserved_op("|")
             .parse_state(input);
 
+        unimplemented!()
+    }
+
+    fn parse_record(&self, input: State<I>)
+                   -> ParseResult<HashMap<Ident, Variant<'a, U>>, I>
+    {
         unimplemented!()
     }
 
