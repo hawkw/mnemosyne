@@ -262,7 +262,7 @@ where I: Stream<Item=char>
     }
 
     fn parse_name_deref(&self, input: State<I>) -> ParseResult<NameRef, I> {
-        char('*').with(self.name())
+        char('$').with(self.name())
                  .map(NameRef::Deref)
                  .parse_state(input)
     }
@@ -605,8 +605,10 @@ pub fn parse_module<'a>(code: &'a str)
       , op: Identifier {
             start: satisfy(move |c| chars::OPS.contains(c))
           , rest:  satisfy(move |c| chars::OPS.contains(c))
-          , reserved: [ "=>", "->", "\\", "|", "_", chars::ARROW, chars::FAT_ARROW]
-                .iter().map(|x| (*x).into()).collect()
+          , reserved: [ "=>" , "->" , "\\" , "|" , "_" , "$"
+                      , chars::ARROW , chars::FAT_ARROW
+                      ].iter().map(|x| (*x).into())
+                       .collect()
         }
       , comment_line: string("#").map(|_| ())
       , comment_start: string("#|").map(|_| ())

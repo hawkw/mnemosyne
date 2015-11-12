@@ -29,8 +29,8 @@ expr_test!(test_call_3
 expr_test!(test_call_4
   , "(my_fn (my_other_fn a_var a_different_var) (another_fn a_var))");
 
-expr_test!(test_call_ptr_1, "(my_fn a *b)");
-expr_test!(test_call_ptr_2, "(my_fn *a *b)");
+expr_test!(test_call_ptr_1, "(my_fn a $b)");
+expr_test!(test_call_ptr_2, "(my_fn $a $b)");
 expr_test!(test_call_ptr_3, "(my_fn &a)");
 expr_test!(test_call_ptr_4, "(my_fn a &b)");
 expr_test!(test_call_ptr_5, "(my_fn &a &b)");

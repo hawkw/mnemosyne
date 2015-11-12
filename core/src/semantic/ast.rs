@@ -558,7 +558,7 @@ impl Node for NameRef {
     fn to_sexpr(&self, level: usize) -> String {
         match *self  { NameRef::Owned(ref name)    => format!("{}", **name)
                      , NameRef::Borrowed(ref name) => format!("&{}", **name)
-                     , NameRef::Deref(ref name)    => format!("*{}", **name)
+                     , NameRef::Deref(ref name)    => format!("${}", **name)
                      , NameRef::Unique(ref name)   => format!("@{}", **name)
                      }
 
