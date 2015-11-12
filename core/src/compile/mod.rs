@@ -66,7 +66,7 @@ pub trait Compile {
     ///   - If something has gone horribly wrong. This does NOT panic if the
     ///     code could not be compiled because it was incorrect, but it will
     ///     panic in the event of an internal compiler error.
-    fn to_ir(&self, context: LLVMContext) -> IRResult;
+    fn to_ir(&self, context: &LLVMContext) -> IRResult;
 }
 
 /// Trait for type tags that can be translated to LLVM
@@ -81,7 +81,7 @@ pub trait TranslateType {
     /// # Panics:
     ///   - In the event of an internal compiler error (i.e. if a well-formed
     ///     type could not be gotten from LLVM correctly).
-    fn translate_type(&self, context: LLVMContext) -> TypeResult;
+    fn translate_type(&self, context: &LLVMContext) -> TypeResult;
 }
 
 /// LLVM compilation context.
@@ -212,7 +212,7 @@ impl<'a> Drop for LLVMContext<'a> {
 }
 
 impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
+    fn to_ir(&self, context: &LLVMContext) -> IRResult {
         match **self {
             Form::Define(ref form) => unimplemented!()
           , Form::Let(ref form) => unimplemented!()
@@ -227,7 +227,7 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
 }
 
 impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
+    fn to_ir(&self, context: &LLVMContext) -> IRResult {
         match **self {
             DefForm::TopLevel { ref name, ref value, .. } =>
                 unimplemented!()
@@ -244,7 +244,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
 
 impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
-    fn to_ir(&self, context: LLVMContext) -> IRResult {
+    fn to_ir(&self, context: &LLVMContext) -> IRResult {
         let mut errs: Vec<Positional<String>> = vec![];
         // Check to see if the pattern binds an equivalent number of arguments
         // as the function signature (minus one, which is the return type).
@@ -283,14 +283,14 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
         // Get the function's parameter types
         let mut param_types = self.sig.param_types().iter()
-                                  .map(|ty| ty.translate_type(context));
+                                  .map(|ty| ty.translate_type(&context));
         unimplemented!()
     }
 
 }
 
 impl TranslateType for Type {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
+    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
         match *self {
             Type::Ref(ref reference)  => reference.translate_type(context)
           , Type::Prim(ref primitive) => primitive.translate_type(context)
@@ -300,13 +300,13 @@ impl TranslateType for Type {
 }
 
 impl TranslateType for Reference {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
+    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
         unimplemented!() // TODO: figure this out
     }
 }
 
 impl TranslateType for Primitive {
-    fn translate_type(&self, context: LLVMContext) -> TypeResult {
+    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
         Ok(match *self { Primitive::IntSize => context.int_type(word_size())
                     , Primitive::UintSize   => context.int_type(word_size())
                     , Primitive::Int(bits)  => context.int_type(bits as usize)
