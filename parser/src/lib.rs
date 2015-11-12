@@ -113,9 +113,11 @@ where I: Stream<Item=char>
     fn parse_def(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
         let function_form
             = self.name()
-                  .and(self.function())
+                  .and(self.annotated_fn())
                   .map(|(name, fun)| DefForm::Function { name: name
-                                                       , fun: fun });
+                                                     , fun: fun
+                                                     });
+
         let top_level
             = self.name()
                   .and(self.type_name())
@@ -131,7 +133,7 @@ where I: Stream<Item=char>
             .parse_state(input)
     }
 
-    pub fn data(&'b self) -> MnParser<'a, 'b, I,Data<'a, U>> {
+    pub fn data(&'b self) -> MnParser<'a, 'b, I, Data<'a, U>> {
         self.parser(MnEnv::parse_data)
     }
 
@@ -186,7 +188,8 @@ where I: Stream<Item=char>
     }
 
     #[allow(dead_code)]
-    fn parse_function(&self, input: State<I>) -> ParseResult<Function<'a, U>, I> {
+    fn parse_function(&self, input: State<I>)
+                    -> ParseResult<Function<'a, U>, I> {
         let fn_kwd = choice([ self.reserved("fn")
                             , self.reserved("lambda")
                             , self.reserved(chars::LAMBDA)
@@ -196,10 +199,27 @@ where I: Stream<Item=char>
             self.signature()
                 .and(many1(self.equation()))
                 .map(|(sig, eqs)| Function { sig: sig
-                                         , equations: eqs
-                                         })
+                                           , equations: eqs
+                                           })
                 ))
             .parse_state(input)
+    }
+
+    /// Parses a function annotated with a position.
+    ///
+    /// Needed for def functions but not lambdas
+    fn parse_fn_pos(&self, input: State<I>)
+                    -> ParseResult<Annotated<'a, Function<'a, U>, U>, I> {
+        let pos = input.position.clone();
+        self.function()
+            .map(|fun| Annotated::new(fun, Position::from(pos)))
+            .parse_state(input)
+    }
+
+    fn annotated_fn(&'b self) -> MnParser<'a, 'b, I
+                                         , Annotated<'a, Function<'a, U>, U>>
+    {
+        self.parser(MnEnv::parse_fn_pos)
     }
 
     #[allow(dead_code)]

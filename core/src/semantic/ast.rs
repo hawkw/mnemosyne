@@ -170,7 +170,7 @@ where S: ScopednessTypestate
              , value: Rc<Expr<'a, S>>
              }
   , Function { name: Ident
-             , fun: Function<'a,S>
+             , fun: Annotated<'a, Function<'a, S>, S>
              }
 }
 

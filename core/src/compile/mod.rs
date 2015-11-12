@@ -234,7 +234,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
          ,  DefForm::Function { ref name, ref fun } => {
                 match context.existing_decl(name) {
                     Some(previous) => unimplemented!()
-                  , None => unimplemented!()
+                  , None => fun.to_ir(context)
                 }
             }
         }
