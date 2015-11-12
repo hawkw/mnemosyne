@@ -1,0 +1,5 @@
+test:
+  override:
+    - cargo test
+    - cargo test -- -p mnemosyne
+    - cargo test -- -p mnemosyne-parser
