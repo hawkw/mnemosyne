@@ -33,6 +33,8 @@ use core::semantic::ast::*;
 use core::position::*;
 
 use std::rc::Rc;
+use std::collections::HashMap;
+use std::hash::Hash;
 
 type ParseFn<'a, I, T> = fn (&MnEnv<'a, I>, State<I>) -> ParseResult<T, I>;
 
@@ -127,6 +129,23 @@ where I: Stream<Item=char>
             .with(function_form.or(top_level))
             .map(Form::Define)
             .parse_state(input)
+    }
+
+    #[allow(dead_code)]
+    fn parse_data(&self, input: State<I>) -> ParseResult<Data<'a, U>, I> {
+        self.reserved("data")
+            .parse_state(input);
+
+        unimplemented!()
+    }
+
+    fn parse_sum(&self, input: State<I>)
+                -> ParseResult<HashMap<Ident, Variant<'a, U>>, I>
+    {
+        self.reserved_op("|")
+            .parse_state(input);
+
+        unimplemented!()
     }
 
     #[allow(dead_code)]

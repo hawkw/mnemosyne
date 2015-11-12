@@ -365,6 +365,8 @@ where S: ScopednessTypestate
               Record(Vec<Annotated<'a, Formal, S>>)
             , /// A variant that is a single value
               Value(types::Type)
+            , /// A variant that is itself a sum type
+              Sum(HashMap<Ident, Variant<'a, S>>)
             }
 
 
