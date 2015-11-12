@@ -280,6 +280,10 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
         }
         // TODO: this could be made way more idiomatic...
         try_vec!(errs);
+
+        // Get the function's parameter types
+        let mut param_types = self.sig.param_types().iter()
+                                  .map(|ty| ty.translate_type(context));
         unimplemented!()
     }
 

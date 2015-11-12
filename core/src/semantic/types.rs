@@ -62,9 +62,17 @@ impl Signature {
     /// The uncurried return type of the function
     ///
     /// This just returns the last element in the type glob
-    pub fn return_type(&self) -> &Type { &self.typechain[0] }
+    pub fn return_type(&self) -> &Type {
+        &self.typechain[self.typechain.len()]
+    }
+
     /// Returns the arity of the function
     pub fn arity(&self) -> usize { self.typechain.len() - 1 }
+
+    /// Returns the argument types
+    pub fn param_types(&self) -> &[Type] {
+        &self.typechain[0..self.arity()]
+    }
 }
 
  impl fmt::Display for Signature {
