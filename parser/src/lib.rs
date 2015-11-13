@@ -115,8 +115,8 @@ where I: Stream<Item=char>
             = self.name()
                   .and(self.annotated_fn())
                   .map(|(name, fun)| DefForm::Function { name: name
-                                                     , fun: fun
-                                                     });
+                                                       , fun: fun
+                                                       });
 
         let top_level
             = self.name()
@@ -372,21 +372,19 @@ where I: Stream<Item=char>
     }
 
     fn parse_infix_sig(&self, input: State<I>) -> ParseResult<Signature, I> {
-        self.braces(optional(many1(self.constraint()))
-                        .and(sep_by1::< Vec<Type>
-                                      , _, _>( self.lex(self.type_name())
-                                             , self.reserved_op("->")
-                                                   .or(self.reserved_op(
-                                                       chars::ARROW)
-                                                   )
-                                             )))
+        self.braces(optional(
+            many1(self.constraint()))
+                .and(sep_by1::< Vec<Type>, _, _>(
+                    self.lex(self.type_name())
+                  , self.reserved_op("->")
+                        .or(self.reserved_op(chars::ARROW))
+                )))
             .map(|(cs, glob)| Signature { constraints: cs
                                         , typechain: glob })
             .parse_state(input)
     }
 
     fn parse_signature(&self, input: State<I>) -> ParseResult<Signature, I> {
-
         // let prefix =
         //     self.parens(self.reserved_op("->")
         //                     .or(self.reserved_op(ARROW))
