@@ -486,7 +486,7 @@ where I: Stream<Item=char>
     fn parse_call(&self, input: State<I>) -> ParseResult<Form<'a, U>, I> {
         self.name()
             .and(many(self.expr()))
-            .map(|(name, args)| Form::Call { fun: name, body: args })
+            .map(|(name, args)| Form::App(AppForm{ fun: name, params: args }))
             .parse_state(input)
     }
 
