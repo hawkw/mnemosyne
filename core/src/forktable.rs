@@ -86,8 +86,7 @@ where K: Eq + Hash
     /// ```
     pub fn get<Q: ?Sized>(&self, key: &Q) -> Option<&V>
     where K: Borrow<Q>
-        , Q: Hash + Eq
-    {
+        , Q: Hash + Eq {
         if self.whiteouts.contains(key) {
             None
         } else {

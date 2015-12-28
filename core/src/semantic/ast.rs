@@ -28,7 +28,8 @@ use super::annotations::{ Annotated
                         , Scoped
                         };
 use super::types;
-use super::SymbolTable;
+use super::{SymbolTable, SymbolAnnotation};
+use ::{CompileResult, Errors};
 
 pub type Ident = Positional<String>;
 
@@ -37,7 +38,8 @@ pub type Expr<'a, S: ScopednessTypestate>
                , Form<'a, S>
                , S>;
 
-pub type Body<'a, S: ScopednessTypestate> = Vec<Expr<'a, S>>;
+pub type Body<'a, S: ScopednessTypestate>
+    = Vec<Expr<'a, S>>;
 
 pub type Bindings<'a, S: ScopednessTypestate>
     = Vec<Annotated<'a
@@ -94,8 +96,9 @@ pub trait AnnotateTypes<'a>: Sized {
 
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Module<'a, S: ScopednessTypestate>
-where S: 'a {
+pub struct Module<'a, S>
+where S: ScopednessTypestate
+    , S: 'a {
     pub name: Ident
   , pub exporting: Vec<Ident>
   , pub body: Body<'a, S>
@@ -110,14 +113,13 @@ where S: ScopednessTypestate
 
 }
 
-impl<'a> Scoped<'a, Module<'a, ScopedState>>{
+impl<'a> Scoped<'a, Module<'a, ScopedState>> {
 
     /// Returns true if the namespace contains a given name.
     pub fn contains_name<Q: ?Sized>(&self, name: &Q) -> bool
     where String: Borrow<Q>
         , String: PartialEq<Q>
-        , Q: Hash + Eq
-    {
+        , Q: Hash + Eq {
         self.is_defined_here(name) &&
         self.node.exporting
             .iter()
@@ -140,14 +142,47 @@ where S: ScopednessTypestate
        , else_clause: Option<Rc<Expr<'a, S>>>
        }
   , Let(LetForm<'a, S>)
-  , Call { fun: Ident
-         , body: Body<'a, S>
-         }
+  , App(AppForm<'a, S>)
   , Lambda(Function<'a, S>)
   , Logical(Logical<'a, S>)
+  , Num(NumExpr<'a, S>)
   , Lit(Literal)
   , NameRef(NameRef)
 }
+
+/// AST node for a function application
+#[derive(PartialEq, Clone, Debug)]
+pub struct AppForm<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { /// The name of the function being applied.
+              ///
+              /// Once we have constructed a complete list of defs (i.e.,
+              /// once we are in the scoped state) we can check that this
+              /// identifier is defined.
+              pub fun: Ident
+            , /// A list of parameters to the function application.
+              ///
+              /// Once we are in the scoped state we can check this for
+              /// validity against the function's definition.
+              pub params: Body<'a, S>
+            }
+
+impl<'a> Scoped<'a, AppForm<'a, ScopedState>> {
+
+    /// Get the function definition for the function that is being applied
+    pub fn get_fn_def(&self) -> CompileResult<&SymbolAnnotation> {
+        let ref name = *(self.node.fun);
+        self.symbol_table()
+            .get(name)
+            .ok_or(vec![self.map_pos(format!("Undefined function {}", name))])
+    }
+
+    /// Checks whether this call is valid for the function's definition
+    pub fn is_valid(&self) -> CompileResult<()> {
+        unimplemented!()
+    }
+}
+
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum NameRef { Owned(Ident)
@@ -429,14 +464,15 @@ where S: ScopednessTypestate
            Form::Define(ref form)  => form.to_sexpr(level)
          , Form::Let(ref form)     => form.to_sexpr(level)
          , Form::If { .. }         => unimplemented!()
-         , Form::Call { ref fun, ref body } =>
+         , Form::App(ref form)=>
                format!( "({} {})"
-                      , fun.to_sexpr(level)
-                      , concat_exprs!(body, level) )
+                      , form.fun.to_sexpr(level)
+                      , concat_exprs!(form.params, level) )
          , Form::Lambda(ref fun)   => fun.to_sexpr(level)
          , Form::Logical(ref form) => form.to_sexpr(level)
          , Form::Lit(ref c)   => format!("{}", c)
          , Form::NameRef(ref n)    => n.to_sexpr(level)
+         , Form::Num(ref n) => unimplemented!()
        }
    }
 
@@ -537,8 +573,7 @@ where S: ScopednessTypestate
 
 impl<'a, S> Node for Binding<'a, S>
 where S: ScopednessTypestate
-    , S: 'a
-{
+    , S: 'a {
     #[allow(unused_variables)]
     fn to_sexpr(&self, level: usize) -> String {
         unimplemented!()
@@ -570,3 +605,40 @@ impl Node for Ident {
     fn to_sexpr(&self, level: usize) -> String { self.value.clone() }
 
 }
+#[derive(PartialEq, Clone, Debug)]
+pub enum NumExpr<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { BOp(NumBOp<'a, S>)
+            , Neg(Box<NumExpr<'a, S>>)
+            , Lit(Literal)
+            , Deref(NameRef)
+            , Call(AppForm<'a, S>)
+            }
+
+
+/// Type for binary operators that yield a number
+#[derive(PartialEq, Clone, Debug)]
+pub enum NumBOp<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { Add(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , Sub(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , Mul(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , Div(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , BitAnd(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , BitOr(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , BitXor(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , ShiftL(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            , ShiftR(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+            }
+
+pub enum BoolBOp<'a, S>
+where S: ScopednessTypestate
+    , S: 'a { Lt(Expr<'a, S>, Expr<'a, S>)
+            , LtE(Expr<'a, S>, Expr<'a, S>)
+            , Gt(Expr<'a, S>, Expr<'a, S>)
+            , GtE(Expr<'a, S>, Expr<'a, S>)
+            , Equal(Expr<'a, S>, Expr<'a, S>)
+            , NEqual(Expr<'a, S>, Expr<'a, S>)
+            , And(Expr<'a, S>, Expr<'a, S>)
+            , Or(Expr<'a, S>, Expr<'a, S>)
+            }

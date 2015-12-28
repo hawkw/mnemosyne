@@ -28,6 +28,7 @@ use rustc::lib::llvm::{ ContextRef
 use errors::ExpectICE;
 use forktable::ForkTable;
 use position::Positional;
+use semantic::SymbolTable;
 use ast::{ Node
          , Form
          , DefForm
@@ -38,16 +39,17 @@ use semantic::annotations::{ ScopedState
                            , Scoped
                            };
 use semantic::types::*;
+use ::{CompileResult, Errors};
 
 /// Result type for compiling an AST node to LLVM IR
 ///
 /// An `IRResult` contains either a `ValueRef`, if compilation was successful,
 /// or a `Positional<String>` containing an error message and the position of
 /// the line of code which could not be compiled.
-pub type IRResult = Result<ValueRef, Vec<Positional<String>>>;
+pub type IRResult = CompileResult<ValueRef>;
 
 /// Result type for compiling a type to an LLVM `TypeRef`.
-pub type TypeResult = Result<TypeRef, Positional<String>>;
+pub type TypeResult = CompileResult<TypeRef>;
 
 pub type NamedValues<'a> = ForkTable<'a, &'a str, ValueRef>;
 
@@ -81,7 +83,8 @@ pub trait TranslateType {
     /// # Panics:
     ///   - In the event of an internal compiler error (i.e. if a well-formed
     ///     type could not be gotten from LLVM correctly).
-    fn translate_type(&self, context: &LLVMContext) -> TypeResult;
+    fn translate_type<'a>( &self, context: &LLVMContext
+                         , scope: &SymbolTable<'a> ) -> TypeResult;
 }
 
 /// LLVM compilation context.
@@ -217,11 +220,12 @@ impl<'a> Compile for Scoped<'a, Form<'a, ScopedState>> {
             Form::Define(ref form) => unimplemented!()
           , Form::Let(ref form) => unimplemented!()
           , Form::If { .. } => unimplemented!()
-          , Form::Call { .. } => unimplemented!()
+          , Form::App (ref form) => unimplemented!()
           , Form::Lambda(ref fun) => unimplemented!()
           , Form::Logical(ref exp) => unimplemented!()
           , Form::Lit(ref c) => unimplemented!()
           , Form::NameRef(ref form) => unimplemented!()
+          , Form::Num(ref n) => unimplemented!()
         }
     }
 }
@@ -245,7 +249,7 @@ impl<'a> Compile for Scoped<'a, DefForm<'a, ScopedState>> {
 impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
 
     fn to_ir(&self, context: &LLVMContext) -> IRResult {
-        let mut errs: Vec<Positional<String>> = vec![];
+        let mut errs: Errors = vec![];
         // Check to see if the pattern binds an equivalent number of arguments
         // as the function signature (minus one, which is the return type).
         for e in &self.equations {
@@ -282,31 +286,41 @@ impl<'a> Compile for Scoped<'a, Function<'a, ScopedState>> {
         try_vec!(errs);
 
         // Get the function's parameter types
-        let mut param_types = self.sig.param_types().iter()
-                                  .map(|ty| ty.translate_type(&context));
+        let mut param_types
+            = self.sig.param_types().iter()
+                      .map(|t|
+                            t.translate_type(&context, self.symbol_table()));
         unimplemented!()
     }
 
 }
 
 impl TranslateType for Type {
-    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
+    fn translate_type<'a>( &self, context: &LLVMContext
+                         , scope: &SymbolTable<'a> )
+                         -> TypeResult {
         match *self {
-            Type::Ref(ref reference)  => reference.translate_type(context)
-          , Type::Prim(ref primitive) => primitive.translate_type(context)
+            Type::Ref(ref reference)  =>
+                reference.translate_type(context, scope)
+          , Type::Prim(ref primitive) =>
+            primitive.translate_type(context, scope)
           , _ => unimplemented!() // TODO: figure this out
         }
     }
 }
 
 impl TranslateType for Reference {
-    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
+    fn translate_type<'a>( &self, context: &LLVMContext
+                         , scope: &SymbolTable<'a> )
+                         -> TypeResult {
         unimplemented!() // TODO: figure this out
     }
 }
 
 impl TranslateType for Primitive {
-    fn translate_type(&self, context: &LLVMContext) -> TypeResult {
+    fn translate_type<'a>( &self, context: &LLVMContext
+                         , scope: &SymbolTable<'a> )
+                         -> TypeResult {
         Ok(match *self { Primitive::IntSize => context.int_type(word_size())
                     , Primitive::UintSize   => context.int_type(word_size())
                     , Primitive::Int(bits)  => context.int_type(bits as usize)

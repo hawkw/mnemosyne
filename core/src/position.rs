@@ -83,14 +83,28 @@ pub struct Positional<T> { pub pos: Position
                          , pub value: T
                          }
 
-impl<T> Positional<T> {
+impl<A> Positional<A> {
+
     /// Create a new Positional marker at the given position.
-    pub fn at(col: i32, row: i32, value: T) -> Positional<T> {
+    #[inline]
+    pub fn at(col: i32, row: i32, value: A) -> Positional<A> {
         Positional { pos: Position::new(col, row)
                    , value: value }
     }
 
-    pub fn value(&self) -> &T { &self.value }
+    #[inline]
+    pub fn from(pos: Position, value: A) -> Positional<A> {
+        Positional { pos: pos, value: value }
+    }
+
+    /// Create a Positional wrapping a new value at the same position
+    #[inline]
+    pub fn map<B>(&self, value: B) -> Positional<B> {
+        Positional { pos: self.pos
+                   , value: value }
+    }
+
+    pub fn value(&self) -> &A { &self.value }
 }
 
 

@@ -42,6 +42,7 @@ pub fn mnemosyne_version() -> String {
     format!("Mnemosyne {}", env!("CARGO_PKG_VERSION"))
 }
 
+
 /// Macro for formatting an internal compiler error panic.
 ///
 /// This should be used instead of the Rust standard library's `panic!()`
@@ -76,3 +77,7 @@ pub mod chars;
 pub mod errors;
 
 pub use semantic::ast;
+
+
+pub type Errors = Vec<position::Positional<String>>;
+pub type CompileResult<T> = Result<T, Errors>;
