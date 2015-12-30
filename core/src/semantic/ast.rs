@@ -24,6 +24,7 @@ use ::chars;
 use ::position::Positional;
 use super::annotations::{ Annotated
                         , ScopednessTypestate
+                        , UnscopedState
                         , ScopedState
                         , Scoped
                         };
@@ -620,16 +621,23 @@ where S: ScopednessTypestate
 #[derive(PartialEq, Clone, Debug)]
 pub enum NumBOp<'a, S>
 where S: ScopednessTypestate
-    , S: 'a { Add(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , Sub(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , Mul(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , Div(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , BitAnd(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , BitOr(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , BitXor(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , ShiftL(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
-            , ShiftR(Box<NumExpr<'a, S>>, Box<NumExpr<'a, S>>)
+    , S: 'a { Add(Vec<NumExpr<'a, S>>)
+            , Sub(Vec<NumExpr<'a, S>>)
+            , Mul(Vec<NumExpr<'a, S>)
+            , Div(Vec<NumExpr<'a, S>>)
+            , BitAnd(Vec<NumExpr<'a, S>>)
+            , BitOr(Vec<NumExpr<'a, S>>)
+            , BitXor(Vec<NumExpr<'a, S>>)
+            , ShiftL(Vec<NumExpr<'a, S>>)
+            , ShiftR(Vec<NumExpr<'a, S>>)
             }
+
+impl<'a> NumExpr<'a, UnscopedState> {
+
+    pub fn new(exps: Vec<NumExpr<'a, UnscopedState>) -> Self {
+        unimplemented!()
+    }
+}
 
 pub enum BoolBOp<'a, S>
 where S: ScopednessTypestate
