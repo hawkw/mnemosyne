@@ -623,7 +623,7 @@ pub enum NumBOp<'a, S>
 where S: ScopednessTypestate
     , S: 'a { Add(Vec<NumExpr<'a, S>>)
             , Sub(Vec<NumExpr<'a, S>>)
-            , Mul(Vec<NumExpr<'a, S>)
+            , Mul(Vec<NumExpr<'a, S>>)
             , Div(Vec<NumExpr<'a, S>>)
             , BitAnd(Vec<NumExpr<'a, S>>)
             , BitOr(Vec<NumExpr<'a, S>>)
@@ -632,10 +632,61 @@ where S: ScopednessTypestate
             , ShiftR(Vec<NumExpr<'a, S>>)
             }
 
+trait MaybeConst {
+    fn is_const(&self) -> bool;
+}
+
+impl<'a, S> MaybeConst for NumExpr<'a, S>
+where S: ScopednessTypestate {
+
+    #[inline] fn is_const(&self) -> bool {
+        match self {
+            &NumExpr::Lit(_)       => true
+          , &NumExpr::Neg(ref neg) => neg.is_const()
+          , &NumExpr::BOp(ref bop) => bop.is_const()
+          , _ => false
+        }
+    }
+}
+
+impl<'a, S> MaybeConst for Vec<NumExpr<'a, S>>
+where S: ScopednessTypestate {
+
+    #[inline] fn is_const(&self) -> bool {
+        self.iter().all(|expr| match expr {
+            &NumExpr::Lit(_)       => true
+          , &NumExpr::Neg(ref neg) => neg.is_const()
+          , &NumExpr::BOp(ref bop) => bop.is_const()
+          , _ => false
+        })
+    }
+}
+
+impl<'a, S> MaybeConst for NumBOp<'a, S>
+where S: ScopednessTypestate {
+
+    #[inline] fn is_const(&self) -> bool {
+        match self { &NumBOp::Add(ref operands) => operands.is_const()
+                   , &NumBOp::Sub(ref operands) => operands.is_const()
+                   , &NumBOp::Mul(ref operands) => operands.is_const()
+                   , &NumBOp::Div(ref operands) => operands.is_const()
+                   , &NumBOp::BitAnd(ref operands) => operands.is_const()
+                   , &NumBOp::BitOr(ref operands) => operands.is_const()
+                   , &NumBOp::BitXor(ref operands) => operands.is_const()
+                   , &NumBOp::ShiftL(ref operands) => operands.is_const()
+                   , &NumBOp::ShiftR(ref operands) => operands.is_const()
+                }
+    }
+}
+
+
 impl<'a> NumExpr<'a, UnscopedState> {
 
-    pub fn new(exps: Vec<NumExpr<'a, UnscopedState>) -> Self {
-        unimplemented!()
+    pub fn new(op: String, exps: Vec<NumExpr<'a, UnscopedState>>) -> Self {
+        match op.as_ref() {
+            "+" if exps.is_const() => unimplemented!()
+            , _ => unimplemented!()
+        }
     }
 }
 
