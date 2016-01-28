@@ -33,8 +33,6 @@ extern crate combine;
 
 use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
 
-use std::fmt::Debug;
-
 // include!(concat!(env!("OUT_DIR"), "/gen.rs"));
 
 /// Returns the Mnemosyne version as a String
@@ -44,7 +42,9 @@ pub fn mnemosyne_version() -> String {
 
 /// Returns the current LLVM version as a String
 pub fn llvm_version() -> String {
-    format!("LLVM v{}.{}", LLVMVersionMajor, LLVMVersionMinor)
+    unsafe {
+        format!("LLVM v{}.{}", LLVMVersionMajor(), LLVMVersionMinor())
+    }
 }
 
 /// Macro for formatting an internal compiler error panic.
