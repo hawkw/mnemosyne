@@ -35,7 +35,7 @@ use rustc::lib::llvm::{LLVMVersionMajor, LLVMVersionMinor};
 
 use std::fmt::Debug;
 
-include!(concat!(env!("OUT_DIR"), "/gen.rs"));
+// include!(concat!(env!("OUT_DIR"), "/gen.rs"));
 
 /// Returns the Mnemosyne version as a String
 pub fn mnemosyne_version() -> String {
@@ -81,7 +81,4 @@ pub mod chars;
 pub mod errors;
 
 pub use semantic::ast;
-
-
-pub type Errors = Vec<position::Positional<String>>;
-pub type CompileResult<T> = Result<T, Errors>;
+pub use errors;
