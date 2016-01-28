@@ -8,8 +8,6 @@
 //  or at https://github.com/hawkw/mnemosyne/.
 //
 //! Mnemosyne semantic analysis
-use std::iter;
-use std::fmt::Write;
 use std::rc::Rc;
 
 use ::forktable::ForkTable;
