@@ -42,6 +42,10 @@ pub fn mnemosyne_version() -> String {
     format!("Mnemosyne {}", env!("CARGO_PKG_VERSION"))
 }
 
+/// Returns the current LLVM version as a String
+pub fn llvm_version() -> String {
+    format!("LLVM v{}.{}", LLVMVersionMajor, LLVMVersionMinor)
+}
 
 /// Macro for formatting an internal compiler error panic.
 ///
