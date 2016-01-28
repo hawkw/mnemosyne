@@ -11,6 +11,11 @@
 
 use std::fmt::{ Display, Debug };
 
+use ::position::Positional;
+
+pub type Errors = Vec<Positional<String>>;
+pub type CompileResult<T> = Result<T, Errors>;
+
 /// Wraps Option/Result with an `expect_ice()` method.
 ///
 /// The `expect_ice()` method functions similarly to the standard library's

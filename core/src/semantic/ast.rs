@@ -675,7 +675,7 @@ where S: ScopednessTypestate {
                    , &NumBOp::BitXor(ref operands) => operands.is_const()
                    , &NumBOp::ShiftL(ref operands) => operands.is_const()
                    , &NumBOp::ShiftR(ref operands) => operands.is_const()
-                }
+                   }
     }
 }
 

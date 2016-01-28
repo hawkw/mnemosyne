@@ -81,4 +81,4 @@ pub mod chars;
 pub mod errors;
 
 pub use semantic::ast;
-pub use errors;
+pub use self::errors::*;
