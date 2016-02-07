@@ -11,6 +11,7 @@ use rustc::lib::llvm;
 use rustc::lib::llvm::*;
 
 use std::ffi::CString;
+use std::mem::transmute;
 
 use libc::{c_char, c_uint};
 
@@ -205,6 +206,27 @@ impl Builder {
                                             , else_block.to_ref()
                                             , num_cases))
         }
+    }
+
+    pub fn build_invoke( &mut self
+                       , function: Value
+                       , args: &mut [Value]
+                       , then_block: &BasicBlock
+                       , catch_block: &BasicBlock
+                       , name: &str )
+                       -> Value {
+        let cname = CString::new(name).unwrap_ice().as_ptr();
+        unsafe {
+            let args_ref = transmute::<&mut [Value], &mut [ValueRef]>(args)
+                            .as_ptr();
+            let val = LLVMBuildInvoke( self.to_ref()
+                                     , function.to_ref()
+                                     , args_ref, args.len() as c_uint
+                                     , then_block.to_ref()
+                                     , catch_block.to_ref()
+                                     , cname as *const c_char);
+        }
+        Value::from_ref(val)
     }
 
 }
