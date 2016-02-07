@@ -10,7 +10,11 @@
 use rustc::lib::llvm;
 use rustc::lib::llvm::*;
 
-use std::ops::DerefMut;
+use std::ffi::CString;
+
+use libc::{c_char, c_uint};
+
+use ::errors::{ExpectICE, UnwrapICE};
 
 // pub struct Context(llvm::ContextRef);
 //
@@ -101,6 +105,7 @@ impl Builder {
         unsafe { LLVMPositionBuilderAtEnd(self.to_ref(), block.to_ref()) }
         self
     }
+
     //---- insertion ----------------------------------------------------------
     pub fn get_insert_block(&mut self) -> BasicBlock {
         unsafe { BasicBlock::from_ref(LLVMGetInsertBlock(self.to_ref())) }
@@ -115,9 +120,12 @@ impl Builder {
     }
     pub fn insert_with_name(&mut self, inst: &mut Value, name: &str)
                             -> &mut Self {
-        let name = CString::new(name).unwrap_ice();
+        let cname = CString::new(name).expect_ice(
+                    format!("Couldn't create CString for {}", name).as_ref());
         unsafe {
-            LLVMInsertIntoBuilderWithName(&self.to_ref(), inst.to_ref(), name)
+            LLVMInsertIntoBuilderWithName( self.to_ref()
+                                         , inst.to_ref()
+                                         , cname.as_ptr() as *const c_char)
         }
         self
     }
