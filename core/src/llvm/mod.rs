@@ -95,11 +95,13 @@ impl Builder {
         }
         self
     }
+
     /// Wrapper for `LLVMPositionBuilderBefore`.
     pub fn position_before(&mut self, inst: &Value) -> &mut Self {
         unsafe { LLVMPositionBuilderBefore(self.to_ref(), inst.to_ref()) }
         self
     }
+
     /// Wrapper for `LLVMPositionBuilderAtEnd`.
     pub fn position_at_end(&mut self, block: &mut BasicBlock) -> &mut Self {
         unsafe { LLVMPositionBuilderAtEnd(self.to_ref(), block.to_ref()) }
@@ -110,14 +112,17 @@ impl Builder {
     pub fn get_insert_block(&mut self) -> BasicBlock {
         unsafe { BasicBlock::from_ref(LLVMGetInsertBlock(self.to_ref())) }
     }
+
     pub fn clear_insertion_position(&mut self) -> &mut Self {
         unsafe { LLVMClearInsertionPosition(self.to_ref()) }
         self
     }
+
     pub fn insert(&mut self, inst: &mut Value) -> &mut Self {
         unsafe { LLVMInsertIntoBuilder(self.to_ref(), inst.to_ref()) }
         self
     }
+
     pub fn insert_with_name(&mut self, inst: &mut Value, name: &str)
                             -> &mut Self {
         let cname = CString::new(name).expect_ice(
@@ -129,4 +134,49 @@ impl Builder {
         }
         self
     }
+    //---- building ----------------------------------------------------------
+    pub fn build_ret_void(&mut self) -> Value {
+        unsafe { Value::from_ref( LLVMBuildRetVoid(self.to_ref()) ) }
+    }
+
+    pub fn build_ret(&mut self, v: &Value) -> Value {
+        unsafe {
+            Value::from_ref( LLVMBuildRet(self.to_ref(), value.to_ref()) )
+        }
+    }
+
+    pub fn build_br(&mut self, dest: &BasicBlock) -> Value {
+        unsafe {
+            Value::from_ref( LLVMBuildBr(self.to_ref(), dest.to_ref()) )
+        }
+    }
+
+    pub fn build_cond_br( &mut self
+                        , condition: Value
+                        , then_block: &BasicBlock
+                        , else_block: &BasicBlock )
+                        -> Value {
+        unsafe {
+            let val = LLVMBuildCondBr( self.to_ref()
+                                     , condition.to_ref()
+                                     , then_block.to_ref()
+                                     , else_block.to_ref() );
+        }
+        Value::from_ref(val)
+    }
+
+    pub fn build_switch_br( &mut self
+                          , on: Value
+                          , else_block: &BasicBlock
+                          , num_cases: u32 )
+                          -> Value {
+        unsafe {
+            Value::from_ref(LLVMBuildSwitch( self.to_ref()
+                                            , on.to_ref()
+                                            , else_block.to_ref()
+                                            , num_cases))
+        }
+
+    }
+
 }
