@@ -35,9 +35,8 @@ trait LLVMWrapper {
     fn from_ref(r: Self::Ref) -> Self;
 }
 
-macro_rules! llvm_wrappers {
-    ( $($name:ident wrapping $wrapped:path),*) =>
-    {$(
+macro_rules! llvm_wrapper {
+    ( $($name:ident wrapping $wrapped:path),*) => {$(
         pub struct $name ($wrapped);
 
         impl LLVMWrapper for $name {
@@ -51,12 +50,24 @@ macro_rules! llvm_wrappers {
                 $name( not_null!(r) )
             }
         }
+    )*};
+    ( $($name:ident wrapping $wrapped:path, dropped by $drop:path),*) => {$(
+        llvm_wrapper!{ $name wrapping $wrapped }
+
+        impl Drop for $name {
+            fn drop(&mut self) {
+                unsafe { $drop(self.0) }
+            }
+        }
     )*}
 }
 
-llvm_wrappers! {
-    Context wrapping llvm::ContextRef,
-    Builder wrapping llvm::BuilderRef,
+llvm_wrapper! {
+    Context wrapping llvm::ContextRef, dropped by llvm::LLVMContextDispose,
+    Builder wrapping llvm::BuilderRef, dropped by llvm::LLVMDisposeBuilder
+}
+
+llvm_wrapper! {
     BasicBlock wrapping llvm::BasicBlockRef,
     Value wrapping llvm::ValueRef
 }
