@@ -181,8 +181,8 @@ impl Builder {
                                      , condition.to_ref()
                                      , then_block.to_ref()
                                      , else_block.to_ref() );
+            Value::from_ref(val)
         }
-        Value::from_ref(val)
     }
 
     /// Create a switch instruction.
@@ -225,8 +225,8 @@ impl Builder {
                                      , then_block.to_ref()
                                      , catch_block.to_ref()
                                      , cname as *const c_char);
+            Value::from_ref(val)
         }
-        Value::from_ref(val)
     }
 
 }
