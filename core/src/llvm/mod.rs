@@ -147,7 +147,7 @@ impl Builder {
     ///     - `v`: the `Value` to return
     pub fn build_ret(&mut self, v: &Value) -> Value {
         unsafe {
-            Value::from_ref( LLVMBuildRet(self.to_ref(), value.to_ref()) )
+            Value::from_ref( LLVMBuildRet(self.to_ref(), v.to_ref()) )
         }
     }
 
