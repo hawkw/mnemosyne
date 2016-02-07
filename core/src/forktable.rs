@@ -68,7 +68,7 @@ where K: Eq + Hash
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -76,7 +76,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get(&1), Some(&"One"));
     /// assert_eq!(table.get(&2), None);
     /// ```
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -122,7 +122,7 @@ where K: Eq + Hash
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get_mut(&1), None);
@@ -130,7 +130,7 @@ where K: Eq + Hash
     /// assert_eq!(table.get_mut(&1), Some(&mut "One"));
     /// assert_eq!(table.get_mut(&2), None);
     /// ```
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -170,7 +170,7 @@ where K: Eq + Hash
     ///     table, or `None` if there is no entry for that key.
     ///
     /// # Examples
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// table.insert(1, "One");
@@ -178,7 +178,7 @@ where K: Eq + Hash
     /// assert_eq!(table.remove(&1), Some("One"));
     /// assert_eq!(table.contains_key(&1), false);
     /// ```
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// level_1.insert(1, "One");
@@ -248,7 +248,7 @@ where K: Eq + Hash
     ///
     /// Simply inserting an entry:
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -258,7 +258,7 @@ where K: Eq + Hash
     ///
     /// Overwriting the value associated with a key:
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.get(&1), None);
@@ -291,14 +291,14 @@ where K: Eq + Hash
     ///    table, `false` if it does not.
     ///
     /// # Examples
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.contains_key(&1), true);
     /// ```
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.contains_key(&1), false);
@@ -333,14 +333,14 @@ where K: Eq + Hash
     ///    `false` if it does not.
     ///
     /// # Examples
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut table: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(table.chain_contains_key(&1), false);
     /// table.insert(1, "One");
     /// assert_eq!(table.chain_contains_key(&1), true);
     /// ```
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::forktable::ForkTable;
     /// let mut level_1: ForkTable<isize,&str> = ForkTable::new();
     /// assert_eq!(level_1.chain_contains_key(&1), false);
@@ -404,7 +404,7 @@ where K: Eq + Hash
 ///
 /// This is just a wrapper for `get(&key)`
 ///
-/// ```ignore
+/// ```
 /// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");
@@ -429,7 +429,7 @@ where K: Borrow<Q>
 ///
 /// This is just a wrapper for `get_mut(&key)`
 ///
-/// ```ignore
+/// ```
 /// # use mnemosyne::forktable::ForkTable;
 /// let mut table: ForkTable<isize,&str> = ForkTable::new();
 /// table.insert(1, "One");

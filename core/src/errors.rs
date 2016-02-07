@@ -35,13 +35,13 @@ impl<T> ExpectICE<T> for Option<T> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::errors::ExpectICE;
     /// let x = Some("value");
     /// assert_eq!(x.expect_ice("the world is ending"), "value");
     /// ```
     ///
-    /// ```ignore
+    /// ```{.should_panic}
     /// # use mnemosyne::errors::ExpectICE;
     /// let x: Option<&str> = None;
     /// x.expect_ice("the world is ending");
@@ -64,7 +64,7 @@ where E: Debug {
     /// passed message, and the content of the `Err`.
     ///
     /// # Examples
-    /// ```ignore
+    /// ```{.should_panic}
     /// # use mnemosyne::errors::ExpectICE;
     /// let x: Result<u32, &str> = Err("emergency failure");
     /// x.expect_ice("Testing expect");
@@ -103,13 +103,13 @@ impl<T> UnwrapICE<T> for Option<T> {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x = Some("air");
     /// assert_eq!(x.unwrap_ice(), "air");
     /// ```
     ///
-    /// ```ignore
+    /// ```{.should_panic}
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Option<&str> = None;
     /// assert_eq!(x.unwrap_ice(), "air"); // fails
@@ -137,13 +137,13 @@ where E: Display  {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Result<u32, &str> = Ok(2);
     /// assert_eq!(x.unwrap_ice(), 2);
     /// ```
     ///
-    /// ```ignore
+    /// ```{.should_panic}
     /// # use mnemosyne::errors::UnwrapICE;
     /// let x: Result<u32, &str> = Err("emergency failure");
     /// x.unwrap_ice(); // panics

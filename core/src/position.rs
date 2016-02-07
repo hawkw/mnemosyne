@@ -45,7 +45,7 @@ impl From<SourcePosition> for Position {
     /// Create a new `Position` from a `combine` `SourcePosition`.
     ///
     /// # Example
-    /// ```ignore
+    /// ```
     /// # extern crate combine;
     /// # extern crate mnemosyne;
     /// # use combine::primitives::SourcePosition;
@@ -62,7 +62,7 @@ impl From<(i32,i32)> for Position {
     /// Create a new `Position` from a tuple of i32s.
     ///
     /// # Example
-    /// ```ignore
+    /// ```
     /// # use mnemosyne::position::Position;
     /// let tuple: (i32,i32) = (1,1);
     /// assert_eq!(Position::from(tuple), Position::new(1,1));
