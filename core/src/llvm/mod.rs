@@ -135,22 +135,41 @@ impl Builder {
         self
     }
     //---- building ----------------------------------------------------------
+    /// Create a `ret void` return instruction.
     pub fn build_ret_void(&mut self) -> Value {
         unsafe { Value::from_ref( LLVMBuildRetVoid(self.to_ref()) ) }
     }
 
+    /// Create a `ret <value>` instruction.
+    ///
+    /// # Arguments:
+    ///     - `v`: the `Value` to return
     pub fn build_ret(&mut self, v: &Value) -> Value {
         unsafe {
             Value::from_ref( LLVMBuildRet(self.to_ref(), value.to_ref()) )
         }
     }
 
+    /// Create an unconditional branch `br label X` instruction.
+    ///
+    /// # Arguments:
+    ///     - `dest` the `BasicBlock` to branch to
     pub fn build_br(&mut self, dest: &BasicBlock) -> Value {
         unsafe {
             Value::from_ref( LLVMBuildBr(self.to_ref(), dest.to_ref()) )
         }
     }
 
+    /// Create a conditional branch instruction.
+    ///
+    /// # Returns:
+    /// A conditional branch instruction of the form
+    /// `br $condition, $then_block, $else_block`.
+    ///
+    /// # Arguments:
+    ///     - `condition`: the condition to test
+    ///     - `then_block`: the block to branch to if the condition is true
+    ///     - `else_block`: the block to branch to if the condition is false
     pub fn build_cond_br( &mut self
                         , condition: Value
                         , then_block: &BasicBlock
@@ -165,6 +184,16 @@ impl Builder {
         Value::from_ref(val)
     }
 
+    /// Create a switch instruction.
+    ///
+    /// # Returns:
+    /// A switch instruction with the specified value and default destination.
+    ///
+    /// # Arguments:
+    ///     - `on`: the `Value` to switch on
+    ///     - `else_block`: a `BasicBlock` representing the default destination
+    ///     - `num_cases`: a hint towards the number of cases in the switch
+    ///       expression (for more efficient allocation)
     pub fn build_switch_br( &mut self
                           , on: Value
                           , else_block: &BasicBlock
@@ -176,7 +205,6 @@ impl Builder {
                                             , else_block.to_ref()
                                             , num_cases))
         }
-
     }
 
 }
