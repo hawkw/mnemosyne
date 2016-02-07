@@ -76,6 +76,7 @@ macro_rules! ice {
 pub mod position;
 pub mod semantic;
 pub mod compile;
+pub mod llvm;
 pub mod forktable;
 pub mod chars;
 pub mod errors;
