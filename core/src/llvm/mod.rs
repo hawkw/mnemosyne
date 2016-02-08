@@ -143,8 +143,9 @@ impl Builder {
 
     /// Create a `ret <value>` instruction.
     ///
-    /// # Arguments:
-    ///   - `v`: the `Value` to return
+    /// # Arguments
+    ///
+    ///  + `v`: the `Value` to return
     pub fn build_ret(&mut self, v: &Value) -> Value {
         unsafe {
             Value::from_ref( LLVMBuildRet(self.to_ref(), v.to_ref()) )
@@ -153,8 +154,12 @@ impl Builder {
 
     /// Create an unconditional branch `br label X` instruction.
     ///
-    /// # Arguments:
-    ///   - `dest` the `BasicBlock` to branch to
+    /// # Arguments
+    ///
+    ///  + `dest` the `BasicBlock` to branch to.
+    ///
+    /// # Return Value
+    ///  An unconditional branch `br` instruction.
     pub fn build_br(&mut self, dest: &BasicBlock) -> Value {
         unsafe {
             Value::from_ref( LLVMBuildBr(self.to_ref(), dest.to_ref()) )
@@ -163,14 +168,16 @@ impl Builder {
 
     /// Create a conditional branch instruction.
     ///
-    /// # Returns:
+    /// # Arguments
+    ///
+    ///  + `condition`: the condition to test
+    ///  + `then_block`: the block to branch to if the condition is true
+    ///  + `else_block`: the block to branch to if the condition is false
+    ///
+    ///  # Returns Value
+    ///
     /// A conditional branch instruction of the form
     /// `br $condition, $then_block, $else_block`.
-    ///
-    /// # Arguments:
-    ///   - `condition`: the condition to test
-    ///   - `then_block`: the block to branch to if the condition is true
-    ///   - `else_block`: the block to branch to if the condition is false
     pub fn build_cond_br( &mut self
                         , condition: Value
                         , then_block: &BasicBlock
@@ -187,14 +194,16 @@ impl Builder {
 
     /// Create a switch instruction.
     ///
-    /// # Returns:
-    /// A switch instruction with the specified value and default destination.
+    /// # Arguments
     ///
-    /// # Arguments:
-    ///   - `on`: the `Value` to switch on
-    ///   - `else_block`: a `BasicBlock` representing the default destination
-    ///   - `num_cases`: a hint towards the number of cases in the switch
-    ///                  expression (for more efficient allocation)
+    ///  + `on`: the `Value` to switch on
+    ///  + `else_block`: a `BasicBlock` representing the default destination
+    ///  + `num_cases`: a hint towards the number of cases in the switch
+    ///                 expression (for more efficient allocation)
+    ///
+    /// # Return Value
+    ///
+    /// A switch instruction with the specified value and default destination.
     pub fn build_switch_br( &mut self
                           , on: Value
                           , else_block: &BasicBlock
@@ -208,6 +217,19 @@ impl Builder {
         }
     }
 
+    /// Create a function invocation instruction.
+    ///
+    /// # Arguments
+    ///
+    ///  + `function`: the function to invoke
+    ///  + `args': the arguments to `function`
+    ///  + `then_block`:
+    ///  + `catch_block`:
+    ///  + `name`: the name of the instruction.
+    ///
+    /// # Return Value
+    ///
+    /// A function invocation instruction.
     pub fn build_invoke( &mut self
                        , function: Value
                        , args: &mut [Value]
@@ -227,6 +249,14 @@ impl Builder {
                                      , cname as *const c_char);
             Value::from_ref(val)
         }
+    }
+
+    pub fn build_resume(&mut self, ex: Value) -> Value {
+        unsafe { Value::from_ref(LLVMBuildResume(self.to_ref(), ex.to_ref())) }
+    }
+
+    pub fn build_unreachable(&mut self) -> Value {
+        unsafe { Value::from_ref(LLVMBuildUnreachable(self.to_ref()) }
     }
 
 }
