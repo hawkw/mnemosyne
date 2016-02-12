@@ -244,6 +244,7 @@ impl Builder {
     ///  + `then_block`:
     ///  + `catch_block`:
     ///  + `name`: the name of the instruction.
+    ///  + `bundle`:
     ///
     /// # Return Value
     ///
@@ -271,6 +272,59 @@ impl Builder {
         }
     }
 
+    /// Create landing pad
+    ///
+    // TODO: do we even want to support this? We don't have checked exns
+    pub fn build_landing_pad( &mut self
+                            , ty: TypeRef
+                            , pers_fn: Value
+                            , num_clauses: usize
+                            , name: &str
+                            , f: Value)
+                            -> Value {
+        let cname = CString::new(name).unwrap_ice().as_ptr();
+        unsafe {
+            Value::from_ref(
+                LLVMRustBuildLandingPad( self.to_ref()
+                                       , ty
+                                       , pers_fn.to_ref()
+                                       , num_clauses as c_uint
+                                       , cname as *const c_char
+                                       , f.to_ref() )
+            )
+        }
+    }
+
+
+    pub fn build_cleanup_pad( &mut self
+                            , parent_pad: Value
+                            , args: &mut [Value]
+                            , name: &str )
+                            -> Value {
+        let cname = CString::new(name).unwrap_ice().as_ptr();
+        unsafe {
+            let args_ref = transmute::<&mut [Value], &mut [ValueRef]>(args);
+            Value::from_ref(
+                LLVMRustBuildCleanupPad( self.to_ref()
+                                       , parent_pad.to_ref()
+                                       , args_ref.len() as c_uint
+                                       , args_ref.as_ptr()
+                                       , cname as *const c_char ))
+        }
+    }
+
+    pub fn build_cleanup_ret( &mut self
+                            , cleanup_pad: Value
+                            , unwind_blk: BasicBlock )
+                            -> Value {
+        unsafe {
+            Value::from_ref(LLVMRustBuildCleanupRet( self.to_ref()
+                                                   , cleanup_pad.to_ref()
+                                                   , unwind_blk.to_ref() ))
+        }
+    }
+
+
     pub fn build_resume(&mut self, ex: Value) -> Value {
         unsafe { Value::from_ref(LLVMBuildResume(self.to_ref(), ex.to_ref())) }
     }
@@ -278,5 +332,6 @@ impl Builder {
     pub fn build_unreachable(&mut self) -> Value {
         unsafe { Value::from_ref(LLVMBuildUnreachable(self.to_ref())) }
     }
+
 
 }
