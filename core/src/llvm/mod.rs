@@ -68,8 +68,12 @@ macro_rules! llvm_wrapper {
 }
 
 llvm_wrapper! {
-    Context wrapping llvm::ContextRef, dropped by llvm::LLVMContextDispose,
-    Builder wrapping llvm::BuilderRef, dropped by llvm::LLVMDisposeBuilder
+    Context wrapping llvm::ContextRef,
+        dropped by llvm::LLVMContextDispose,
+    Builder wrapping llvm::BuilderRef,
+        dropped by llvm::LLVMDisposeBuilder,
+    OperandBundle wrapping llvm::OperandBundleDefRef,
+        dropped by llvm::LLVMRustFreeOperandBundleDef
 }
 
 llvm_wrapper! {
@@ -78,10 +82,24 @@ llvm_wrapper! {
 }
 
 impl Context {
-    /// Construct a new Builder within this `Context`.
+    /// Construct a new `Builder` within this `Context`.
     pub fn create_builder(&self) -> Builder {
         unsafe {
             Builder::from_ref(LLVMCreateBuilderInContext(self.to_ref()))
+        }
+    }
+}
+
+impl OperandBundle {
+    /// Construct a new `OperandBundle`
+    pub fn new(name: &str, vals: &mut [Value]) -> Self {
+        let cname = CString::new(name).unwrap_ice();
+        unsafe {
+            let vals_ref = transmute::<&mut [Value], &mut [ValueRef]>(vals);
+            let def = LLVMRustBuildOperandBundleDef( cname.as_ptr()
+                                                   , vals_ref.as_ptr()
+                                                   , vals_ref.len() as c_uint);
+            OperandBundle(def)
         }
     }
 }
@@ -235,18 +253,20 @@ impl Builder {
                        , args: &mut [Value]
                        , then_block: &BasicBlock
                        , catch_block: &BasicBlock
+                       , bundle: &OperandBundle
                        , name: &str )
                        -> Value {
         let cname = CString::new(name).unwrap_ice().as_ptr();
         unsafe {
             let args_ref = transmute::<&mut [Value], &mut [ValueRef]>(args)
                             .as_ptr();
-            let val = LLVMBuildInvoke( self.to_ref()
-                                     , function.to_ref()
-                                     , args_ref, args.len() as c_uint
-                                     , then_block.to_ref()
-                                     , catch_block.to_ref()
-                                     , cname as *const c_char);
+            let val = LLVMRustBuildInvoke( self.to_ref()
+                                         , function.to_ref()
+                                         , args_ref, args.len() as c_uint
+                                         , then_block.to_ref()
+                                         , catch_block.to_ref()
+                                         , bundle.to_ref()
+                                         , cname as *const c_char);
             Value::from_ref(val)
         }
     }
@@ -256,7 +276,7 @@ impl Builder {
     }
 
     pub fn build_unreachable(&mut self) -> Value {
-        unsafe { Value::from_ref(LLVMBuildUnreachable(self.to_ref()) }
+        unsafe { Value::from_ref(LLVMBuildUnreachable(self.to_ref())) }
     }
 
 }
