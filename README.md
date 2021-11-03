@@ -1,6 +1,8 @@
 Mnemosyne
 =========
 
+**:warning: THIS PROJECT IS NO LONGER MAINTAINED :warning:** You probably don't want to use this, as it doesn't really do anything of value and I haven't been working on it for over six years. Probably use Rust or something instead.
+
 [![Travis build status](https://img.shields.io/travis/hawkw/mnemosyne/master.svg?style=flat-square)](https://travis-ci.org/hawkw/mnemosyne)
 [![Coverage](https://img.shields.io/codecov/c/github/mnemosyne/master.svg?style=flat-square)](http://codecov.io/github/hawkw/mnemosyne?branch=master)
 [![GitHub license](https://img.shields.io/github/license/hawkw/mnemosyne.svg?style=flat-square)](https://github.com/hawkw/mnemosyne/blob/master/LICENSE)
@@ -12,7 +14,7 @@ This repository contains `mnemosyne`, the Mnemosyne compiler implemented as a li
 
 **Note**: Mnemosyne is currently highly experimental and in the early phases of development. Input and feedback from users is welcomed at all stages during the design and implementation process. However, please note that as Mnemosyne continues to grow and evolve, no guarantees are made of stability or backwards compatibility. Until the release of v1.0 of Mnemosyne, code may break or change in behaviour with little or no warning, and it is legal for Mnemosyne to [make demons fly out of your nose](http://www.catb.org/jargon/html/N/nasal-demons.html).
 
-Mnemosyne is being developed and implemented by [Hawk Weisman](http://hawkweisman.me) as [senior thesis research](https://github.com/hawkw/senior-thesis) at Allegheny College.
+Mnemosyne is being developed and implemented by [Eliza Weisman](http://elizas.website) as [senior thesis research](https://github.com/hawkw/senior-thesis) at Allegheny College.
 
 
 About Mnemosyne
